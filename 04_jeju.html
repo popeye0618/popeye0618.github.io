@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>같이가는 제주 · 천승환 포트폴리오</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="project.css">
+</head>
+<body data-accent="purple">
+
+<nav>
+    <div class="wrap">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">← 천승환 / Backend</a>
+            <div class="nav-links">
+                <a href="01_comatching3.html">01</a>
+                <a href="02_comatching5.html">02</a>
+                <a href="03_harucut.html">03</a>
+                <a href="04_jeju.html" class="active">04</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="hero project-hero">
+    <div class="wrap">
+        <div class="eyebrow fu">Project 04 · AI Harness Engineering</div>
+        <h1 class="fu fu1">
+            같이가는 제주<br>
+            <span class="line2">AI 하네스 엔지니어링이 적용된 백엔드</span>
+        </h1>
+        <p class="hero-desc fu fu2">
+            "혼자 짜는 게 아니라 <strong>AI 를 얼마나 잘 쓰느냐</strong>" — 2026 한국관광공사 공모전 출품작.
+            무장애 여행 일정 설계 서비스를 개발하면서, <strong>Claude AI 에이전트를 개발 파트너로 정식 편입</strong>시키고
+            그 협업 품질을 <strong>명세 · 에이전트 · 스킬 · 메타평가</strong> 4개 레이어로 관리한 기록입니다.
+        </p>
+        <div class="meta-row fu fu3">
+            <div class="meta-item">
+                <div class="meta-lbl">Position</div>
+                <div class="meta-val">Backend + AI 협업 환경 설계</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">Period</div>
+                <div class="meta-val">2026 · 공모전 일정</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">Status</div>
+                <div class="meta-val" style="color: var(--purple);">● In Progress</div>
+            </div>
+        </div>
+        <div class="stack-row fu fu4">
+            <span class="chip">Java 21</span>
+            <span class="chip">Spring Boot 4.0.5</span>
+            <span class="chip">Gradle 9.4.1</span>
+            <span class="chip">Spring Security</span>
+            <span class="chip">JPA</span>
+            <span class="chip">Redis</span>
+            <span class="chip">H2 / MySQL</span>
+            <span class="chip">OAuth2 (Kakao · Google)</span>
+            <span class="chip">JWT</span>
+            <span class="chip">Claude AI Agent</span>
+        </div>
+        <p class="hero-desc fu fu2" style="margin-top: 24px; color: var(--muted); font-size: 14px;">
+            ※ 이 프로젝트는 <strong>기술 깊이보다 "AI 하네스 엔지니어링" 역량</strong>을 보여주는 데 초점이 맞춰져 있습니다.
+            백엔드 기술 깊이는 앞선 세 프로젝트에서 입증되었다고 보고, 여기서는
+            <strong>AI 코딩 에이전트와 함께 개발할 때 어떤 환경을 설계해야 생산성 · 품질이 올라가는가</strong> 를 실험한 과정을 정리합니다.
+        </p>
+    </div>
+</div>
+
+<section class="arch-section">
+    <div class="wrap">
+        <div class="sec-label">AI Harness Architecture · 4단 레이어</div>
+        <div class="arch-box">
+            <div class="sys-arch">
+                <!-- Developer Layer -->
+                <div class="arch-layer">
+                    <div class="arch-node">
+                        <div class="node-label">Developer</div>
+                        <div class="node-title">나</div>
+                        <div class="node-sub">"무엇을 만들지" 만 결정</div>
+                    </div>
+                </div>
+
+                <div class="arch-arrow">요구사항 · 리뷰</div>
+
+                <!-- AI Agent Layer -->
+                <div class="arch-layer">
+                    <div class="arch-node arch-node-wide">
+                        <div class="node-label">AI Partner</div>
+                        <div class="node-title">Claude (AI 코딩 파트너)</div>
+                        <div class="node-sub">명세 · 에이전트 · 스킬을 참조해 코드를 생성 / 수정 / 커밋</div>
+                    </div>
+                </div>
+
+                <div class="arch-arrow">참조 · 실행 · 자동화</div>
+
+                <!-- Harness Layer -->
+                <div class="arch-layer">
+                    <div class="arch-group docker">
+                        <div class="group-label">AI Harness (3 layers)</div>
+                        <div class="group-nodes">
+                            <div class="arch-node">
+                                <div class="node-title">① 명세 레이어</div>
+                                <div class="node-sub">CLAUDE.md<br>루트 + backend/<br>15 error codes · 강한 명령형</div>
+                            </div>
+                            <div class="arch-node">
+                                <div class="node-title">② 에이전트 레이어</div>
+                                <div class="node-sub">.claude/agents/<br>spring-test-generator<br>6-phase 프로세스</div>
+                            </div>
+                            <div class="arch-node">
+                                <div class="node-title">③ 스킬 레이어</div>
+                                <div class="node-sub">.claude/skills/<br>git-workflow<br>Issue → Commit → PR</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arch-arrow">A/B Evaluation · iteration-1</div>
+
+                <!-- Meta Evaluation Layer -->
+                <div class="arch-layer">
+                    <div class="arch-group external">
+                        <div class="group-label">④ 메타 평가 레이어</div>
+                        <div class="group-nodes">
+                            <div class="arch-node ext">
+                                <div class="node-title">with_skill</div>
+                                <div class="node-sub">eval-1 · JWT issue<br>eval-2 · commit msg<br>eval-3 · PR creation<br>eval-4 · branch checkout</div>
+                            </div>
+                            <div class="arch-node ext">
+                                <div class="node-title">without_skill</div>
+                                <div class="node-sub">같은 4 시나리오<br>스킬 비활성 비교군<br>"스킬이 실제로<br>효과 있나?" 검증</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="arch-group docker">
+                        <div class="group-label">Output (jeju/backend)</div>
+                        <div class="group-nodes">
+                            <div class="arch-node">
+                                <div class="node-title">6 도메인 × 5 Phase</div>
+                                <div class="node-sub">91 소스 · 15 테스트<br>Conv. Commits 100%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STORY 1 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">01</div>
+            <div>
+                <div class="story-kicker">Spec Layer · CLAUDE.md</div>
+                <h2 class="story-title">CLAUDE.md 2단 계층화</h2>
+                <div class="story-tag">"AI 는 당신이 알려준 만큼만 안다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <p class="prose">
+            Claude 같은 LLM 에이전트를 Spring 프로젝트에 투입하면 초반 생산성이 폭발하지만 곧 <strong>특정 패턴의 반복적 실수</strong>가 나타난다.
+            Controller 에서 Response wrapper 없이 객체를 그대로 반환하고,
+            에러 상황에 맞는 에러코드를 <strong>매번 새로 창작</strong>하고 (<code>USER_NOT_FOUND</code> → <code>USER_001</code> → <code>NOT_FOUND_USER</code>),
+            HTTP 상태 코드를 감에 의존한다.
+            이건 AI 의 한계가 아니라 <strong>내가 AI 에게 규칙을 알려주지 않은 것이 원인</strong>이다.
+            프로젝트 관례를 "파일 곳곳에서 유추하라" 고 방치하면, AI 는 대안 중 아무거나 선택한다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">해결 과정</span></div>
+
+        <h3 class="h3">① 루트 CLAUDE.md — "이 프로젝트는 무엇인가"</h3>
+        <pre class="code"><code><span class="cmt"># CLAUDE.md (루트)</span>
+<span class="cmt">## Project Overview</span>
+<span class="kw">**같이가는 제주**</span> — 무장애 여행 일정 설계 서비스 (2026 한국관광공사 공모전)
+- Backend: Spring Boot 4.0.5 · Java 21 · Gradle 9.4.1
+- Frontend: Flutter 3.19+ · Riverpod · Dio
+- Base package: `com.jeju.jeju`
+
+<span class="cmt">## Build Commands</span>
+./gradlew bootRun     <span class="cmt"># 실행</span>
+./gradlew test        <span class="cmt"># 전체 테스트</span>
+
+<span class="cmt">## API Specification</span>
+&gt; 백엔드 작업 시 `backend/CLAUDE.md` 참조</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">의사결정 근거 — 왜 2단으로 분리했는가?</div>
+            <div class="decision-body">
+                단일 파일로 두면 (1) 프론트 작업 중일 때도 백엔드 규칙까지 전부 컨텍스트에 올라가 노이즈가 커지고
+                (2) 규칙이 늘수록 파일이 비대해져 실제로 AI 의 준수율이 떨어지는 현상이 보였다.
+                <strong>"얕은 전체 맥락(루트) + 깊은 도메인 규칙(하위 디렉토리)" 구조</strong> 로 두면 AI 는 작업 맥락에 맞는 문서만 집중해서 읽는다.
+                프로젝트가 커져도 확장 가능한 구조.
+            </div>
+        </div>
+
+        <h3 class="h3">② backend/CLAUDE.md — "백엔드 작업 시 반드시 지켜야 할 것"</h3>
+        <pre class="code"><code><span class="cmt"># Backend CLAUDE.md</span>
+
+<span class="cmt">## API Response Structure</span>
+모든 응답은 아래 wrapper 를 <span class="kw">**반드시**</span> 사용. Controller 에서 직접 객체 반환 <span class="kw">**금지**</span>.
+{ <span class="str">"success"</span>: <span class="kw">true</span>, <span class="str">"code"</span>: <span class="str">"SUCCESS"</span>, <span class="str">"message"</span>: <span class="str">"..."</span>, <span class="str">"data"</span>: {} }
+
+<span class="cmt">## HTTP Status Rules</span>
+| 200 | 조회·수정·삭제 성공                              |
+| 201 | 리소스 생성                                     |
+| 400 | Bean Validation 실패 (COMMON_001)               |
+| 401 | 인증 오류 (AUTH_001~004)                        |
+| 403 | 권한 없음 (ITIN_002)                             |
+| 404 | 리소스 없음 (USER_002, ITIN_001, PLACE_001)     |
+| 409 | 중복 (USER_001, REVIEW_001, REPORT_001)         |
+| 500 | 서버 오류 (COMMON_002)                          |
+| 502 | 외부 API 오류 (PLACE_002)                        |
+
+<span class="cmt">## Error Codes (총 15개)</span>
+| COMMON_001 | 유효하지 않은 입력값            |
+| AUTH_001   | 이메일/비밀번호 불일치          |
+| AUTH_002   | 이메일 미인증                   |
+| ITIN_001   | 존재하지 않는 일정              |
+| PLACE_002  | 한국관광공사 API 조회 실패      |
+| ...</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">놓치기 쉬운 포인트 — "강한 명령형" 으로 쓰기</div>
+            <div class="decision-body">
+                처음엔 "응답 wrapper 를 사용합니다" 처럼 서술형으로 썼다. AI 는 이런 문장을 <strong>관례 소개</strong> 정도로 받아들이고 가끔 무시했다.
+                "모든 응답은 아래 wrapper 를 <strong>반드시</strong> 사용. Controller 에서 직접 객체 반환 <strong>금지</strong>." 로 바꾸니 위반율이 눈에 띄게 줄었다.
+                <strong>"해도 된다" vs "해야 한다" vs "하지 마라"</strong> — 톤이 AI 행동에 영향을 준다.
+            </div>
+        </div>
+
+        <h3 class="h3">③ 실제 효과 측정 (비공식 관찰)</h3>
+        <pre class="code"><code><span class="cmt">같은 요구(사용자 프로필 조회 API 추가)를 두 상태에서 비교</span>
+
+<span class="cmt">┌──────────────────────┬──────────────┬─────────────────┐</span>
+<span class="cmt">│  항목                │ CLAUDE.md 없음 │ CLAUDE.md 배치  │</span>
+<span class="cmt">├──────────────────────┼──────────────┼─────────────────┤</span>
+<span class="cmt">│ Response wrapper     │ ✗ 객체 직반환  │ ✓              │</span>
+<span class="cmt">│ 에러코드 체계 준수    │ ✗ 새 이름 창작 │ ✓ USER_002     │</span>
+<span class="cmt">│ HTTP 상태            │ 200 (잘못)    │ 200/404 분기   │</span>
+<span class="cmt">│ 수정 대화 횟수       │ 3~4 회        │ 0~1 회          │</span>
+<span class="cmt">└──────────────────────┴──────────────┴─────────────────┘</span></code></pre>
+
+        <div class="sub-head"><span class="sub-num">결과</span></div>
+        <ul class="result-list">
+            <li>에러코드 · 응답 wrapper · HTTP 상태를 <strong>AI 가 자발적으로 준수</strong> — 코드 리뷰에서 "규칙 위반 수정" 요청 비중 급감</li>
+            <li><code>backend/CLAUDE.md</code> 한 파일로 백엔드 규칙의 <strong>싱글 소스 오브 트루스</strong> 확보 — 사람 온보딩 문서로도 기능</li>
+            <li>fullstack 확장 시 "AI 에게 어떤 규칙을 알려줘야 하는가" 를 <strong>디렉토리 계층과 매핑</strong>할 수 있는 구조</li>
+        </ul>
+    </div>
+</section>
+
+<!-- STORY 2 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">02</div>
+            <div>
+                <div class="story-kicker">Agent Layer · Subagent</div>
+                <h2 class="story-title">spring-test-generator 서브에이전트</h2>
+                <div class="story-tag">"반복 작업을 정형화해서 AI 에게 위임"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <p class="prose">
+            Spring 에서 테스트 코드 작성은 반복성이 높다. 서비스 클래스의 public 메서드 하나당 Happy / Edge / Exception / Branch 를 채우는 작업.
+            매번 수작업이면 시간은 많이 먹고 결과는 <strong>사람 컨디션에 따라 들쑥날쑥</strong>해진다.
+            Claude 에게 "테스트 짜줘" 라고만 주면 매번 다른 스타일로 답이 왔다 —
+            어떤 날은 <code>@SpringBootTest</code> 로 풀 컨텍스트(느림), 어떤 날은 Mock 조차 없이 실제 객체(격리 안됨),
+            given/when/then 주석을 붙였다 뺐다, 메서드 이름이 <code>testCreateUser</code> 와 <code>createUser_whenEmailDuplicated_throwsException</code> 을 왔다갔다.
+            일관성이 없으면 테스트 코드 자체가 유지보수 부담이 된다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">해결 과정</span></div>
+
+        <h3 class="h3">① 에이전트 정의 — 프런트매터로 호출 조건까지 명시</h3>
+        <pre class="code"><code><span class="cmt">// .claude/agents/spring-test-generator.md</span>
+---
+name: spring-test-generator
+description: Use this agent when you need to automatically generate comprehensive test code
+             for Java Spring Boot projects...
+             &lt;example&gt;
+               user: <span class="str">"UserService.java 파일에 대한 테스트를 작성해줘"</span>
+               assistant: <span class="str">"UserService에 대한 테스트를 생성하기 위해 spring-test-generator</span>
+<span class="str">                          에이전트를 사용하겠습니다."</span>
+               &lt;Task tool call to launch spring-test-generator agent&gt;
+             &lt;/example&gt;
+model: sonnet
+color: yellow
+---</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">의사결정 근거 — 왜 description 에 &lt;example&gt; 까지 넣었나?</div>
+            <div class="decision-body">
+                상위 에이전트(오케스트레이션 Claude)가 <strong>"언제 이 서브에이전트를 호출해야 하는가"</strong> 를 정확히 판단하려면
+                추상적 설명보다 구체적 사용 예시가 훨씬 효과적이었다. 4개 예시를 넣었더니 "테스트 관련 요청" 을 놓치지 않고 라우팅됐다.
+                <strong>프롬프트 엔지니어링에서 "예시" 가 "정의" 보다 강하다</strong> 는 원칙을 에이전트 설정에도 적용.
+            </div>
+        </div>
+
+        <h3 class="h3">② 6단계 프로세스 — 흐름을 강제</h3>
+        <pre class="code"><code><span class="cmt">Phase 1: Project Environment Analysis</span>
+  - build.gradle/pom.xml 에서 테스트 프레임워크 확인
+  - 사용 가능한 라이브러리 카탈로그 (Mockito, AssertJ, Testcontainers)
+  - application.yml 에서 테스트 프로파일 확인 (H2, Redis)
+  - <span class="kw">**기존 테스트 파일 패턴을 먼저 읽고 컨벤션 추출**</span>
+
+<span class="cmt">Phase 2: Source Code Analysis</span>
+  - @Service/@Repository/@Controller 판별 → 테스트 타입 결정
+  - public 메서드 시그니처 나열, 의존성 → Mock 후보
+  - 예외 처리, 트랜잭션 경계, 분기 분석
+
+<span class="cmt">Phase 3: Test Type Selection and Generation</span>
+  - Unit:       @ExtendWith(MockitoExtension.class)
+  - Controller: @WebMvcTest + MockMvc
+  - Repository: @DataJpaTest + H2
+  - 풀 컨텍스트: @SpringBootTest
+
+<span class="cmt">Phase 4: Test Code Quality Standards</span>
+  - 이름 규칙: methodName_situation_expectedResult
+    · createUser_whenEmailDuplicated_throwsException
+  - given/when/then 구조 필수
+  - AssertJ 우선, verify(mock, times(1)) 호출 검증
+
+<span class="cmt">Phase 5: File Generation and Validation</span>
+  - 경로: src/test/java/{same package}
+  - Pre-Save Checklist: 임포트, 메서드 존재, 이름 충돌, 패키지 선언
+
+<span class="cmt">Phase 6: Summary Report</span>
+  - ✅ 생성 파일 경로 / 📋 클래스 수 / 📊 Happy/Edge/Exception/Branch 분포
+  - ⚠️ 수동 검증 필요 항목</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">놓치기 쉬운 포인트 — "Phase 1 에서 기존 컨벤션을 먼저 읽어라"</div>
+            <div class="decision-body">
+                이 순서가 없으면 에이전트가 "자기 생각대로 best practice" 를 적용해버려 기존 코드와 스타일이 어긋났다.
+                <code>ALWAYS read existing test files first if they exist</code> 라는 문장을 Phase 1 에 못 박으니,
+                기존 프로젝트가 <code>@Nested</code> 를 쓰면 새 테스트도 <code>@Nested</code> 를,
+                AssertJ 를 쓰면 AssertJ 를 자동으로 맞췄다.
+                <strong>"AI 에게 '일관성 있게 해라' 라고 말하지 말고, '기존을 먼저 읽어라' 라고 말하라"</strong>.
+            </div>
+        </div>
+
+        <h3 class="h3">③ 실제 배치된 테스트 파일</h3>
+        <pre class="code"><code><span class="cmt">ItineraryServiceTest.java    — 421 줄 (생성/수정/권한/페이지네이션)</span>
+<span class="cmt">PlaceServiceTest.java        — 306 줄 (한국관광공사 API 목업, 에러 경로 포함)</span>
+<span class="cmt">AuthServiceTest.java         — 회원가입/로그인/토큰 재발급/탈퇴</span>
+<span class="cmt">UserServiceTest.java         — 프로필 조회/수정/탈퇴</span>
+<span class="cmt">JwtTokenProviderTest.java    — 토큰 발급/만료/위변조 시나리오</span>
+<span class="cmt">NotificationServiceTest.java — 알림 읽음, 대량 읽음(BulkReadResponse)</span>
+<span class="cmt">ItineraryControllerTest.java — @WebMvcTest + MockMvc</span>
+<span class="cmt">PlaceControllerTest.java     — @WebMvcTest + MockMvc</span></code></pre>
+
+        <div class="sub-head"><span class="sub-num">결과</span></div>
+        <ul class="result-list">
+            <li>91개 프로덕션 파일 중 핵심 계층에 <strong>15개 테스트 파일 빠르게 구축</strong> — 6-phase 가 정형화되어 누락 체크가 단순</li>
+            <li>테스트 스타일이 프로젝트 전반에 <strong>일관되게 유지</strong> (given/when/then, AssertJ, 이름 규칙)</li>
+            <li>"테스트 짜줘" 한 줄에 Phase 1~6 자동 실행 — <strong>Claude 자신이 적절한 서브에이전트로 라우팅</strong></li>
+            <li>내 역할은 <strong>"어떤 코드를 테스트할지 결정" + 최종 리뷰</strong> — 반복이 아닌 설계에 시간을 씀</li>
+        </ul>
+    </div>
+</section>
+
+<!-- STORY 3 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">03</div>
+            <div>
+                <div class="story-kicker">Skill Layer + Meta Evaluation</div>
+                <h2 class="story-title">git-workflow 스킬 + A/B 자가 평가</h2>
+                <div class="story-tag">"내가 만든 AI 도구를 내가 데이터로 검증한다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <p class="prose">
+            서브에이전트 / 스킬을 여러 개 만들다보니 <strong>"이게 진짜 효과 있는 거 맞나?"</strong> 라는 본질적 의문이 생겼다.
+            git-workflow 스킬은 Conventional Commits · 브랜치 네이밍 · Issue → Commit → PR 자동화를 담고 있는데,
+            <strong>스킬을 쓰는 것과 안 쓰는 것의 실제 차이</strong>가 감(感) 이 아니라 비교 가능한 형태로 보여야 했다.
+            그래야 (1) 쓸모없으면 빨리 버리고 (2) 쓸모있는 쪽을 더 정교화할 수 있다.
+            "내가 만든 AI 도구를 내가 평가한다" — 개인 프로젝트에서도 필요한 검증 루프.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">해결 과정</span></div>
+
+        <h3 class="h3">① 스킬 자체의 3단계 워크플로우</h3>
+        <pre class="code"><code><span class="cmt"># .claude/skills/git-workflow/SKILL.md</span>
+
+<span class="cmt">## 1단계: 작업 계획 → Issue 생성 + 브랜치 제안</span>
+   - gh issue create 로 GitHub 에 직접 Issue 생성
+   - type/stack/priority 라벨 자동 부여
+   - Issue 번호 → 브랜치명 제안
+     · feature/42-jwt-token-validation
+     · bugfix/57-null-pointer-on-login
+     · hotfix/103-critical-auth-bypass
+
+<span class="cmt">## 2단계: 작업 중 → 커밋 메시지 생성</span>
+   - 파일 경로 → scope 자동 매핑 (14종 패턴)
+     · *Controller.java   → controller
+     · SecurityConfig / *Filter / *Provider → security
+   - Conventional Commits 형식: type(scope): subject
+   - subject 50자 이내 검증
+
+<span class="cmt">## 3단계: 작업 완료 → PR 생성</span>
+   - 현재 브랜치 → base 자동 결정 (hotfix → main, 나머지 → dev)
+   - gh pr create 로 체크리스트 포함 PR 본문 생성
+
+<span class="cmt">## + references/conventions.md</span>
+   - type 9종, scope 20여종, Issue 라벨 4계층 전체 목록
+   - 예제 커밋 메시지 6종</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">의사결정 근거 — 왜 conventions 를 별도 파일로 뺐나?</div>
+            <div class="decision-body">
+                SKILL.md 상단(description, 1~3단계) 은 <strong>AI 가 매번 읽어야 하는 부분</strong>이고,
+                conventions 는 <strong>참조용 레퍼런스</strong>다. 분리하면
+                (1) SKILL.md 는 간결 유지
+                (2) 레퍼런스가 필요한 순간에만 Claude 가 읽어서 컨텍스트 절약.
+                스킬 아키텍처도 <strong>"자주 쓰는 것 + 가끔 참조하는 것"</strong> 분리가 효과적이었다.
+            </div>
+        </div>
+
+        <h3 class="h3">② 자가 평가 루프 — iteration-1 디렉토리</h3>
+        <pre class="code"><code><span class="cmt">.claude/skills/git-workflow-workspace/iteration-1/</span>
+├── eval-1-jwt-issue/
+│   ├── with_skill/outputs/result.md
+│   └── without_skill/outputs/result.md
+├── eval-2-commit-message/
+│   ├── with_skill/outputs/result.md       <span class="cmt">← 리팩토링 3파일 → 커밋 메시지</span>
+│   └── without_skill/outputs/result.md
+├── eval-3-pr-creation/
+│   ├── with_skill/outputs/result.md
+│   └── without_skill/outputs/result.md
+└── eval-4-branch-checkout/
+    ├── with_skill/outputs/result.md
+    └── without_skill/outputs/result.md</code></pre>
+        <p class="prose note">
+            <strong>4개 시나리오 × 2 조건(with/without) = 8개 결과물을 실제 디렉토리에 커밋</strong> — 언제든 재검토 가능한 아티팩트로 남겼다.
+        </p>
+
+        <h3 class="h3">③ 실제 차이 — eval-2 (커밋 메시지) 비교</h3>
+        <pre class="code"><code><span class="cmt">// without_skill</span>
+feat(security): JWT 인증 필터 및 토큰 처리 로직 개선 (#42)
+  <span class="cmt">← type 판단 오류: "로직 개선" 이면 refactor 가 맞음</span>
+  <span class="cmt">← 제목에 (#42) 중복: body 끝의 "Closes #42" 와 이중</span>
+
+- SecurityConfig 에서 JWT 필터 체인 설정 업데이트
+- JwtAuthenticationFilter 에서 토큰 추출 및 인증 처리 개선
+  <span class="cmt">← body 가 "파일별 변경" 나열에 그침, "왜" 가 없음</span>
+
+&gt; <span class="kw">**참고:**</span> 파일들이 버그 수정이라면 `feat` 대신 `fix`를 사용하세요.
+  <span class="cmt">← type 판단을 사용자에게 떠넘김</span></code></pre>
+
+        <pre class="code"><code><span class="cmt">// with_skill</span>
+refactor(security): JWT 인증 구성 리팩토링
+  <span class="cmt">← type 정확: 리팩토링</span>
+
+SecurityConfig 에서 JWT 필터 체인을 재구성하고,
+JwtAuthenticationFilter 의 인증 처리 흐름을 개선했다.
+TokenProvider 를 통해 토큰 발급 및 검증 로직을 분리해
+책임 범위를 명확히 했다.
+  <span class="cmt">← "왜" 설명 포함, 단순 나열이 아님</span>
+
+Closes #42
+  <span class="cmt">← footer 만 사용, 제목에는 이슈번호 없음</span></code></pre>
+
+        <pre class="code"><code><span class="cmt">┌──────────────────────────┬─────────────────┬────────────────┐</span>
+<span class="cmt">│  평가 항목               │ without_skill  │ with_skill     │</span>
+<span class="cmt">├──────────────────────────┼─────────────────┼────────────────┤</span>
+<span class="cmt">│ type 정확도              │ ✗ feat (잘못)   │ ✓ refactor     │</span>
+<span class="cmt">│ 제목 이슈번호 중복       │ ✗ (#42) 포함    │ ✓ 제목엔 없음  │</span>
+<span class="cmt">│ body 의 "왜"             │ ✗ 파일 나열만   │ ✓ 책임 분리 설명 │</span>
+<span class="cmt">│ 사용자에게 판단 떠넘김   │ ✗ "fix 로 바꿔"  │ ✓ 완결된 결과  │</span>
+<span class="cmt">└──────────────────────────┴─────────────────┴────────────────┘</span></code></pre>
+
+        <div class="decision">
+            <div class="decision-label">놓치기 쉬운 포인트 — "iteration-1" 이라는 이름</div>
+            <div class="decision-body">
+                평가 워크스페이스를 <code>iteration-1</code> 로 명명한 건 의도적이다.
+                스킬은 <strong>한 번 만들고 끝이 아니라 반복 개선</strong> 이 전제다.
+                iteration-2, iteration-3 이 쌓이면 <strong>스킬 자체의 진화 과정을 버전 관리</strong>할 수 있다.
+                현재는 iteration-1 뿐이지만, 구조는 이미 반복을 염두에 두고 설계됐다.
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">결과</span></div>
+        <ul class="result-list">
+            <li>스킬의 효과를 <strong>"체감" 이 아닌 "비교 가능한 아티팩트"</strong> 로 증명 — 8개 결과물이 저장소에 상시 보관</li>
+            <li><strong>AI 도구 자체에 대한 개선 루프</strong> 세팅 — 다음 iteration 에서 뭘 고칠지 데이터로 드러남</li>
+            <li>Git 히스토리 <strong>Conventional Commits 100% 준수</strong> — 자동 CHANGELOG · <code>gh pr merge</code> 자동화 연계 용이</li>
+            <li>"AI 를 쓰는 역량" 자체가 <strong>측정 · 개선 가능한 스킬</strong>이라는 관점을 실천</li>
+        </ul>
+    </div>
+</section>
+
+<section class="takeaways">
+    <div class="wrap">
+        <div class="sec-label">Key Takeaways</div>
+        <div class="takeaway-list">
+            <div class="takeaway">
+                <div class="tk-num">01</div>
+                <div class="tk-body">
+                    <strong>명세가 AI 의 전부다</strong> — CLAUDE.md 를 2단 계층으로 분리하고 "강한 명령형" 으로 작성하면,
+                    AI 의 첫 결과물이 "수정 3~4회 → 0~1회" 수준으로 개선된다.
+                    프로젝트 관례는 머릿속에 두는 게 아니라 <strong>AI 가 읽을 수 있는 파일에 명문화</strong>해야 한다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">02</div>
+                <div class="tk-body">
+                    <strong>반복 작업은 서브에이전트로 위임한다</strong> — 테스트 생성처럼 구조가 뚜렷한 작업은
+                    6-phase 프로세스로 정형화한 <code>spring-test-generator</code> 에게 맡기고, 사람은 설계 · 리뷰에 집중한다.
+                    <code>&lt;example&gt;</code> 을 description 에 넣어 <strong>호출 정확도를 프롬프팅 원리로</strong> 끌어올렸다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">03</div>
+                <div class="tk-body">
+                    <strong>내가 만든 AI 도구도 A/B 로 검증한다</strong> — with_skill vs without_skill 4개 시나리오를
+                    <code>iteration-1/</code> 디렉토리에 남겼다. type 정확도 · 중복 표기 · body 품질 등 <strong>구체적 지표로 스킬 효과를 증명</strong> —
+                    감이 아니라 데이터로 반복 개선이 가능해진 게 진짜 차별점이다.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nav-next">
+    <div class="wrap">
+        <a href="03_harucut.html" class="next-link prev">
+            <div class="next-kicker">← Prev 03</div>
+            <div class="next-title">Harucut · 온라인 네컷사진</div>
+        </a>
+        <a href="deepdive_redis.html" class="next-link">
+            <div class="next-kicker">Deep Dive →</div>
+            <div class="next-title">Redis 완전정복</div>
+        </a>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap">
+        <div class="foot-inner">
+            <div class="foot-note">© 2026 천승환 · popeye0618@gmail.com</div>
+            <div class="foot-links">
+                <a href="index.html">Home</a>
+                <a href="mailto:popeye0618@gmail.com">Email</a>
+                <a href="https://github.com/popeye0618" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redis 완전정복 · Deep Dive · 천승환 포트폴리오</title>
+    <meta name="description" content="단순 캐시가 아닌 자료구조 서버로서의 Redis — 동시성 제어 · 랭킹 · 이벤트 파이프라인 3개 프로젝트로 풀어본 기록">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="project.css">
+</head>
+<body data-accent="amber">
+
+<nav>
+    <div class="wrap">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">← 천승환 / Backend</a>
+            <div class="nav-links">
+                <a href="deepdive_redis.html" class="active">Redis</a>
+                <span style="font-family:var(--mono);font-size:11px;color:var(--muted);opacity:.45;">Kafka (soon)</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="hero project-hero">
+    <div class="wrap">
+        <div class="eyebrow fu">Deep Dive 01 · Redis 완전정복</div>
+        <h1 class="fu fu1">
+            단순한 캐시가 아닌,<br>
+            <span class="line2">자료구조 서버로서의 Redis</span>
+        </h1>
+        <p class="hero-desc fu fu2">
+            Redis 를 <strong>분산 시스템 문제 해결 도구</strong>로 사용합니다. 동시성 제어 · 실시간 랭킹 · 이벤트 파이프라인까지
+            세 개 프로젝트로 Redis 가 풀 수 있는 문제의 스펙트럼을 직접 구현하고,
+            <strong>각 선택의 근거를 벤치마크 수치</strong>로 남겼습니다.
+        </p>
+        <div class="meta-row fu fu3">
+            <div class="meta-item">
+                <div class="meta-lbl">Scope</div>
+                <div class="meta-val">3 sub-projects · V1~V5</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">Status</div>
+                <div class="meta-val" style="color: var(--amber);">▲ 1 / 3 완료</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">Peak Result</div>
+                <div class="meta-val">TPS 3.6× · 응답 70% ↓</div>
+            </div>
+        </div>
+        <div class="stack-row fu fu4">
+            <span class="chip">Java 21</span>
+            <span class="chip">Spring Boot 4.x</span>
+            <span class="chip">Redis 8.0</span>
+            <span class="chip">Redisson 4.0.0</span>
+            <span class="chip">MySQL 8.0</span>
+            <span class="chip">JMeter 5.6.3</span>
+            <span class="chip">Docker Compose</span>
+            <span class="chip">Lua Script</span>
+            <span class="chip">Keyspace Notification</span>
+        </div>
+    </div>
+</div>
+
+<section class="projects">
+    <div class="wrap">
+        <div class="sec-label">Sub Projects</div>
+
+        <!-- Sub 01: 선착순 이벤트 (완료) -->
+        <a href="deepdive_redis_01.html" class="project-card" style="--card-accent: var(--amber);">
+            <div class="card-top">
+                <span class="card-num">01 / 03</span>
+                <span class="card-status status-done">● 완료</span>
+            </div>
+            <div class="card-title">선착순 이벤트 처리 시스템</div>
+            <div class="card-sub">
+                1만 명이 동시에 쿠폰을 요청했을 때 재고 정합성을 어떻게 지킬 수 있는가.
+                <strong>Race Condition 을 직접 재현</strong>하고 Redisson 분산 락 → Lua Script 로 단계적으로 해결,
+                TPS 3.6배 · 응답시간 70% 단축을 측정했다.
+            </div>
+            <div class="card-techs">
+                <span class="ct">Redisson RLock</span>
+                <span class="ct">Lua Script</span>
+                <span class="ct">Sorted Set 대기열</span>
+                <span class="ct">TTL + Keyspace Notification</span>
+                <span class="ct">@Async</span>
+                <span class="ct">JMeter 부하 테스트</span>
+            </div>
+            <div class="card-stories">
+                <div class="card-story"><strong>V1</strong> — 동기화 없음으로 의도적 재현 (200건 초과 발급, remaining=80)</div>
+                <div class="card-story"><strong>V2 → V3</strong> — Redisson 락(58.4/s) → Lua Script(212.8/s) 로 대기 구조 제거</div>
+                <div class="card-story"><strong>V4, V5</strong> — Sorted Set 대기열 · TTL Keyspace 이벤트로 확장</div>
+            </div>
+            <div class="card-cta">
+                자세히 보기
+                <svg class="card-cta-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+            </div>
+        </a>
+
+        <!-- Sub 02: 실시간 랭킹 (예정) -->
+        <div class="project-card" style="--card-accent: var(--amber); opacity: .65; cursor: default;">
+            <div class="card-top">
+                <span class="card-num">02 / 03</span>
+                <span class="card-status status-plan">COMING SOON</span>
+            </div>
+            <div class="card-title">실시간 게임 랭킹 시스템</div>
+            <div class="card-sub">
+                수백만 사용자의 점수를 실시간으로 집계하고 순위를 조회한다.
+                <strong>Sorted Set 의 O(log N) 특성</strong>과 Sliding Window Rate Limiting 으로 대용량 트래픽을 처리할 계획.
+            </div>
+            <div class="card-techs">
+                <span class="ct">Sorted Set 점수 집계</span>
+                <span class="ct">ZRANGEBYSCORE</span>
+                <span class="ct">Sliding Window Rate Limiting</span>
+                <span class="ct">TTL + Keyspace Notification</span>
+            </div>
+            <div class="card-stories">
+                <div class="card-story"><strong>주제</strong> — 점수 반영 · 랭킹 조회 · 시즌 관리</div>
+                <div class="card-story"><strong>자료구조</strong> — Sorted Set · ZRANGEBYSCORE · Pipeline</div>
+                <div class="card-story"><strong>측정</strong> — O(log N) 조회 성능 · Rate Limit 정확도 검증</div>
+            </div>
+        </div>
+
+        <!-- Sub 03: 이벤트 파이프라인 (예정) -->
+        <div class="project-card" style="--card-accent: var(--amber); opacity: .65; cursor: default;">
+            <div class="card-top">
+                <span class="card-num">03 / 03</span>
+                <span class="card-status status-plan">COMING SOON</span>
+            </div>
+            <div class="card-title">실시간 알림 · 이벤트 파이프라인</div>
+            <div class="card-sub">
+                <strong>Redis Stream + Consumer Group</strong> 으로 Kafka 없이 이벤트 파이프라인을 구축하고,
+                Pub/Sub → WebSocket 브릿지로 실시간 알림을 구현할 계획.
+            </div>
+            <div class="card-techs">
+                <span class="ct">Redis Stream</span>
+                <span class="ct">Consumer Group</span>
+                <span class="ct">Pub/Sub → WebSocket</span>
+                <span class="ct">Pending Entry List</span>
+                <span class="ct">XACK / XDEL</span>
+            </div>
+            <div class="card-stories">
+                <div class="card-story"><strong>주제</strong> — At-least-once 전달 보장 + 실시간 WebSocket 브릿지</div>
+                <div class="card-story"><strong>자료구조</strong> — Stream · Consumer Group · PEL</div>
+                <div class="card-story"><strong>비교</strong> — Kafka vs Redis Stream 적정 규모 분석</div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="takeaways">
+    <div class="wrap">
+        <div class="sec-label">왜 Deep Dive 로 다뤘는가</div>
+        <div class="takeaway-list">
+            <div class="takeaway">
+                <div class="tk-num">01</div>
+                <div class="tk-body">
+                    <strong>Redis 는 애플리케이션 프로젝트에 "쓰인" 기술이지만, 그 자체로 제대로 이해한 적은 드물다</strong> —
+                    여기서는 캐시가 아닌 <strong>분산 문제 해결 도구</strong>로서의 Redis 를 주제 단위로 파고든다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">02</div>
+                <div class="tk-body">
+                    <strong>각 버전의 선택 근거를 수치로 남긴다</strong> — V1 (재현) → V2 (분산 락) → V3 (Lua Script) 로 넘어간 이유를
+                    추측이 아닌 JMeter 측정값으로 기록했다. "왜 더 빠른가" 가 아니라 <strong>"왜 이 구조가 필요한가"</strong> 에 답하는 방향.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">03</div>
+                <div class="tk-body">
+                    <strong>도구의 한계까지 밀어본다</strong> — Stream/Pub-Sub 은 "Kafka 를 써야 할 규모" 의 기준을 실험으로 체득하기 위한 것.
+                    결론은 "Kafka 가 맞다" 일 수도 있지만, 그 결론에도 근거가 있어야 한다.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nav-next">
+    <div class="wrap">
+        <a href="index.html" class="next-link prev">
+            <div class="next-kicker">← Index</div>
+            <div class="next-title">전체 포트폴리오</div>
+        </a>
+        <a href="deepdive_redis_01.html" class="next-link">
+            <div class="next-kicker">Sub 01 →</div>
+            <div class="next-title">선착순 이벤트 처리 시스템</div>
+        </a>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap">
+        <div class="foot-inner">
+            <div class="foot-note">© 2026 천승환 · popeye0618@gmail.com</div>
+            <div class="foot-links">
+                <a href="index.html">Home</a>
+                <a href="mailto:popeye0618@gmail.com">Email</a>
+                <a href="https://github.com/popeye0618" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

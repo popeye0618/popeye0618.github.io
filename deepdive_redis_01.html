@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선착순 이벤트 처리 시스템 · Redis Deep Dive 01 · 천승환 포트폴리오</title>
+    <meta name="description" content="Race Condition 을 직접 재현하고 V1~V5 5단계로 해결하며 TPS 3.6× 개선을 증명한 기록">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="project.css">
+</head>
+<body data-accent="amber">
+
+<nav>
+    <div class="wrap">
+        <div class="nav-inner">
+            <a href="deepdive_redis.html" class="nav-logo">← Redis 완전정복</a>
+            <div class="nav-links">
+                <a href="deepdive_redis_01.html" class="active">01</a>
+                <a href="#" style="opacity:.4; cursor:default;">02</a>
+                <a href="#" style="opacity:.4; cursor:default;">03</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="hero project-hero">
+    <div class="wrap">
+        <div class="eyebrow fu">Deep Dive · Redis 01</div>
+        <h1 class="fu fu1">
+            선착순 이벤트<br>
+            <span class="line2">처리 시스템</span>
+        </h1>
+        <p class="hero-desc fu fu2">
+            1만 명이 동시에 쿠폰을 요청했을 때, 재고 정합성을 어떻게 지킬 수 있는가.
+            <strong>Race Condition 을 직접 재현</strong>하고, V1~V5 다섯 단계로 해결까지의
+            <strong>사고 과정과 측정값</strong>을 남긴 기록입니다.
+        </p>
+        <div class="meta-row fu fu3">
+            <div class="meta-item">
+                <div class="meta-lbl">실험 조건</div>
+                <div class="meta-val">재고 100 / 동시 200명</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">최종 성능 (V3)</div>
+                <div class="meta-val" style="color: var(--amber);">212.8/s · 762ms</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">개선 폭</div>
+                <div class="meta-val" style="color: var(--green);">TPS 3.6× · 응답 70% ↓</div>
+            </div>
+        </div>
+        <div class="stack-row fu fu4">
+            <span class="chip">Java 21</span>
+            <span class="chip">Spring Boot 4.x</span>
+            <span class="chip">Redis 8.0</span>
+            <span class="chip">Redisson 4.0.0</span>
+            <span class="chip">MySQL 8.0</span>
+            <span class="chip">JMeter 5.6.3</span>
+            <span class="chip">Docker Compose</span>
+            <span class="chip">Lua Script</span>
+            <span class="chip">@Async</span>
+            <span class="chip">Keyspace Notification</span>
+        </div>
+    </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<section class="arch-section">
+    <div class="wrap">
+        <div class="sec-label">System Architecture</div>
+        <p class="prose">
+            클라이언트 요청은 API 서버를 거쳐 <strong>Redis 에서 정합성을 보장</strong>하고 DB 에 비동기로 저장됩니다.
+            쿠폰 만료는 <strong>Keyspace Notification</strong> 이벤트로 폴링 없이 처리합니다.
+        </p>
+        <div class="svg-arch">
+            <svg viewBox="0 0 820 310" xmlns="http://www.w3.org/2000/svg"
+                 style="font-family:'JetBrains Mono', monospace;">
+                <defs>
+                    <marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"
+                            orient="auto-start-reverse">
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#f5a623" stroke-width="1.5"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </marker>
+                    <marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"
+                            orient="auto-start-reverse">
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#3ecf8e" stroke-width="1.5"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </marker>
+                    <marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"
+                            orient="auto-start-reverse">
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#b794f4" stroke-width="1.5"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </marker>
+                </defs>
+                <!-- Clients -->
+                <rect x="10" y="44" width="105" height="36" rx="6" fill="#181c23" stroke="rgba(255,255,255,0.1)"/>
+                <text x="62" y="67" text-anchor="middle" fill="#e8eaf0" font-size="11">Client ×N</text>
+                <!-- arrow client→api -->
+                <line x1="115" y1="62" x2="162" y2="62" stroke="#f5a623" stroke-width="1" marker-end="url(#a1)"/>
+                <text x="138" y="56" text-anchor="middle" fill="#f5a623" font-size="9">10k+ req/s</text>
+                <!-- API Server -->
+                <rect x="162" y="26" width="148" height="72" rx="8" fill="#181c23" stroke="rgba(245,166,35,0.3)"/>
+                <text x="236" y="52" text-anchor="middle" fill="#fff" font-size="12" font-weight="500">API Server</text>
+                <text x="236" y="68" text-anchor="middle" fill="#7a8090" font-size="10">Spring Boot</text>
+                <text x="236" y="84" text-anchor="middle" fill="#f5a623" font-size="9">V1 · V2 · V3 · V4 · V5</text>
+                <!-- arrow api→redis -->
+                <line x1="310" y1="62" x2="366" y2="62" stroke="#f5a623" stroke-width="1" marker-end="url(#a1)"/>
+                <!-- Redis container -->
+                <rect x="366" y="10" width="250" height="272" rx="10" fill="rgba(245,166,35,0.04)"
+                      stroke="rgba(245,166,35,0.22)" stroke-dasharray="4 3"/>
+                <text x="491" y="30" text-anchor="middle" fill="#f5a623" font-size="11" letter-spacing="1">REDIS 8.0</text>
+                <!-- Redis keys -->
+                <rect x="380" y="42" width="222" height="34" rx="5" fill="#111419" stroke="rgba(255,255,255,0.07)"/>
+                <text x="394" y="55" fill="#f5a623" font-size="10">coupon:stock:{eventId}</text>
+                <text x="394" y="68" fill="#7a8090" font-size="9">String — 재고 수량 (V3~)</text>
+                <rect x="380" y="84" width="222" height="34" rx="5" fill="#111419" stroke="rgba(255,255,255,0.07)"/>
+                <text x="394" y="97" fill="#f5a623" font-size="10">coupon:issued:{eventId}</text>
+                <text x="394" y="110" fill="#7a8090" font-size="9">Set — 발급자 목록 (V3~)</text>
+                <rect x="380" y="126" width="222" height="34" rx="5" fill="#111419" stroke="rgba(255,255,255,0.07)"/>
+                <text x="394" y="139" fill="#f5a623" font-size="10">coupon:lock:{eventId}</text>
+                <text x="394" y="152" fill="#7a8090" font-size="9">Lock — Redisson 분산 락 (V2)</text>
+                <rect x="380" y="168" width="222" height="34" rx="5" fill="#111419" stroke="rgba(255,255,255,0.07)"/>
+                <text x="394" y="181" fill="#f5a623" font-size="10">coupon:queue:{eventId}</text>
+                <text x="394" y="194" fill="#7a8090" font-size="9">Sorted Set — 대기열 (V4)</text>
+                <rect x="380" y="210" width="222" height="34" rx="5" fill="#111419" stroke="rgba(255,255,255,0.07)"/>
+                <text x="394" y="223" fill="#f5a623" font-size="10">coupon:expire:{issuanceId}</text>
+                <text x="394" y="236" fill="#7a8090" font-size="9">TTL — 만료 감지 (V5)</text>
+                <!-- arrow api→db async -->
+                <line x1="236" y1="98" x2="236" y2="230" stroke="#3ecf8e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#a2)"/>
+                <text x="248" y="175" fill="#3ecf8e" font-size="9">@Async</text>
+                <!-- DB -->
+                <rect x="162" y="230" width="148" height="52" rx="8" fill="#181c23" stroke="rgba(62,207,142,0.28)"/>
+                <text x="236" y="252" text-anchor="middle" fill="#fff" font-size="12" font-weight="500">MySQL 8.0</text>
+                <text x="236" y="270" text-anchor="middle" fill="#7a8090" font-size="9">coupon_issuance</text>
+                <!-- keyspace notification -->
+                <path d="M491 244 L491 272 L638 272 L638 282" fill="none" stroke="#b794f4" stroke-width="1"
+                      stroke-dasharray="4 3" marker-end="url(#a3)"/>
+                <text x="564" y="268" text-anchor="middle" fill="#b794f4" font-size="9">expired event</text>
+                <!-- Listener -->
+                <rect x="638" y="282" width="170" height="26" rx="5" fill="#181c23" stroke="rgba(183,148,244,0.3)"/>
+                <text x="723" y="300" text-anchor="middle" fill="#b794f4" font-size="10">ExpirationListener</text>
+            </svg>
+        </div>
+    </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">P</div>
+            <div>
+                <div class="story-kicker">Problem · Race Condition</div>
+                <h2 class="story-title">왜 동시성 제어가 필요한가</h2>
+                <div class="story-tag">"단건 요청에서는 드러나지 않는 문제"</div>
+            </div>
+        </div>
+
+        <p class="prose">
+            단건 요청에서는 문제가 드러나지 않습니다. 수백 개의 요청이 <strong>밀리초 단위로 동시에</strong> 들어올 때만
+            Race Condition 이 발생합니다. 해결책을 바로 적용하기 전에, 문제가 실제로 발생하는지 <strong>수치로 확인</strong>해야 했습니다.
+        </p>
+
+        <div class="prob-grid">
+            <div class="prob-card hot">
+                <span class="badge red">Race Condition</span>
+                <h3>Lost Update 패턴</h3>
+                <pre class="code"><code><span class="cmt">// 재고 = 1, 두 쓰레드 동시 진입</span>
+Thread A: GET remaining → <span class="num">1</span>
+Thread B: GET remaining → <span class="num">1</span>  <span class="hl">← 같은 값</span>
+
+Thread A: <span class="num">1</span> &gt; 0 통과 → decrease()
+Thread B: <span class="num">1</span> &gt; 0 통과 → decrease()
+
+<span class="hl">결과: remaining = -1 (초과 발급)</span></code></pre>
+            </div>
+
+            <div class="prob-card">
+                <span class="badge amber">JMeter 재현 · 재고 100 / 동시 200명</span>
+                <h3>V1 실행 결과</h3>
+                <pre class="code"><code><span class="cmt">-- 발급 건수</span>
+<span class="kw">SELECT</span> COUNT(*) FROM coupon_issuance;
+<span class="hl">→ 200건  (100건 초과 발급)</span>
+
+<span class="cmt">-- 잔여 재고</span>
+<span class="kw">SELECT</span> remaining_quantity FROM coupon_event;
+<span class="hl">→ 80  (0 이어야 정상)</span>
+
+<span class="cmt">-- remaining=80 의미:
+-- 180개 트랜잭션이 서로 덮어쓰기
+-- → 차감 결과 유실 (Lost Update)</span></code></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- THOUGHT PROCESS -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">T</div>
+            <div>
+                <div class="story-kicker">Thought Process · V1 → V5</div>
+                <h2 class="story-title">사고 흐름 — 문제 인식부터 해결까지</h2>
+                <div class="story-tag">"더 나은 기술이 아니라, 왜 이 방법이 필요한가"</div>
+            </div>
+        </div>
+
+        <p class="prose">
+            각 버전은 이전 버전의 한계를 분석한 결과로 선택했습니다. 더 나은 기술을 찾은 게 아니라,
+            <strong>왜 이 방법이 필요한지</strong>를 먼저 이해하고 넘어갔습니다.
+        </p>
+
+        <div class="ver-flow">
+
+            <!-- V1 -->
+            <div class="ver-step">
+                <div class="ver-gutter">
+                    <div class="ver-dot v1">V1</div>
+                    <div class="ver-line"></div>
+                </div>
+                <div class="ver-body">
+                    <div class="ver-kicker v1">Step 1 — 문제 재현</div>
+                    <div class="ver-title">동기화 없는 버전 — 일부러 망가뜨리기</div>
+                    <div class="thought t1">
+                        "해결책을 바로 적용하기 전에, 문제가 실제로 발생하는지 수치로 확인해야 한다고 생각했습니다.
+                        <strong>추측이 아닌 증거</strong>가 필요했습니다."
+                    </div>
+                    <p class="prose">
+                        아무 처리 없이 구현 후 JMeter 로 동시 200명 요청을 쏘아 Race Condition 을 재현했습니다.
+                        이 단계의 목적은 해결이 아니라 <strong>문제의 존재를 수치로 증명</strong>하는 것이었습니다.
+                    </p>
+                    <div class="metric-row">
+                        <div class="metric">
+                            <div class="mv" style="color: var(--red);">200건</div>
+                            <div class="ml">발급 건수 (초과)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="mv" style="color: var(--red);">80</div>
+                            <div class="ml">remaining (비정상)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="mv" style="color: var(--red);">실패</div>
+                            <div class="ml">정합성</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- V2 -->
+            <div class="ver-step">
+                <div class="ver-gutter">
+                    <div class="ver-dot v2">V2</div>
+                    <div class="ver-line"></div>
+                </div>
+                <div class="ver-body">
+                    <div class="ver-kicker v2">Step 2 — 분산 환경 고려</div>
+                    <div class="ver-title">Redisson 분산 락 — <code>synchronized</code> 가 아닌 이유</div>
+                    <div class="thought t2">
+                        "처음엔 <code>synchronized</code> 키워드를 쓰면 되지 않을까 생각했습니다. 그런데
+                        <strong>서버가 2대 이상이면 JVM 이 달라서 의미가 없다</strong>는 걸 깨달았습니다.
+                        처음부터 분산 환경을 가정해야 했습니다."
+                    </div>
+                    <div class="dbox">
+                        <div class="dlabel">의사결정 근거</div>
+                        <p><strong>synchronized</strong> 는 단일 JVM 내에서만 동작합니다.
+                            Redis 분산 락은 <strong>네트워크 너머 모든 서버가 공유</strong>하므로 서버 대수와 무관하게 동작합니다.
+                            추가로 <strong>락의 생명주기가 트랜잭션을 감싸야 한다</strong>는 점 —
+                            커밋 전 락 해제 시 다음 요청이 변경 전 데이터를 읽는 문제 — 을 직접 실험으로 확인했습니다.</p>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric">
+                            <div class="mv" style="color: var(--green);">100건</div>
+                            <div class="ml">발급 건수 (정확)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="mv" style="color: var(--amber);">58.4/s</div>
+                            <div class="ml">Throughput</div>
+                        </div>
+                        <div class="metric">
+                            <div class="mv" style="color: var(--red);">2,501ms</div>
+                            <div class="ml">평균 응답시간</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- V3 -->
+            <div class="ver-step">
+                <div class="ver-gutter">
+                    <div class="ver-dot v3">V3</div>
+                    <div class="ver-line"></div>
+                </div>
+                <div class="ver-body">
+                    <div class="ver-kicker v3">Step 3 — 구조적 개선</div>
+                    <div class="ver-title">Lua Script — 락 자체를 없애다</div>
+                    <div class="thought t3">
+                        "V2 의 2,501ms 응답시간 원인을 분석했습니다. 문제는 <strong>'락 설정이 잘못됐다' 가 아니라 '락을 기다리는 구조 자체'</strong>였습니다.
+                        락 없이도 원자성을 보장할 수 있다면 대기 자체를 없앨 수 있습니다."
+                    </div>
+                    <div class="dbox">
+                        <div class="dlabel">의사결정 근거</div>
+                        <p>Redis 는 <strong>단일 쓰레드로 명령어를 처리</strong>합니다. Lua Script 는 Redis 내부에서 실행되므로
+                            스크립트 실행 중 다른 명령어가 끼어들 수 없습니다. <strong>락 없이도 원자성이 보장</strong>됩니다.
+                            또한 DB 저장을 <strong>@Async 로 응답 경로에서 분리</strong>하여 응답시간을 추가로 단축했습니다.</p>
+                    </div>
+                    <pre class="code"><code><span class="cmt">-- coupon_issue.lua (원자적 재고 차감 + 발급자 기록)</span>
+<span class="kw">local</span> stock = redis.call(<span class="str">"GET"</span>, KEYS[<span class="num">1</span>])
+<span class="kw">if</span> tonumber(stock) &lt;= <span class="num">0</span> <span class="kw">then</span>
+    <span class="kw">return</span> <span class="num">-1</span>  <span class="cmt">-- 품절</span>
+<span class="kw">end</span>
+<span class="kw">if</span> redis.call(<span class="str">"SISMEMBER"</span>, KEYS[<span class="num">2</span>], ARGV[<span class="num">1</span>]) == <span class="num">1</span> <span class="kw">then</span>
+    <span class="kw">return</span> <span class="num">-2</span>  <span class="cmt">-- 중복 발급</span>
+<span class="kw">end</span>
+redis.call(<span class="str">"DECR"</span>, KEYS[<span class="num">1</span>])
+redis.call(<span class="str">"SADD"</span>, KEYS[<span class="num">2</span>], ARGV[<span class="num">1</span>])
+<span class="kw">return</span> <span class="num">1</span></code></pre>
+                    <div class="metric-row">
+                        <div class="metric">
+                            <div class="mv" style="color: var(--green);">100건</div>
+                            <div class="ml">발급 건수 (정확)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="mv" style="color: var(--accent);">212.8/s</div>
+                            <div class="ml">Throughput (3.6×)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="mv" style="color: var(--green);">762ms</div>
+                            <div class="ml">평균 응답시간 (70% ↓)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- V4 -->
+            <div class="ver-step">
+                <div class="ver-gutter">
+                    <div class="ver-dot v4">V4</div>
+                    <div class="ver-line"></div>
+                </div>
+                <div class="ver-body">
+                    <div class="ver-kicker v4">Step 4 — 트래픽 완충</div>
+                    <div class="ver-title">Sorted Set 대기열 — 급격한 트래픽 흡수</div>
+                    <div class="thought t4">
+                        "V3 는 빠르지만 극단적 트래픽에서 Redis 에도 부하가 집중됩니다.
+                        score 를 <strong>요청 시각으로 쓰면 Sorted Set 이 자동으로 선착순을 보장</strong>해줍니다."
+                    </div>
+                    <p class="prose">
+                        <code>ZADD</code> 로 등록 → 순번 즉시 반환 → 스케줄러가 <code>ZPOPMIN</code> 으로 순서대로 꺼내 Lua Script 실행.
+                        <strong>트래픽 스파이크를 Redis 레벨에서 흡수</strong>합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- V5 -->
+            <div class="ver-step">
+                <div class="ver-gutter">
+                    <div class="ver-dot v5">V5</div>
+                </div>
+                <div class="ver-body">
+                    <div class="ver-kicker v5">Step 5 — 라이프사이클 관리</div>
+                    <div class="ver-title">TTL + Keyspace Notification — 만료를 이벤트로</div>
+                    <div class="thought t5">
+                        "만료를 스케줄러로 처리하면 매 분마다 전체 DB 를 스캔해야 합니다.
+                        <strong>Redis 가 TTL 만료를 직접 알려준다면</strong>, 만료된 쿠폰만 정확히 처리할 수 있습니다."
+                    </div>
+                    <p class="prose">
+                        <code>coupon:expire:{issuanceId}</code> 키에 TTL 을 설정하면 만료 순간 Redis 가
+                        <code>__keyevent@0__:expired</code> 채널에 키 이름을 발행합니다. 리스너는 <strong>폴링 없이 이벤트만 수신</strong>합니다.
+                        value 가 아닌 <strong>키 이름 자체에 issuanceId 를 포함</strong>시켜 대상을 식별합니다.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- PERFORMANCE -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">R</div>
+            <div>
+                <div class="story-kicker">Result · Benchmark</div>
+                <h2 class="story-title">성능 비교</h2>
+                <div class="story-tag">재고 100 / 동시 200명 / JMeter Ramp-up 0초</div>
+            </div>
+        </div>
+
+        <table class="perf-table">
+            <thead>
+            <tr>
+                <th>버전</th>
+                <th>방식</th>
+                <th>정합성</th>
+                <th>Throughput</th>
+                <th>평균 응답시간</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--red);font-weight:600;">V1</span></td>
+                <td style="color:var(--text);">동기화 없음</td>
+                <td><span class="fail-badge">실패</span></td>
+                <td><span style="font-family:var(--mono);color:var(--muted);">—</span></td>
+                <td><span style="font-family:var(--mono);color:var(--muted);">—</span></td>
+            </tr>
+            <tr>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--amber);font-weight:600;">V2</span></td>
+                <td style="color:var(--text);">Redisson 분산 락</td>
+                <td><span class="ok-badge">성공</span></td>
+                <td>
+                    <div class="bar-wrap">
+                        <div class="bar"><div class="bar-fill" style="width:27%;background:var(--amber);"></div></div>
+                        <span style="font-family:var(--mono);font-size:12px;color:var(--amber);">58.4/s</span>
+                    </div>
+                </td>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--red);">2,501ms</span></td>
+            </tr>
+            <tr>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600;">V3</span></td>
+                <td style="color:var(--text);">Redis Lua Script + @Async</td>
+                <td><span class="ok-badge">성공</span></td>
+                <td>
+                    <div class="bar-wrap">
+                        <div class="bar"><div class="bar-fill" style="width:100%;background:var(--accent);"></div></div>
+                        <span style="font-family:var(--mono);font-size:12px;color:var(--accent);">212.8/s</span>
+                    </div>
+                </td>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--green);">762ms</span></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="perf-summary">
+            V2 → V3 전환으로 <strong>TPS 3.6배 향상 (58.4 → 212.8/s)</strong>, <strong>응답시간 70% 단축 (2,501ms → 762ms)</strong>.
+            단순 튜닝이 아니라 <strong>락 대기 구조 제거 + @Async DB 분리</strong> 의 복합 효과입니다.
+        </div>
+    </div>
+</section>
+
+<!-- TAKEAWAYS -->
+<section class="takeaways">
+    <div class="wrap">
+        <div class="sec-label">Key Takeaways</div>
+        <div class="takeaway-list">
+            <div class="takeaway">
+                <div class="tk-num">01</div>
+                <div class="tk-body">
+                    <strong>문제를 먼저 재현한다</strong> — 해결책보다 먼저, 문제가 실제로 발생하는지
+                    <strong>수치로 증명</strong>하는 것이 출발점입니다. V1 의 실험이 없었다면 V2~V5 의 필요성도 말할 수 없습니다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">02</div>
+                <div class="tk-body">
+                    <strong>분산 환경을 전제로 설계한다</strong> — 단일 서버에서만 동작하는 해결책은 진짜 해결책이 아닙니다.
+                    <code>synchronized</code> 가 아니라 분산 락이 필요한 이유를 <strong>처음부터 이해</strong>하고 넘어가야 합니다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">03</div>
+                <div class="tk-body">
+                    <strong>증상이 아닌 구조를 바꾼다</strong> — V2 의 느린 응답은 <strong>락 설정의 문제가 아니라 대기 구조 자체</strong>의 문제였습니다.
+                    Lua Script 로 락이라는 개념 자체를 제거하자 문제가 사라졌습니다. 튜닝은 구조를 바꾼 뒤의 작업입니다.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nav-next">
+    <div class="wrap">
+        <a href="deepdive_redis.html" class="next-link prev">
+            <div class="next-kicker">← Redis 허브</div>
+            <div class="next-title">3개 sub-project 전체 보기</div>
+        </a>
+        <a href="#" class="next-link" style="opacity:.5; pointer-events: none;">
+            <div class="next-kicker">Next 02 (예정)</div>
+            <div class="next-title">실시간 게임 랭킹 시스템</div>
+        </a>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap">
+        <div class="foot-inner">
+            <div class="foot-note">© 2026 천승환 · popeye0618@gmail.com</div>
+            <div class="foot-links">
+                <a href="index.html">Home</a>
+                <a href="deepdive_redis.html">Redis Hub</a>
+                <a href="mailto:popeye0618@gmail.com">Email</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

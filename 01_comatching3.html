@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMAtching3_BE · 천승환 포트폴리오</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="project.css">
+</head>
+<body data-accent="pink">
+
+<nav>
+    <div class="wrap">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">← 천승환 / Backend</a>
+            <div class="nav-links">
+                <a href="01_comatching3.html" class="active">01</a>
+                <a href="02_comatching5.html">02</a>
+                <a href="03_harucut.html">03</a>
+                <a href="04_jeju.html">04</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="hero project-hero">
+    <div class="wrap">
+        <div class="eyebrow fu">Project 01 · 실제 운영 경험</div>
+        <h1 class="fu fu1">
+            COMAtching3_BE<br>
+            <span class="line2">대학 축제에서 운영된 1:1 매칭</span>
+        </h1>
+        <p class="hero-desc fu fu2">
+            실제 사용자가 결제하고 매칭받은 가장 실전적인 프로젝트. 돈과 매칭이 얽힌 동시성 문제를 정면에서 다루며,
+            <strong>"완성도보다 왜 이렇게 설계했는가"</strong>를 문서화한 기록입니다.
+        </p>
+        <div class="meta-row fu fu3">
+            <div class="meta-item">
+                <div class="meta-lbl">Position</div>
+                <div class="meta-val">Backend 단독 개발</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">Period</div>
+                <div class="meta-val">2024 · 대학 축제 운영</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">Status</div>
+                <div class="meta-val" style="color: var(--pink);">● Operated</div>
+            </div>
+        </div>
+        <div class="stack-row fu fu4">
+            <span class="chip">Java 17</span>
+            <span class="chip">Spring Boot 3</span>
+            <span class="chip">Spring Security</span>
+            <span class="chip">Spring Data JPA</span>
+            <span class="chip">QueryDSL</span>
+            <span class="chip">MySQL 8</span>
+            <span class="chip">Redis</span>
+            <span class="chip">Toss Payments</span>
+            <span class="chip">AOP</span>
+        </div>
+    </div>
+</div>
+
+<section class="arch-section">
+    <div class="wrap">
+        <div class="sec-label">System Architecture</div>
+        <div class="arch-box">
+            <div class="sys-arch">
+                <!-- Client Layer -->
+                <div class="arch-layer">
+                    <div class="arch-node">
+                        <div class="node-label">Client</div>
+                        <div class="node-title">Web / Mobile</div>
+                        <div class="node-sub">사용자 결제 · 매칭 요청</div>
+                    </div>
+                </div>
+
+                <div class="arch-arrow">HTTPS · REST</div>
+
+                <!-- Backend Layer -->
+                <div class="arch-layer">
+                    <div class="arch-node arch-node-wide">
+                        <div class="node-label">Backend</div>
+                        <div class="node-title">Spring Boot 3 · Java 17</div>
+                        <div class="node-sub">REST API · AOP · Spring Security · JPA + QueryDSL</div>
+                        <div class="node-tags">
+                            <span class="node-tag">@Idempotent</span>
+                            <span class="node-tag">PayService</span>
+                            <span class="node-tag">MatchService</span>
+                            <span class="node-tag">@Lock(PESSIMISTIC)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arch-arrow">JDBC · Redis Client · RestTemplate</div>
+
+                <!-- Infra Layer -->
+                <div class="arch-layer">
+                    <div class="arch-group docker">
+                        <div class="group-label">Docker Containers</div>
+                        <div class="group-nodes">
+                            <div class="arch-node db">
+                                <div class="node-title">MySQL 8</div>
+                                <div class="node-sub">주 저장소<br>사용자 · 결제 · 매칭</div>
+                            </div>
+                            <div class="arch-node cache">
+                                <div class="node-title">Redis</div>
+                                <div class="node-sub">멱등성 키 TTL<br>SETNX 분산 락</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="arch-group external">
+                        <div class="group-label">External</div>
+                        <div class="group-nodes">
+                            <div class="arch-node ext">
+                                <div class="node-title">Toss Payments</div>
+                                <div class="node-sub">PG API<br>Idempotency-Key 지원</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STORY 1 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">01</div>
+            <div>
+                <div class="story-kicker">Concurrency · Payment</div>
+                <h2 class="story-title">Redis 멱등성 3중 방어선</h2>
+                <div class="story-tag">"결제는 한 번만 성공해야 한다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <p class="prose">
+            결제 요청은 사용자가 연타하거나, 네트워크 재시도가 걸리거나, 외부 PG 가 타임아웃 후 재시도하는 경우 <strong>같은 요청이 2번 들어온다</strong>.
+            이때 (1) 우리 시스템에서 결제가 2건 기록되고 (2) Toss 에서도 중복 승인될 경우 이중 과금이 발생한다.
+            클라이언트 debounce 만으로는 신뢰할 수 없고, 서버 단에서 <strong>요청 단위 멱등성</strong>을 강제해야 했다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">해결 과정</span></div>
+
+        <h3 class="h3">① AOP 기반 <code>@Idempotent</code> — 진입 차단</h3>
+        <pre class="code"><code><span class="kw">@Aspect</span>
+<span class="kw">@Component</span>
+<span class="kw">public class</span> <span class="cls">IdempotentAspect</span> {
+
+    <span class="kw">private final</span> RedisTemplate&lt;String, String&gt; redisTemplate;
+
+    <span class="kw">@Around</span>(<span class="str">"@annotation(idempotent)"</span>)
+    <span class="kw">public</span> Object checkIdempotent(ProceedingJoinPoint jp, Idempotent idempotent) <span class="kw">throws</span> Throwable {
+        String key = generateKey(jp, idempotent);
+        Boolean success = redisTemplate.opsForValue()
+            .setIfAbsent(key, <span class="str">"locked"</span>, idempotent.ttl(), TimeUnit.SECONDS);
+
+        <span class="kw">if</span> (success == <span class="kw">null</span> || !success) {
+            <span class="cmt">// 동일 키가 이미 있음 → 중복 요청</span>
+            <span class="kw">throw new</span> BusinessException(ErrorCode.<span class="fld">DUPLICATE_REQUEST</span>);
+        }
+        <span class="kw">return</span> jp.proceed();
+    }
+}</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">의사결정 근거</div>
+            <div class="decision-body">
+                DB 유니크 제약으로도 중복은 막힌다. 하지만 그 시점이 <strong>트랜잭션 커밋 직전</strong>이라, 이미 Toss API 는 호출됐을 수 있다.
+                AOP 로 <strong>컨트롤러 진입 순간</strong>에 Redis SETNX 로 락을 잡으면, 외부 호출 이전에 중복을 거를 수 있다.
+                즉 <strong>"어디서 막느냐" 에 따라 부작용 범위가 달라진다</strong>.
+            </div>
+        </div>
+
+        <h3 class="h3">② <code>PayRedisService.isIdempotent()</code> — 서비스 계층 방어선</h3>
+        <pre class="code"><code><span class="kw">public</span> <span class="cls">boolean</span> isIdempotent(String idempotencyKey) {
+    String key = <span class="str">"idempotency-key:"</span> + idempotencyKey;
+    Boolean success = redisTemplate.opsForValue()
+        .setIfAbsent(key, <span class="str">"processed"</span>, Duration.ofMinutes(<span class="num">5</span>));
+    <span class="kw">return</span> Boolean.TRUE.equals(success);
+}</code></pre>
+        <p class="prose note">
+            AOP 는 "같은 요청이 맞는가" 에 초점이 있다면, 여기는 <strong>"같은 결제 의도에 대한 고유키"</strong> (클라이언트가 생성) 를 5분간 잠근다.
+            AOP 가 실패해도(Redis 장애, 키 생성 버그) 이 레이어에서 한 번 더 방어된다.
+        </p>
+
+        <h3 class="h3">③ Toss Idempotency-Key + 자동 롤백</h3>
+        <pre class="code"><code><span class="kw">try</span> {
+    HttpHeaders headers = <span class="kw">new</span> HttpHeaders();
+    headers.set(<span class="str">"Idempotency-Key"</span>, idempotencyKey);  <span class="cmt">// Toss 자체 멱등성</span>
+    ResponseEntity&lt;String&gt; response = restTemplate.exchange(
+        TOSS_CONFIRM_URL, HttpMethod.POST,
+        <span class="kw">new</span> HttpEntity&lt;&gt;(body, headers), String.class);
+    ...
+} <span class="kw">catch</span> (Exception e) {
+    <span class="cmt">// ✨ 실패 시 즉시 환불 — 돈이 떠있는 상태를 방치하지 않음</span>
+    payService.refundPayment(paymentKey, amount, <span class="str">"결제 검증 실패"</span>);
+    <span class="kw">throw</span> e;
+}</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">놓치기 쉬운 포인트</div>
+            <div class="decision-body">
+                "우리 시스템에서 예외가 났다" = "Toss 에서도 실패했다" 가 <strong>아니다</strong>.
+                Toss 는 승인이 성공했는데 우리 후처리에서 실패하는 경우가 있다.
+                이때 <strong>자동 환불 호출</strong>까지 설계해두지 않으면 "Toss 에는 돈이 있는데 우리 DB 엔 매칭권이 없음" 같은 사고가 난다.
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">결과</span></div>
+        <ul class="result-list">
+            <li>결제 이중 과금 <strong>0건</strong> (축제 운영 기간 전체)</li>
+            <li>3중 방어로 <strong>하나의 레이어가 실패해도 다른 레이어가 보완</strong> — depth-in-defense</li>
+            <li>예외 시 <strong>자동 환불</strong>로 "돈이 떠있는 상태" 발생 차단</li>
+        </ul>
+    </div>
+</section>
+
+<!-- STORY 2 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">02</div>
+            <div>
+                <div class="story-kicker">Business Logic · Matching</div>
+                <h2 class="story-title">중요·일반 옵션 다단계 필터링</h2>
+                <div class="story-tag">"매칭 성공률과 사용자 신뢰의 균형"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <p class="prose">
+            매칭에는 두 종류 조건이 있다. <strong>중요 옵션</strong>(흡연/음주 등 절대 타협 불가) 과 <strong>일반 옵션</strong>(취미/학과 등 가능하면 맞으면 좋은 것).
+            단일 조건으로 필터링하면 <strong>매칭 실패율이 너무 높아지거나</strong>, 반대로 <strong>중요 조건을 어기는 매칭이 나오거나</strong> 둘 중 하나가 망한다.
+            실제 운영에서 이 균형을 어떻게 코드로 표현할지가 핵심 문제였다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">해결 과정</span></div>
+
+        <h3 class="h3">① 필터를 순서대로 적용하되, 통과 기준(minSize)을 옵션 타입별로 다르게</h3>
+        <pre class="code"><code><span class="kw">private</span> List&lt;Users&gt; applyFiltersInOrder(
+        List&lt;Users&gt; candidates,
+        List&lt;FilterCondition&gt; filters) {
+
+    List&lt;Users&gt; current = candidates;
+    <span class="kw">for</span> (FilterCondition filter : filters) {
+        List&lt;Users&gt; filtered = filter.apply(current);
+
+        <span class="cmt">// 중요 옵션: 후보 1명만 남아도 진행 (절대 조건이므로)</span>
+        <span class="cmt">// 일반 옵션: 최소 3명 유지 (다양성 확보)</span>
+        <span class="kw">if</span> (filtered.size() &lt; filter.minSize()) {
+            <span class="kw">break</span>;  <span class="cmt">// 이 필터는 무시, 직전 상태 유지</span>
+        }
+        current = filtered;
+    }
+    <span class="kw">return</span> current;
+}</code></pre>
+
+        <h3 class="h3">② 중요 옵션 실패 시 자동 환불</h3>
+        <pre class="code"><code><span class="kw">public void</span> checkAndReturnImportantOptionPay(Users user, List&lt;Users&gt; pool) {
+    <span class="kw">if</span> (user.getImportantOption() == <span class="kw">null</span>) <span class="kw">return</span>;
+
+    <span class="kw">boolean</span> hasCandidate = pool.stream()
+        .anyMatch(u -&gt; matchesImportantOption(u, user.getImportantOption()));
+
+    <span class="kw">if</span> (!hasCandidate) {
+        <span class="cmt">// 중요 옵션에 맞는 후보가 0명 → 300원(중요 옵션 추가 비용) 자동 환불</span>
+        payService.refundPartial(user, <span class="num">300L</span>, <span class="str">"중요 옵션 후보 부재"</span>);
+    }
+}</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">의사결정 근거</div>
+            <div class="decision-body">
+                중요 옵션은 <strong>돈을 더 받고 제공하는 기능</strong>이다. 후보 pool 이 작은 시간대(새벽) 에 "중요 옵션에 맞는 사람이 아예 없다"면,
+                차라리 <strong>무조건 매칭 실패 → 환불</strong>이 옳다. "비슷한 사람으로 매칭" 은 신뢰를 잃는 최악의 선택이다.
+                반면 일반 옵션은 <strong>취향 일치</strong>수준이므로 pool 을 너무 좁혀 매칭 실패를 만드는 것보다 완화가 낫다.
+                <strong>minSize 1 vs 3</strong> 은 이 철학의 코드 표현이다.
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">결과</span></div>
+        <ul class="result-list">
+            <li>중요 옵션 위반 매칭 <strong>0건</strong> — 사용자 신뢰 유지</li>
+            <li>일반 옵션은 완화 적용으로 <strong>매칭 실패율 감소</strong></li>
+            <li>중요 옵션 실패 시 <strong>자동 환불</strong>로 고객 문의/분쟁 제로</li>
+        </ul>
+    </div>
+</section>
+
+<!-- STORY 3 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">03</div>
+            <div>
+                <div class="story-kicker">Concurrency · Locking</div>
+                <h2 class="story-title">낙관적 락 재시도 + 비관적 락 병행</h2>
+                <div class="story-tag">"동시성 전략은 데이터 특성에 따라 다르다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <p class="prose">
+            한 사용자가 여러 매칭 요청을 동시에 보내거나, 인기 많은 사용자(enemy) 의 <strong>pickedCount</strong> 가 동시에 증가할 때 경합이 생긴다.
+            모든 경로에 <strong>비관적 락</strong>만 쓰면 처리량이 떨어지고, <strong>낙관적 락</strong>만 쓰면 실패율이 올라간다.
+            <strong>데이터 특성별로 전략을 분리</strong>해야 했다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">해결 과정</span></div>
+
+        <h3 class="h3">① 핫한 카운터는 낙관적 락 + retry (충돌 희귀한 영역)</h3>
+        <pre class="code"><code><span class="kw">@Transactional</span>
+<span class="kw">public void</span> updateEnemyPickedCount(Users enemy) {
+    <span class="kw">int</span> retryCount = <span class="num">3</span>;
+    <span class="kw">while</span> (retryCount-- &gt; <span class="num">0</span>) {
+        <span class="kw">try</span> {
+            Users latest = usersRepository.findById(enemy.getId()).orElseThrow();
+            latest.increasePickedCount();
+            usersRepository.save(latest);
+            <span class="kw">return</span>;
+        } <span class="kw">catch</span> (OptimisticLockingFailureException e) {
+            <span class="kw">if</span> (retryCount == <span class="num">0</span>) <span class="kw">throw</span> e;
+            <span class="cmt">// 다음 루프에서 최신 버전으로 재시도</span>
+        }
+    }
+}</code></pre>
+
+        <h3 class="h3">② 결정적 갱신은 비관적 락 (절대 놓칠 수 없는 영역)</h3>
+        <pre class="code"><code><span class="kw">public interface</span> <span class="cls">UsersRepository</span> <span class="kw">extends</span> JpaRepository&lt;Users, Long&gt; {
+
+    <span class="kw">@Lock</span>(LockModeType.<span class="fld">PESSIMISTIC_WRITE</span>)
+    <span class="kw">@Query</span>(<span class="str">"SELECT u FROM Users u WHERE u.uuid = :uuid"</span>)
+    Optional&lt;Users&gt; findUsersByUuidForUpdate(<span class="kw">@Param</span>(<span class="str">"uuid"</span>) String uuid);
+}</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">의사결정 근거</div>
+            <div class="decision-body">
+                <strong>pickedCount 는 "+1 한 번 더 해도 되지만, 놓치면 아쉬운 정도"</strong>다. 충돌이 적고, 재시도 3회로 대부분 복구된다 → 낙관적 락이 처리량에 유리.
+                <strong>UUID 로 찾는 사용자 본체는 결제/매칭 직전 상태 변경</strong>이 걸린 데이터다. 재시도가 실패하면 사용자 경험이 깨진다 → 비관적 락으로 직렬화.
+                <strong>"두 전략 중 하나를 고른다" 가 아니라, "영역마다 맞는 걸 고른다"</strong>.
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">결과</span></div>
+        <ul class="result-list">
+            <li>핫 카운터 업데이트는 <strong>낙관적 락 + 재시도 3회</strong>로 대부분 성공</li>
+            <li>결제/매칭 경로의 본체 User 는 <strong>비관적 락</strong>으로 경합 직렬화</li>
+            <li>축제 운영 중 <strong>동시성 관련 장애 0건</strong></li>
+        </ul>
+    </div>
+</section>
+
+<section class="takeaways">
+    <div class="wrap">
+        <div class="sec-label">Key Takeaways</div>
+        <div class="takeaway-list">
+            <div class="takeaway">
+                <div class="tk-num">01</div>
+                <div class="tk-body">
+                    <strong>다중 방어선이 안전을 만든다</strong> — AOP / 서비스 계층 / 외부 API 자체 멱등성까지 3단으로 겹쳐두면 하나가 실패해도 다른 레이어가 잡는다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">02</div>
+                <div class="tk-body">
+                    <strong>환불 조건도 설계의 일부다</strong> — "실패 시 어떻게 상태를 되돌릴 것인가" 를 정상 로직과 함께 설계해야 사용자 신뢰가 생긴다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">03</div>
+                <div class="tk-body">
+                    <strong>동시성 전략은 영역별로 다르다</strong> — 모든 곳에 비관적 락이면 처리량이 죽고, 모든 곳에 낙관적 락이면 결정적 경로가 깨진다. 데이터 특성을 읽고 나눠 쓰는 게 맞다.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nav-next">
+    <div class="wrap">
+        <a href="index.html" class="next-link prev">
+            <div class="next-kicker">← Index</div>
+            <div class="next-title">전체 프로젝트</div>
+        </a>
+        <a href="02_comatching5.html" class="next-link">
+            <div class="next-kicker">Next 02 →</div>
+            <div class="next-title">comatching5 · MSA 차세대 버전</div>
+        </a>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap">
+        <div class="foot-inner">
+            <div class="foot-note">© 2026 천승환 · popeye0618@gmail.com</div>
+            <div class="foot-links">
+                <a href="index.html">Home</a>
+                <a href="mailto:popeye0618@gmail.com">Email</a>
+                <a href="https://github.com/popeye0618" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
