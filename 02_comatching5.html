@@ -32,7 +32,7 @@
             <span class="line2">MSA 기반 차세대 이성 매칭 플랫폼</span>
         </h1>
         <p class="hero-desc fu fu2">
-            모놀리식 v3 를 <strong>8개 마이크로서비스</strong>로 재설계하고, 1년간의 운영을 거쳐
+            모놀리식 v3 를 <strong>마이크로서비스</strong>로 재설계하고, 1년간의 운영을 거쳐
             서비스 경계를 <strong>쪼갰다가 다시 합치는</strong> 반성적 리팩토링까지 수행한 프로젝트입니다.
             "MSA 를 언제 도입하고 언제 거둘지" 를 실제 경험으로 답한 기록.
         </p>
@@ -97,7 +97,7 @@
                 <!-- Services Layer -->
                 <div class="arch-layer">
                     <div class="arch-group docker">
-                        <div class="group-label">Microservices (8)</div>
+                        <div class="group-label">Microservices</div>
                         <div class="group-nodes">
                             <div class="arch-node">
                                 <div class="node-title">user-service</div>
@@ -243,13 +243,13 @@
             하지만 <strong>1년간 운영하며 드러난 비용</strong>은 달랐다.
             회원가입 플로우에서 <strong>분산 트랜잭션 지옥</strong>이 발생했고 (auth 커밋 → member 실패 시 Saga 복잡도가 본 로직을 역전),
             Feign 호출이 <strong>서로를 7번 호출</strong>하는 병목으로 쌓였으며,
-            DDD 관점에서 두 서비스의 도메인 경계는 사실상 같은 "User" 애그리거트였다.
+            DDD 관점에서 두 서비스의 도메인 경계는 사실상 같았다.
             <strong>MSA 는 서비스 간 호출 비용이 도메인 분리 이점보다 크면 실패다.</strong>
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① 통합 범위 확정 — 9개 → 8개</h3>
+        <h3 class="h3">① 통합 범위 확정</h3>
         <p class="prose">
             auth-service + member-service → <strong>user-service 하나로 통합</strong>.
             matching-service, chat-service, item-service 는 도메인이 명확히 달라 유지.
@@ -320,7 +320,7 @@
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
             채팅 메시지 하나가 전송될 때마다 <code>isBlocked(sender, receiver)</code> 호출이 반드시 필요하다.
-            활성 채팅방 1개 = 초당 10개 메시지 기준 <strong>1분 = 600번의 MongoDB 조회</strong>.
+            활성 채팅방 1개 = 초당 10개 메시지 기준 <strong>1분 = 600번의 DB 조회</strong>.
             채팅방이 N 개면 × N 배. 서비스가 커질수록 병목이 선형 증가한다.
             차단 목록은 <strong>쓰기는 드물고 읽기는 매우 빈번</strong> — 전형적인 캐시 적용 지점이지만,
             보안 관련 데이터라 정합성이 깨지면 차단된 유저의 메시지가 새어 들어간다.
