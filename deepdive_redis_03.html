@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 알림 · 이벤트 파이프라인 — Redis 완전정복 Project 3</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:#0a0c10;--bg2:#111419;--bg3:#181c23;
+            --border:rgba(255,255,255,0.07);--border-bright:rgba(255,255,255,0.14);
+            --text:#e8eaf0;--muted:#7a8090;
+            --accent:#4f9eff;--green:#3ecf8e;--amber:#f5a623;--red:#ff5252;--purple:#b794f4;
+            --mono:'JetBrains Mono',monospace;--display:'Pretendard',sans-serif;--body:'Pretendard',sans-serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.7;overflow-x:hidden;}
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(183,148,244,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(183,148,244,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+        nav{padding:20px 0;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,12,16,0.92);backdrop-filter:blur(12px);z-index:100;}
+        .nav-inner{display:flex;align-items:center;justify-content:space-between;}
+        .nav-logo{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;}
+        .nav-logo:hover{color:#fff;}
+        .nav-logo::before{content:'←';font-size:12px;}
+        .nav-links{display:flex;gap:20px;}
+        .nav-links a{font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+        .nav-links a:hover{color:#fff;}
+        .nav-links a.active{color:var(--purple);}
+
+        .wrap{max-width:900px;margin:0 auto;padding:0 32px;position:relative;z-index:1;}
+        header{padding:72px 0 56px;border-bottom:1px solid var(--border);}
+        .eyebrow{font-family:var(--mono);font-size:11px;color:var(--purple);letter-spacing:.2em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+        .eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--purple);}
+        h1{font-family:var(--display);font-size:clamp(28px,5vw,46px);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:20px;color:#fff;}
+        h1 span{color:var(--purple);}
+        .desc{color:var(--muted);max-width:600px;margin-bottom:28px;}
+        .tags{display:flex;flex-wrap:wrap;gap:8px;}
+        .tag{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:4px;border:1px solid var(--border-bright);color:var(--muted);background:var(--bg2);}
+
+        section{padding:64px 0;border-bottom:1px solid var(--border);}
+        section:last-of-type{border-bottom:none;}
+        .sec-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:32px;display:flex;align-items:center;gap:10px;}
+        .sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+        h2{font-family:var(--display);font-size:22px;font-weight:700;color:#fff;margin-bottom:14px;letter-spacing:-.01em;}
+        h3{font-family:var(--display);font-size:16px;font-weight:700;color:#fff;margin-bottom:10px;}
+        p{color:var(--muted);line-height:1.8;}
+
+        .arch-box{background:var(--bg2);border:1px solid var(--border-bright);border-radius:12px;padding:36px;margin-top:24px;}
+
+        .compare-table{width:100%;border-collapse:collapse;margin-top:24px;font-size:13px;}
+        .compare-table th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);font-weight:500;}
+        .compare-table td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:middle;}
+        .compare-table tr:last-child td{border-bottom:none;}
+        .compare-table tr:hover td{background:rgba(255,255,255,.02);}
+
+        .flow{display:flex;flex-direction:column;margin-top:8px;}
+        .fi{display:grid;grid-template-columns:100px 1fr;gap:0 28px;}
+        .fl{display:flex;flex-direction:column;align-items:center;padding-top:22px;}
+        .dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border-bright);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--muted);flex-shrink:0;}
+        .dot.d1{border-color:rgba(183,148,244,.4);color:var(--purple);}
+        .dot.d2{border-color:rgba(245,166,35,.5);color:var(--amber);}
+        .dot.d3{border-color:rgba(62,207,142,.4);color:var(--green);}
+        .dot.d4{border-color:rgba(79,158,255,.5);color:var(--accent);}
+        .fl-line{flex:1;width:1px;background:var(--border);margin:4px 0;min-height:20px;}
+        .fr{padding:18px 0 36px;}
+        .fv{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
+        .fv.v1{color:var(--purple);}
+        .fv.v2{color:var(--amber);}
+        .fv.v3{color:var(--green);}
+        .fv.v4{color:var(--accent);}
+        .ft{font-family:var(--display);font-size:17px;font-weight:700;color:#fff;margin-bottom:10px;}
+        .fb{color:var(--muted);font-size:14px;line-height:1.8;}
+        .thought{background:var(--bg2);border-left:3px solid var(--border-bright);border-radius:0 8px 8px 0;padding:14px 18px;margin:12px 0;font-size:14px;color:var(--muted);font-style:italic;}
+        .thought.t1{border-left-color:rgba(183,148,244,.5);}
+        .thought.t2{border-left-color:rgba(245,166,35,.5);}
+        .thought.t3{border-left-color:rgba(62,207,142,.4);}
+        .thought.t4{border-left-color:rgba(79,158,255,.5);}
+        .dbox{background:var(--bg3);border:1px solid var(--border-bright);border-radius:8px;padding:14px 18px;margin:12px 0;}
+        .dlabel{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+        .mrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+        .m{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-family:var(--mono);font-size:12px;}
+        .mv{color:#fff;font-weight:500;}
+        .ml{color:var(--muted);font-size:10px;margin-top:1px;}
+
+        .log-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:14px;font-family:var(--mono);font-size:12px;line-height:1.9;color:var(--muted);}
+        .log-box .ok{color:var(--green);}
+        .log-box .warn{color:var(--amber);}
+        .log-box .err{color:var(--red);}
+        .log-box .info{color:var(--purple);}
+
+        .tg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px;}
+        .tc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:22px;}
+        .tnum{font-family:var(--mono);font-size:20px;margin-bottom:12px;}
+        .tc h3{font-size:14px;margin-bottom:8px;}
+        .tc p{font-size:13px;}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+        .fu{animation:fadeUp .5s ease both;}
+        .fu1{animation-delay:.1s;}.fu2{animation-delay:.2s;}
+        @media(max-width:680px){.tg{grid-template-columns:1fr;}.fi{grid-template-columns:64px 1fr;}}
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="wrap">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">Redis 완전정복</a>
+            <div class="nav-links">
+                <a href="project1.html">Project 1</a>
+                <a href="project2.html">Project 2</a>
+                <a href="project3.html" class="active">Project 3</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header>
+    <div class="wrap">
+        <div class="eyebrow">Redis 완전정복 · Project 03</div>
+        <h1>실시간 알림<br><span>이벤트 파이프라인</span></h1>
+        <p class="desc">Kafka 없이 Redis Stream만으로 신뢰성 있는 이벤트 파이프라인을 구축합니다. 단순 발행/소비에서 시작해 Consumer Group, WebSocket 실시간 알림, PEL 재처리까지 At-least-once 전달을 보장합니다.</p>
+        <div class="tags">
+            <span class="tag">Java 21</span>
+            <span class="tag">Spring Boot 4.x</span>
+            <span class="tag">Redis 8.0</span>
+            <span class="tag">MySQL 8.0</span>
+            <span class="tag">WebSocket (STOMP)</span>
+            <span class="tag">Docker Compose</span>
+        </div>
+    </div>
+</header>
+
+<!-- ARCHITECTURE -->
+<section>
+    <div class="wrap">
+        <div class="sec-label">Architecture</div>
+        <h2>전체 시스템 구조</h2>
+        <p>Stream이 내구성을 담당하고, Pub/Sub가 실시간성을 담당합니다. PEL이 재처리 보장을 담당합니다.</p>
+        <div class="arch-box">
+            <svg width="100%" viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+                <defs>
+                    <marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#b794f4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </marker>
+                    <marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#3ecf8e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </marker>
+                    <marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#4f9eff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </marker>
+                    <marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#f5a623" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </marker>
+                </defs>
+
+                <!-- Producer -->
+                <rect x="10" y="44" width="110" height="36" rx="6" fill="#181c23" stroke="rgba(183,148,244,0.3)" stroke-width="1"/>
+                <text x="65" y="67" text-anchor="middle" fill="#b794f4" font-size="11">Producer (API)</text>
+                <line x1="120" y1="62" x2="165" y2="62" stroke="#b794f4" stroke-width="1" marker-end="url(#a1)"/>
+                <text x="142" y="56" text-anchor="middle" fill="#b794f4" font-size="9">XADD</text>
+
+                <!-- Stream -->
+                <rect x="165" y="44" width="160" height="36" rx="6" fill="#181c23" stroke="rgba(183,148,244,0.25)" stroke-width="1"/>
+                <text x="245" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">notification:stream</text>
+                <text x="245" y="73" text-anchor="middle" fill="#7a8090" font-size="9">Redis Stream (append-only)</text>
+                <line x1="325" y1="62" x2="370" y2="62" stroke="#b794f4" stroke-width="1" marker-end="url(#a1)"/>
+                <text x="347" y="56" text-anchor="middle" fill="#b794f4" font-size="9">XREADGROUP</text>
+
+                <!-- Consumer -->
+                <rect x="370" y="26" width="140" height="72" rx="8" fill="#181c23" stroke="rgba(183,148,244,0.3)" stroke-width="1"/>
+                <text x="440" y="52" text-anchor="middle" fill="#fff" font-size="12" font-weight="500">Consumer</text>
+                <text x="440" y="68" text-anchor="middle" fill="#7a8090" font-size="10">@Scheduled</text>
+                <text x="440" y="84" text-anchor="middle" fill="#b794f4" font-size="9">XACK on success</text>
+
+                <!-- Consumer → DB -->
+                <line x1="440" y1="98" x2="440" y2="200" stroke="#3ecf8e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#a2)"/>
+                <text x="452" y="155" fill="#3ecf8e" font-size="9">@Async</text>
+                <rect x="370" y="200" width="140" height="50" rx="8" fill="#181c23" stroke="rgba(62,207,142,0.25)" stroke-width="1"/>
+                <text x="440" y="222" text-anchor="middle" fill="#fff" font-size="12" font-weight="500">MySQL 8.0</text>
+                <text x="440" y="238" text-anchor="middle" fill="#7a8090" font-size="9">status: DELIVERED</text>
+
+                <!-- Consumer → Pub/Sub -->
+                <line x1="510" y1="62" x2="560" y2="62" stroke="#4f9eff" stroke-width="1" marker-end="url(#a3)"/>
+                <text x="535" y="56" text-anchor="middle" fill="#4f9eff" font-size="9">PUBLISH</text>
+                <rect x="560" y="44" width="140" height="36" rx="6" fill="#181c23" stroke="rgba(79,158,255,0.25)" stroke-width="1"/>
+                <text x="630" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">Pub/Sub Channel</text>
+                <text x="630" y="73" text-anchor="middle" fill="#7a8090" font-size="9">notification:pubsub:{userId}</text>
+
+                <!-- Pub/Sub → WebSocket -->
+                <line x1="630" y1="80" x2="630" y2="130" stroke="#4f9eff" stroke-width="1" marker-end="url(#a3)"/>
+                <text x="645" y="110" fill="#4f9eff" font-size="9">onMessage()</text>
+                <rect x="560" y="130" width="140" height="36" rx="6" fill="#181c23" stroke="rgba(79,158,255,0.2)" stroke-width="1"/>
+                <text x="630" y="147" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">WebSocket</text>
+                <text x="630" y="160" text-anchor="middle" fill="#7a8090" font-size="9">/topic/notifications/{userId}</text>
+
+                <!-- WebSocket → Browser -->
+                <line x1="700" y1="148" x2="750" y2="148" stroke="#4f9eff" stroke-width="1" marker-end="url(#a3)"/>
+                <rect x="750" y="130" width="60" height="36" rx="6" fill="#181c23" stroke="rgba(79,158,255,0.2)" stroke-width="1"/>
+                <text x="780" y="152" text-anchor="middle" fill="#4f9eff" font-size="10">Browser</text>
+
+                <!-- PEL -->
+                <rect x="165" y="200" width="160" height="50" rx="6" fill="#181c23" stroke="rgba(245,166,35,0.25)" stroke-width="1" stroke-dasharray="4 3"/>
+                <text x="245" y="222" text-anchor="middle" fill="#f5a623" font-size="11" font-weight="500">PEL</text>
+                <text x="245" y="238" text-anchor="middle" fill="#7a8090" font-size="9">미처리 메시지 추적</text>
+                <path d="M245 170 L245 200" fill="none" stroke="#f5a623" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#a4)"/>
+                <text x="258" y="188" fill="#f5a623" font-size="9">XACK 미수신</text>
+                <text x="245" y="172" text-anchor="middle" fill="#7a8090" font-size="9">Consumer 장애 시</text>
+
+                <!-- PEL Processor -->
+                <rect x="10" y="200" width="140" height="50" rx="6" fill="#181c23" stroke="rgba(245,166,35,0.2)" stroke-width="1"/>
+                <text x="80" y="222" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">PEL Processor</text>
+                <text x="80" y="238" text-anchor="middle" fill="#7a8090" font-size="9">XCLAIM → 재처리 (30s)</text>
+                <line x1="165" y1="225" x2="150" y2="225" stroke="#f5a623" stroke-width="1" marker-end="url(#a4)"/>
+            </svg>
+        </div>
+    </div>
+</section>
+
+<!-- CORE DESIGN -->
+<section>
+    <div class="wrap">
+        <div class="sec-label">Core Design</div>
+        <h2>Stream vs Pub/Sub — 역할 분리</h2>
+        <p>두 기술의 특성이 달라서 각자 맡는 역할도 달라야 해요.</p>
+        <table class="compare-table" style="margin-top:24px;">
+            <thead>
+                <tr><th>항목</th><th>Redis Stream</th><th>Redis Pub/Sub</th></tr>
+            </thead>
+            <tbody>
+                <tr><td style="color:var(--text)">메시지 저장</td><td style="color:var(--green)">영구 저장</td><td style="color:var(--red)">저장 안 함 (휘발)</td></tr>
+                <tr><td style="color:var(--text)">구독자 부재 시</td><td style="color:var(--green)">나중에 읽기 가능</td><td style="color:var(--red)">메시지 유실</td></tr>
+                <tr><td style="color:var(--text)">재처리</td><td style="color:var(--green)">PEL로 보장</td><td style="color:var(--red)">불가</td></tr>
+                <tr><td style="color:var(--text)">실시간성</td><td style="color:var(--amber)">폴링 기반</td><td style="color:var(--green)">즉시 전달</td></tr>
+                <tr><td style="color:var(--text)">이 프로젝트 역할</td><td style="color:var(--purple)">백엔드 파이프라인</td><td style="color:var(--purple)">WebSocket 브릿지</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- THOUGHT PROCESS -->
+<section>
+    <div class="wrap">
+        <div class="sec-label">Thought Process</div>
+        <h2>사고 흐름 — 신뢰성을 단계적으로 쌓다</h2>
+        <p style="margin-bottom:40px;">각 버전은 이전 버전에서 남은 문제를 정의하고 해결한 결과입니다.</p>
+
+        <div class="flow">
+            <div class="fi">
+                <div class="fl"><div class="dot d1">V1</div><div class="fl-line"></div></div>
+                <div class="fr">
+                    <div class="fv v1">Version 1 — 기반 구현</div>
+                    <div class="ft">Redis Stream 기본 발행/소비</div>
+                    <div class="thought t1">"XADD로 쌓고 XREAD로 꺼내는 구조는 단순합니다. 그런데 두 소비자가 동시에 XREAD를 하면 같은 메시지를 둘 다 받습니다. 그리고 처리 중 서버가 죽으면 그 메시지는 누가 처리하나요?"</div>
+                    <p class="fb">append-only 구조로 메시지를 적재하고 @Scheduled 폴링으로 소비하는 기본 흐름을 구현했습니다. 이 단계의 목적은 흐름을 이해하고 한계를 직접 확인하는 것이었습니다.</p>
+                    <div class="mrow">
+                        <div class="m"><div class="mv" style="color:var(--red)">중복 처리</div><div class="ml">다중 Consumer 시</div></div>
+                        <div class="m"><div class="mv" style="color:var(--red)">재처리 불가</div><div class="ml">장애 시 메시지 유실</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fi">
+                <div class="fl"><div class="dot d2">V2</div><div class="fl-line"></div></div>
+                <div class="fr">
+                    <div class="fv v2">Version 2 — 신뢰성 확보</div>
+                    <div class="ft">Consumer Group — 분산 처리 + PEL 추적</div>
+                    <div class="thought t2">"Consumer Group을 쓰면 Redis가 '누가 어떤 메시지를 가져갔는지'를 PEL에 기록합니다. XACK를 보내면 처리 완료. 안 보내면 PEL에 남습니다. 이게 재처리의 기반이 됩니다."</div>
+                    <div class="dbox">
+                        <div class="dlabel">V2 핵심</div>
+                        <p class="fb" style="font-size:13px;"><code style="font-family:var(--mono);font-size:12px;color:var(--amber)">XREADGROUP ... &gt;</code>의 <span style="color:#fff;">"&gt;"</span>는 아직 아무도 가져가지 않은 새 메시지만 읽겠다는 의미입니다. 같은 그룹 내에서 메시지가 겹치지 않습니다.</p>
+                    </div>
+                    <div class="mrow">
+                        <div class="m"><div class="mv" style="color:var(--green)">DELIVERED</div><div class="ml">DB status</div></div>
+                        <div class="m"><div class="mv" style="color:var(--green)">empty</div><div class="ml">XPENDING 결과</div></div>
+                        <div class="m"><div class="mv">0</div><div class="ml">lag</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fi">
+                <div class="fl"><div class="dot d3">V3</div><div class="fl-line"></div></div>
+                <div class="fr">
+                    <div class="fv v3">Version 3 — 실시간성 확보</div>
+                    <div class="ft">Pub/Sub → WebSocket — 브라우저까지 즉시 전달</div>
+                    <div class="thought t3">"Stream은 내구성은 있지만 폴링 기반이라 실시간이 아닙니다. Consumer가 DB에 저장하는 시점에 Pub/Sub 채널에도 발행하면, 연결된 WebSocket으로 즉시 전달할 수 있습니다."</div>
+                    <p class="fb">Consumer 처리 완료 시점에 <code style="font-family:var(--mono);font-size:12px;color:var(--green)">PUBLISH notification:pubsub:{userId}</code>를 호출합니다. <code style="font-family:var(--mono);font-size:12px;color:var(--green)">PatternTopic("notification:pubsub:*")</code>로 전체 유저 채널을 한 번에 구독하고, userId를 채널 이름에서 파싱해 해당 WebSocket으로 라우팅합니다.</p>
+                    <div class="mrow">
+                        <div class="m"><div class="mv" style="color:var(--green)">즉시 수신</div><div class="ml">브라우저 알림</div></div>
+                        <div class="m"><div class="mv" style="color:var(--green)">정상</div><div class="ml">Pub/Sub 채널 확인</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fi">
+                <div class="fl"><div class="dot d4">V4</div></div>
+                <div class="fr">
+                    <div class="fv v4">Version 4 — 장애 복구</div>
+                    <div class="ft">PEL 재처리 + Dead Letter — At-least-once 보장</div>
+                    <div class="thought t4">"처리 중 서버가 죽으면 PEL에 메시지가 남습니다. 30초마다 PEL을 스캔해서 기준 시간 이상 된 메시지를 XCLAIM으로 재할당해 재처리합니다. 3번 이상 실패하면 Dead Letter로 처리합니다."</div>
+                    <div class="dbox">
+                        <div class="dlabel">실제 동작 로그</div>
+                        <div class="log-box">
+<span class="warn">[PEL] 미처리 메시지 1건 감지</span>
+<span class="warn">[PEL] 재처리 대상 | ID: 1776656328136-0 | 경과: 30018ms | 전달횟수: 2</span>
+<span class="err">[PEL] 재처리 실패 | 의도적 처리 실패</span>
+<span class="warn">[PEL] 미처리 메시지 1건 감지</span>
+<span class="warn">[PEL] 재처리 대상 | ID: 1776656328136-0 | 경과: 30008ms | 전달횟수: 3</span>
+<span class="err">[PEL] 재처리 실패 | 의도적 처리 실패</span>
+<span class="info">[PEL] Dead Letter 처리 | ID: 1776656328136-0</span>
+                        </div>
+                    </div>
+                    <div class="mrow">
+                        <div class="m"><div class="mv" style="color:var(--accent)">empty</div><div class="ml">최종 XPENDING</div></div>
+                        <div class="m"><div class="mv">3회</div><div class="ml">Dead Letter 기준</div></div>
+                        <div class="m"><div class="mv" style="color:var(--green)">보장</div><div class="ml">At-least-once</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TAKEAWAYS -->
+<section>
+    <div class="wrap">
+        <div class="sec-label">Key Takeaways</div>
+        <h2>핵심 인사이트</h2>
+        <div class="tg">
+            <div class="tc fu">
+                <div class="tnum" style="color:var(--purple)">01</div>
+                <h3>두 기술의 역할을 분리한다</h3>
+                <p>Stream은 내구성, Pub/Sub는 실시간성. 각자 잘하는 것을 맡기면 복잡한 요구사항도 단순하게 해결됩니다.</p>
+            </div>
+            <div class="tc fu fu1">
+                <div class="tnum" style="color:var(--amber)">02</div>
+                <h3>XACK가 없으면 처리된 게 아니다</h3>
+                <p>메시지를 읽은 것과 처리한 것은 다릅니다. XACK를 보내기 전까지 Redis는 그 메시지를 미처리로 간주합니다.</p>
+            </div>
+            <div class="tc fu fu2">
+                <div class="tnum" style="color:var(--accent)">03</div>
+                <h3>PEL이 신뢰성의 기반이다</h3>
+                <p>PEL 없이는 장애 복구가 불가능합니다. Kafka의 Offset 커밋과 동일한 역할을 Redis Stream의 PEL + XACK가 담당합니다.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="padding:48px 0;border-top:1px solid var(--border);">
+    <div class="wrap">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;">
+            <div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;">Source Code</div>
+                <a href="https://github.com/popeye0618/redis-portfolio/tree/main/redis-notification-system"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   style="display:inline-flex;align-items:center;gap:12px;text-decoration:none;padding:14px 22px;border-radius:8px;border:1px solid var(--border-bright);background:var(--bg2);color:var(--text);transition:border-color .2s,background .2s;"
+                   onmouseover="this.style.borderColor='var(--purple)';this.style.background='var(--bg3)'"
+                   onmouseout="this.style.borderColor='var(--border-bright)';this.style.background='var(--bg2)'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--text)">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+                    </svg>
+                    <span style="font-size:14px;">github.com/popeye0618/redis-portfolio/tree/main/redis-notification-system</span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                    </svg>
+                </a>
+            </div>
+            <a href="index.html" style="font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;transition:color .2s;"
+               onmouseover="this.style.color='#fff'"
+               onmouseout="this.style.color='var(--muted)'">← 목록으로</a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
