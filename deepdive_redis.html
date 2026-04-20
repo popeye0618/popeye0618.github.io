@@ -94,21 +94,16 @@
         .nav-logo {
             font-family: var(--mono);
             font-size: 13px;
-            color: #fff;
+            color: var(--muted);
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
+            transition: color .2s;
         }
 
-        .nav-logo::before {
-            content: '';
-            display: block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
+        .nav-logo:hover {
+            color: #fff;
         }
 
         .nav-links {
@@ -552,7 +547,7 @@
 <nav>
     <div class="wrap">
         <div class="nav-inner">
-            <a href="deepdive_redis.html" class="nav-logo">Redis 완전정복</a>
+            <a href="index.html" class="nav-logo">← 포트폴리오</a>
             <div class="nav-links">
                 <a href="deepdive_redis_01.html">Project 1</a>
                 <a href="deepdive_redis_02.html">Project 2</a>
@@ -735,7 +730,10 @@
     <div class="wrap">
         <div class="foot-inner">
             <span class="foot-note">Redis 완전정복 — Java 21 · Spring Boot 4.x · Redis 8.0</span>
-            <span class="foot-note" style="color:rgba(122,128,144,.5);">Portfolio</span>
+            <div style="display:flex;gap:24px;align-items:center;">
+                <a href="index.html" class="foot-note" style="color:var(--muted);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">← 포트폴리오</a>
+                <span class="foot-note" style="color:rgba(122,128,144,.5);">Portfolio</span>
+            </div>
         </div>
     </div>
 </footer>
