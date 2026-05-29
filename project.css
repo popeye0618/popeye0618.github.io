@@ -17,6 +17,7 @@
     --red: #ff5252;
     --purple: #b794f4;
     --pink: #ff6ec7;
+    --indigo: #6366f1;
     --mono: 'JetBrains Mono', monospace;
     --display: 'Pretendard', sans-serif;
     --body: 'Pretendard', sans-serif;
@@ -31,6 +32,7 @@ body[data-accent="blue"]   { --page-accent: var(--accent); }
 body[data-accent="accent"] { --page-accent: var(--accent); }
 body[data-accent="purple"] { --page-accent: var(--purple); }
 body[data-accent="pink"]   { --page-accent: var(--pink);   }
+body[data-accent="indigo"] { --page-accent: var(--indigo); }
 body[data-accent="amber"]  { --page-accent: var(--amber);  }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMAtching3_BE · 천승환 포트폴리오</title>
+    <title>Comatching · 천승환 포트폴리오</title>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="project.css">
@@ -18,7 +18,7 @@
                 <a href="01_comatching3.html" class="active">01</a>
                 <a href="02_comatching5.html">02</a>
                 <a href="03_harucut.html">03</a>
-                <a href="04_jeju.html">04</a>
+                <a href="04_unitt.html">04</a>
             </div>
         </div>
     </div>
@@ -26,14 +26,14 @@
 
 <div class="hero project-hero">
     <div class="wrap">
-        <div class="eyebrow fu">Project 01 · 실제 운영 경험</div>
+        <div class="eyebrow fu">Project 01 · 운영 종료</div>
         <h1 class="fu fu1">
-            COMAtching3_BE<br>
+            Comatching<br>
             <span class="line2">대학 축제에서 운영된 1:1 매칭</span>
         </h1>
         <p class="hero-desc fu fu2">
-            실제 사용자가 결제하고 매칭받은 가장 실전적인 프로젝트. 돈과 매칭이 얽힌 동시성 문제를 정면에서 다루며,
-            <strong>"완성도보다 왜 이렇게 설계했는가"</strong>를 문서화한 기록입니다.
+            대학 축제에서 실제 사용자가 결제하고 매칭받은 서비스. 결제와 매칭이 얽힌 동시성 문제를 다뤘고,
+            <strong>각 선택의 이유</strong>를 근거 코드와 함께 정리했습니다.
         </p>
         <div class="meta-row fu fu3">
             <div class="meta-item">
@@ -46,7 +46,7 @@
             </div>
             <div class="meta-item">
                 <div class="meta-lbl">Status</div>
-                <div class="meta-val" style="color: var(--pink);">● Operated</div>
+                <div class="meta-val" style="color: var(--pink);">● 운영 종료</div>
             </div>
         </div>
         <div class="stack-row fu fu4">
@@ -198,7 +198,7 @@
         <span class="kw">new</span> HttpEntity&lt;&gt;(body, headers), String.class);
     ...
 } <span class="kw">catch</span> (Exception e) {
-    <span class="cmt">// ✨ 실패 시 즉시 환불 — 돈이 떠있는 상태를 방치하지 않음</span>
+    <span class="cmt">// 실패 시 즉시 환불 — 승인은 됐는데 후처리만 실패한 상태를 방치하지 않기 위함</span>
     payService.refundPayment(paymentKey, amount, <span class="str">"결제 검증 실패"</span>);
     <span class="kw">throw</span> e;
 }</code></pre>
@@ -215,7 +215,7 @@
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
             <li>결제 이중 과금 <strong>0건</strong> (축제 운영 기간 전체)</li>
-            <li>3중 방어로 <strong>하나의 레이어가 실패해도 다른 레이어가 보완</strong> — depth-in-defense</li>
+            <li>한 계층이 실패해도 다른 계층에서 중복을 거를 수 있게 했다</li>
             <li>예외 시 <strong>자동 환불</strong>로 "돈이 떠있는 상태" 발생 차단</li>
         </ul>
     </div>
@@ -278,7 +278,7 @@
             <div class="decision-label">의사결정 근거</div>
             <div class="decision-body">
                 중요 옵션은 <strong>돈을 더 받고 제공하는 기능</strong>이다. 후보 pool 이 작은 시간대(새벽) 에 "중요 옵션에 맞는 사람이 아예 없다"면,
-                차라리 <strong>무조건 매칭 실패 → 환불</strong>이 옳다. "비슷한 사람으로 매칭" 은 신뢰를 잃는 최악의 선택이다.
+                차라리 <strong>무조건 매칭 실패 → 환불</strong>이 옳다. 후보가 없는데 비슷한 사람으로 채우면 사용자 신뢰를 잃는다.
                 반면 일반 옵션은 <strong>취향 일치</strong>수준이므로 pool 을 너무 좁혀 매칭 실패를 만드는 것보다 완화가 낫다.
                 <strong>minSize 1 vs 3</strong> 은 이 철학의 코드 표현이다.
             </div>
@@ -391,7 +391,7 @@
         </a>
         <a href="02_comatching5.html" class="next-link">
             <div class="next-kicker">Next 02 →</div>
-            <div class="next-title">comatching5 · MSA 차세대 버전</div>
+            <div class="next-title">Comatching5 · MSA 기반 재구성</div>
         </a>
     </div>
 </section>

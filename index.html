@@ -22,6 +22,7 @@
             --red: #ff5252;
             --purple: #b794f4;
             --pink: #ff6ec7;
+            --indigo: #6366f1;
             --mono: 'JetBrains Mono', monospace;
             --display: 'Pretendard', sans-serif;
             --body: 'Pretendard', sans-serif;
@@ -605,7 +606,7 @@
 
         .philo-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 16px;
         }
 
@@ -727,39 +728,20 @@
 
 <div class="hero">
     <div class="wrap">
-        <div class="eyebrow fu">Backend Engineer · Java / Spring</div>
+        <div class="eyebrow fu">Backend Engineer · Java · Kotlin / Spring</div>
         <h1 class="fu fu1">
-            완성된 코드가 아니라,<br>
-            <span class="line2">그 코드에 도달한 이유</span>
+            백엔드 엔지니어<br>
+            <span class="line2">천승환</span>
         </h1>
         <p class="hero-desc fu fu2">
-            이 포트폴리오는 <strong>"무엇을 만들었는가"</strong>보다
-            <strong>"왜 그렇게 만들었는가"</strong>를 기록한 문서입니다.
-            문제의 본질, 대안들, 실제 선택한 이유를 각 프로젝트마다 구체적인 근거 코드와 함께 정리했습니다.
+            결제 · 동시성 · 인증처럼 <strong>틀리면 바로 사고로 이어지는 부분</strong>을 주로 다뤘습니다.
+            각 프로젝트마다 어떤 선택지를 두고 무엇을 골랐는지를 근거 코드와 함께 정리했습니다.
         </p>
         <div class="contact-row fu fu3">
             <a href="mailto:popeye0618@gmail.com" class="contact-chip">popeye0618@gmail.com</a>
             <a href="https://github.com/popeye0618" class="contact-chip" target="_blank" rel="noopener">GitHub</a>
-            <span class="contact-chip">Java 21 · Spring Boot 3/4</span>
+            <span class="contact-chip">Java · Kotlin · Spring Boot 3/4</span>
             <span class="contact-chip">Redis · Kafka · AWS</span>
-        </div>
-        <div class="stats fu fu4">
-            <div class="stat">
-                <div class="stat-val">4</div>
-                <div class="stat-lbl">Projects</div>
-            </div>
-            <div class="stat">
-                <div class="stat-val" style="color:var(--accent)">12</div>
-                <div class="stat-lbl">핵심 스토리</div>
-            </div>
-            <div class="stat">
-                <div class="stat-val" style="color:var(--green)">1개</div>
-                <div class="stat-lbl">실제 운영 경험</div>
-            </div>
-            <div class="stat">
-                <div class="stat-val" style="color:var(--purple)">MSA</div>
-                <div class="stat-lbl">아키텍처 설계</div>
-            </div>
         </div>
     </div>
 </div>
@@ -768,15 +750,15 @@
     <div class="wrap">
         <div class="sec-label">Projects</div>
 
-        <!-- Project 1: COMAtching3_BE -->
+        <!-- Project 1: Comatching -->
         <a href="01_comatching3.html" class="project-card" style="--card-accent: var(--pink);">
             <div class="card-top">
                 <span class="card-num">01 / 04</span>
-                <span class="card-status status-done">● OPERATED</span>
+                <span class="card-status status-done">● 운영 종료</span>
             </div>
-            <div class="card-title">COMAtching3_BE</div>
+            <div class="card-title">Comatching</div>
             <div class="card-sub">
-                대학 축제에서 실제로 운영된 1:1 매칭 서비스. 결제·매칭 동시성 문제를 정면에서 다룬 가장 실전적인 프로젝트.
+                대학 축제에서 실제 사용자가 결제·매칭에 사용한 1:1 매칭 서비스. 결제 멱등성과 매칭 동시성을 다뤘다.
             </div>
             <div class="card-techs">
                 <span class="ct">Java 17</span>
@@ -800,15 +782,15 @@
             </div>
         </a>
 
-        <!-- Project 2: comatching5 -->
+        <!-- Project 2: Comatching5 -->
         <a href="02_comatching5.html" class="project-card" style="--card-accent: var(--accent);">
             <div class="card-top">
                 <span class="card-num">02 / 04</span>
-                <span class="card-status status-wip">▲ IN PROGRESS</span>
+                <span class="card-status status-done">● 완료</span>
             </div>
-            <div class="card-title">comatching5 · MSA 차세대 버전</div>
+            <div class="card-title">Comatching5 · MSA 기반 재구성</div>
             <div class="card-sub">
-                COMAtching 의 MSA 리팩터링. Kafka·OpenFeign 하이브리드, 서비스 경계 재설계, Redis 캐싱까지 — "MSA 를 끝까지 밀어봤다가 필요한 만큼만 되돌리는" 전체 과정의 기록.
+                Comatching을 Spring Cloud Gateway·Kafka·OpenFeign 기반 MSA로 재구성한 버전. 서비스 간 통신 방식 선택과 이벤트 발행 신뢰성, 분산 락을 다뤘다.
             </div>
             <div class="card-techs">
                 <span class="ct">Java 21</span>
@@ -820,8 +802,8 @@
                 <span class="ct">Redisson</span>
             </div>
             <div class="card-stories">
-                <div class="card-story">Kafka + OpenFeign <strong>하이브리드 설계</strong> — 이벤트/동기 통신의 판단 근거를 의사결정 테이블로 정리</div>
-                <div class="card-story"><strong>MSA 경계 재설계</strong> — auth + member 를 user 로 통합, Feign 호출 7개 제거, 단일 트랜잭션 확보</div>
+                <div class="card-story">Kafka + OpenFeign <strong>하이브리드 통신</strong> — 최종 일관성/즉시 일관성 기준으로 통신 방식을 분리</div>
+                <div class="card-story"><strong>Transactional Outbox</strong> — 이벤트를 비즈니스 트랜잭션과 같은 트랜잭션에 적재, 폴링 디스패처로 재시도·중복 방지 발행</div>
                 <div class="card-story">Redis Look-Aside 캐싱 <strong>9배 성능 개선</strong> — JUnit 으로 수치 검증, Set→List 직렬화 이슈 해결</div>
             </div>
             <div class="card-cta">
@@ -840,7 +822,7 @@
             </div>
             <div class="card-title">Harucut</div>
             <div class="card-sub">
-                브라우저에서 촬영한 영상을 서버에서 비동기 변환·합성하는 온라인 네컷사진 플랫폼. AWS MediaConvert·S3 파이프라인과 횡단 관심사 분리에 초점.
+                브라우저에서 촬영한 영상을 서버에서 비동기 변환·합성하는 온라인 네컷사진 플랫폼. AWS MediaConvert·S3 파이프라인과 공통 관심사 분리를 다뤘다.
             </div>
             <div class="card-techs">
                 <span class="ct">Java 21</span>
@@ -864,28 +846,29 @@
             </div>
         </a>
 
-        <!-- Project 4: Jeju -->
-        <a href="04_jeju.html" class="project-card" style="--card-accent: var(--purple);">
+        <!-- Project 4: UniTT -->
+        <a href="04_unitt.html" class="project-card" style="--card-accent: var(--indigo);">
             <div class="card-top">
                 <span class="card-num">04 / 04</span>
                 <span class="card-status status-wip">▲ IN PROGRESS</span>
             </div>
-            <div class="card-title">같이가는 제주 · AI 하네스 엔지니어링</div>
+            <div class="card-title">UniTT</div>
             <div class="card-sub">
-                2026 한국관광공사 공모전 출품작. 기술 깊이보다 <strong>"AI 를 얼마나 잘 쓰느냐"</strong>에 초점 — Claude 를 개발 파트너로 편입시키고 협업 품질을 데이터로 검증한 실험.
+                대학생 전용 중고거래 플랫폼. Spring Modulith 기반 모듈러 모놀리스로 시작해, 모듈 경계·개인정보 보안·인증 토큰 설계를 ADR로 남기며 진행 중.
             </div>
             <div class="card-techs">
-                <span class="ct">Java 21</span>
+                <span class="ct">Kotlin 2.2</span>
                 <span class="ct">Spring Boot 4</span>
-                <span class="ct">Claude Agents</span>
-                <span class="ct">Custom Skills</span>
-                <span class="ct">A/B Evaluation</span>
-                <span class="ct">OAuth2</span>
+                <span class="ct">Spring Modulith</span>
+                <span class="ct">Flyway</span>
+                <span class="ct">MySQL</span>
+                <span class="ct">OAuth2 / JWT</span>
+                <span class="ct">Prometheus</span>
             </div>
             <div class="card-stories">
-                <div class="card-story"><strong>CLAUDE.md 2단 계층화</strong> — 루트/backend 분리, 15개 에러코드·HTTP 상태를 AI 싱글 소스 오브 트루스로 구성</div>
-                <div class="card-story"><strong>spring-test-generator 서브에이전트</strong> — 6-phase 프로세스로 테스트 생성 정형화, 반복 작업을 AI 에 위임</div>
-                <div class="card-story"><strong>git-workflow 스킬 + A/B 자가 평가</strong> — with_skill vs without_skill 4개 시나리오 평가로 스킬 효과를 데이터로 검증</div>
+                <div class="card-story"><strong>모듈러 모놀리스</strong> — MSA 대신 Spring Modulith 로 모듈 경계를 코드로 강제, 모듈 간 ID 참조 + 의존성 역전</div>
+                <div class="card-story"><strong>개인정보·토큰 보안</strong> — 식별정보 해시/암호화 컬럼 분리, Refresh Token 해시·rotation, 활성 회원 generated column unique</div>
+                <div class="card-story"><strong>실패도 도메인 상태</strong> — 실패·만료 기록을 트랜잭션 롤백과 분리 (noRollbackFor / REQUIRES_NEW)</div>
             </div>
             <div class="card-cta">
                 자세히 보기
@@ -958,37 +941,28 @@
             <div class="philo-card">
                 <div class="philo-head">
                     <span class="philo-dot" style="background: var(--green);"></span>
-                    <span class="philo-title">문제 먼저, 도구는 나중</span>
+                    <span class="philo-title">기본기를 중요하게 생각합니다</span>
                 </div>
                 <div class="philo-body">
-                    새 기술을 쓰기 위해 문제를 찾지 않습니다. <span>문제의 본질</span>을 먼저 이해하고, 대안들을 비교한 뒤 가장 작은 도구로 해결하려 합니다.
+                    AI가 아무리 발전해도 <span>기본이 없으면 그 위에 쌓는 것은 의미가 없다</span>고 생각합니다. 언어와 프레임워크를 블랙박스로 두지 않고 동작 원리까지 이해하려 합니다.
                 </div>
             </div>
             <div class="philo-card">
                 <div class="philo-head">
                     <span class="philo-dot" style="background: var(--accent);"></span>
-                    <span class="philo-title">완성보다 판단의 기록</span>
+                    <span class="philo-title">트레이드오프를 항상 따져봅니다</span>
                 </div>
                 <div class="philo-body">
-                    동작하는 코드는 출발점입니다. 진짜 자산은 <span>"왜 이 선택을 했는가"</span>의 문서화 — 그래야 다음 프로젝트에서 더 나은 선택을 할 수 있습니다.
+                    정답인 기술은 없고 <span>모든 선택에는 트레이드오프</span>가 있다고 생각합니다. Kafka냐 OpenFeign이냐, MSA냐 모놀리스냐 — 무엇을 얻고 무엇을 포기하는지 비교한 뒤 고릅니다.
                 </div>
             </div>
             <div class="philo-card">
                 <div class="philo-head">
                     <span class="philo-dot" style="background: var(--amber);"></span>
-                    <span class="philo-title">도구도 검증 대상</span>
+                    <span class="philo-title">테스트로 배포의 불안을 줄입니다</span>
                 </div>
                 <div class="philo-body">
-                    AI 코딩 에이전트, 캐싱, 분산 락 — 효과가 있다고 "믿는" 것과 <span>측정으로 증명하는 것</span>은 다릅니다. A/B 비교와 벤치마크를 게을리하지 않습니다.
-                </div>
-            </div>
-            <div class="philo-card">
-                <div class="philo-head">
-                    <span class="philo-dot" style="background: var(--purple);"></span>
-                    <span class="philo-title">되돌릴 수 있는 설계</span>
-                </div>
-                <div class="philo-body">
-                    MSA 를 밀어본 뒤 필요한 만큼만 되돌린 경험에서 배운 원칙 — 과잉 설계는 기술 깊이가 아니라 <span>현실을 못 읽은 증거</span>입니다.
+                    테스트가 약하면 배포할 때의 불안이 사라지지 않는다는 걸 직접 겪었습니다. 그래서 UniTT에서는 <span>커버리지 100%</span>를 유지하고 있습니다. 비효율을 감수한 의도적인 챌린지입니다.
                 </div>
             </div>
         </div>
