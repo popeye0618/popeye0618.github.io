@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comatching · 천승환 포트폴리오</title>
+    <title>코매칭 · 천승환 포트폴리오</title>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="project.css">
@@ -26,39 +26,38 @@
 
 <div class="hero project-hero">
     <div class="wrap">
-        <div class="eyebrow fu">Project 01 · 운영 종료</div>
+        <div class="eyebrow fu">Project 01</div>
         <h1 class="fu fu1">
-            Comatching<br>
-            <span class="line2">대학 축제에서 운영된 1:1 매칭</span>
+            코매칭<br>
+            <span class="line2">대학 축제에서 운영한 1:1 매칭</span>
         </h1>
         <p class="hero-desc fu fu2">
-            대학 축제에서 실제 사용자가 결제하고 매칭받은 서비스. 결제와 매칭이 얽힌 동시성 문제를 다뤘고,
-            <strong>각 선택의 이유</strong>를 근거 코드와 함께 정리했습니다.
+            대학 축제에서 실제 사용자가 결제하고 매칭받은 서비스입니다.
+            운영 중 만난 성능 문제, 결제 설계, 그리고 인증 방식을 바꾸게 된 과정을
+            <strong>선택의 이유와 함께</strong> 정리했습니다.
         </p>
         <div class="meta-row fu fu3">
             <div class="meta-item">
                 <div class="meta-lbl">Position</div>
-                <div class="meta-val">Backend 단독 개발</div>
+                <div class="meta-val">Backend</div>
             </div>
             <div class="meta-item">
                 <div class="meta-lbl">Period</div>
                 <div class="meta-val">2024 · 대학 축제 운영</div>
             </div>
             <div class="meta-item">
-                <div class="meta-lbl">Status</div>
-                <div class="meta-val" style="color: var(--pink);">● 운영 종료</div>
+                <div class="meta-lbl">Repository</div>
+                <div class="meta-val"><a href="https://github.com/COMAtching/COMAtching3_BE" target="_blank" rel="noopener" style="color: var(--page-accent); text-decoration: none;">GitHub ↗</a></div>
             </div>
         </div>
         <div class="stack-row fu fu4">
-            <span class="chip">Java 17</span>
-            <span class="chip">Spring Boot 3</span>
+            <span class="chip">Java</span>
+            <span class="chip">Spring Boot</span>
             <span class="chip">Spring Security</span>
             <span class="chip">Spring Data JPA</span>
-            <span class="chip">QueryDSL</span>
-            <span class="chip">MySQL 8</span>
+            <span class="chip">MySQL</span>
             <span class="chip">Redis</span>
-            <span class="chip">Toss Payments</span>
-            <span class="chip">AOP</span>
+            <span class="chip">OAuth2</span>
         </div>
     </div>
 </div>
@@ -83,18 +82,18 @@
                 <div class="arch-layer">
                     <div class="arch-node arch-node-wide">
                         <div class="node-label">Backend</div>
-                        <div class="node-title">Spring Boot 3 · Java 17</div>
-                        <div class="node-sub">REST API · AOP · Spring Security · JPA + QueryDSL</div>
+                        <div class="node-title">Spring Boot · Java</div>
+                        <div class="node-sub">REST API · Spring Security(세션) · JPA</div>
                         <div class="node-tags">
-                            <span class="node-tag">@Idempotent</span>
-                            <span class="node-tag">PayService</span>
                             <span class="node-tag">MatchService</span>
-                            <span class="node-tag">@Lock(PESSIMISTIC)</span>
+                            <span class="node-tag">PayService</span>
+                            <span class="node-tag">ChatService</span>
+                            <span class="node-tag">SecurityConfig</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="arch-arrow">JDBC · Redis Client · RestTemplate</div>
+                <div class="arch-arrow">JDBC · Redis Client</div>
 
                 <!-- Infra Layer -->
                 <div class="arch-layer">
@@ -102,12 +101,12 @@
                         <div class="group-label">Docker Containers</div>
                         <div class="group-nodes">
                             <div class="arch-node db">
-                                <div class="node-title">MySQL 8</div>
+                                <div class="node-title">MySQL</div>
                                 <div class="node-sub">주 저장소<br>사용자 · 결제 · 매칭</div>
                             </div>
                             <div class="arch-node cache">
                                 <div class="node-title">Redis</div>
-                                <div class="node-sub">멱등성 키 TTL<br>SETNX 분산 락</div>
+                                <div class="node-sub">세션 저장소<br>멱등키 TTL</div>
                             </div>
                         </div>
                     </div>
@@ -115,8 +114,8 @@
                         <div class="group-label">External</div>
                         <div class="group-nodes">
                             <div class="arch-node ext">
-                                <div class="node-title">Toss Payments</div>
-                                <div class="node-sub">PG API<br>Idempotency-Key 지원</div>
+                                <div class="node-title">OAuth2 Providers</div>
+                                <div class="node-sub">Google · Naver<br>Kakao · Apple</div>
                             </div>
                         </div>
                     </div>
@@ -132,91 +131,56 @@
         <div class="story-head">
             <div class="story-num">01</div>
             <div>
-                <div class="story-kicker">Concurrency · Payment</div>
-                <h2 class="story-title">Redis 멱등성 3중 방어선</h2>
-                <div class="story-tag">"결제는 한 번만 성공해야 한다"</div>
+                <div class="story-kicker">Performance · JPA</div>
+                <h2 class="story-title">채팅방 목록 조회의 N+1 문제</h2>
+                <div class="story-tag">"목록 하나를 그리는 데 쿼리가 몇 번 나가는가"</div>
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
-            결제 요청은 사용자가 연타하거나, 네트워크 재시도가 걸리거나, 외부 PG 가 타임아웃 후 재시도하는 경우 <strong>같은 요청이 2번 들어온다</strong>.
-            이때 (1) 우리 시스템에서 결제가 2건 기록되고 (2) Toss 에서도 중복 승인될 경우 이중 과금이 발생한다.
-            클라이언트 debounce 만으로는 신뢰할 수 없고, 서버 단에서 <strong>요청 단위 멱등성</strong>을 강제해야 했다.
+            매칭이 성사되면 채팅방이 생성되고, 사용자는 자신의 채팅방 목록을 조회합니다.
+            채팅방에는 뽑은 사람(picker)과 뽑힌 사람(picked)이 연관되어 있고, 각 사용자에는 프로필 특징 정보(UserAiFeature)가 다시 연관되어 있습니다.
+            연관관계를 지연 로딩으로 두고 목록을 조회하면, <strong>목록 쿼리 1번 이후 방마다 상대 정보를 꺼낼 때 추가 쿼리가 발생</strong>합니다.
+            방이 N개면 최대 1 + 4N번 — 사용자가 늘수록 조회 비용이 목록 크기에 비례해서 커지는 구조였습니다.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① AOP 기반 <code>@Idempotent</code> — 진입 차단</h3>
-        <pre class="code"><code><span class="kw">@Aspect</span>
-<span class="kw">@Component</span>
-<span class="kw">public class</span> <span class="cls">IdempotentAspect</span> {
-
-    <span class="kw">private final</span> RedisTemplate&lt;String, String&gt; redisTemplate;
-
-    <span class="kw">@Around</span>(<span class="str">"@annotation(idempotent)"</span>)
-    <span class="kw">public</span> Object checkIdempotent(ProceedingJoinPoint jp, Idempotent idempotent) <span class="kw">throws</span> Throwable {
-        String key = generateKey(jp, idempotent);
-        Boolean success = redisTemplate.opsForValue()
-            .setIfAbsent(key, <span class="str">"locked"</span>, idempotent.ttl(), TimeUnit.SECONDS);
-
-        <span class="kw">if</span> (success == <span class="kw">null</span> || !success) {
-            <span class="cmt">// 동일 키가 이미 있음 → 중복 요청</span>
-            <span class="kw">throw new</span> BusinessException(ErrorCode.<span class="fld">DUPLICATE_REQUEST</span>);
-        }
-        <span class="kw">return</span> jp.proceed();
-    }
-}</code></pre>
+        <h3 class="h3">연관 엔티티를 Fetch Join으로 한 번에 로딩</h3>
+        <pre class="code"><code><span class="cmt">// ChatRoomRepository — 목록 조회 시 필요한 연관을 전부 명시</span>
+<span class="kw">@Query</span>(<span class="str">"SELECT cr FROM ChatRoom cr "</span> +
+    <span class="str">"JOIN FETCH cr.picker p "</span> +
+    <span class="str">"JOIN FETCH p.userAiFeature "</span> +
+    <span class="str">"JOIN FETCH cr.picked pk "</span> +
+    <span class="str">"JOIN FETCH pk.userAiFeature "</span> +
+    <span class="str">"WHERE cr.picker = :user OR cr.picked = :user"</span>)
+List&lt;ChatRoom&gt; findAllWithUsersByUser(<span class="kw">@Param</span>(<span class="str">"user"</span>) Users user);</code></pre>
 
         <div class="decision">
             <div class="decision-label">의사결정 근거</div>
             <div class="decision-body">
-                DB 유니크 제약으로도 중복은 막힌다. 하지만 그 시점이 <strong>트랜잭션 커밋 직전</strong>이라, 이미 Toss API 는 호출됐을 수 있다.
-                AOP 로 <strong>컨트롤러 진입 순간</strong>에 Redis SETNX 로 락을 잡으면, 외부 호출 이전에 중복을 거를 수 있다.
-                즉 <strong>"어디서 막느냐" 에 따라 부작용 범위가 달라진다</strong>.
+                해결 방법은 여러 가지가 있었습니다. <strong>배치 사이즈(default_batch_fetch_size)</strong>는 쿼리를 줄여주지만 없애지는 못하고,
+                <strong>EntityGraph</strong>는 선언은 간단하지만 조건이 붙는 순간 관리가 어려워집니다.
+                채팅방 목록은 <strong>"화면에 무엇이 필요한지가 명확하게 고정된 조회"</strong>였기 때문에,
+                필요한 연관을 쿼리에 명시하는 Fetch Join이 의도를 가장 정확하게 드러낸다고 판단했습니다.
             </div>
         </div>
-
-        <h3 class="h3">② <code>PayRedisService.isIdempotent()</code> — 서비스 계층 방어선</h3>
-        <pre class="code"><code><span class="kw">public</span> <span class="cls">boolean</span> isIdempotent(String idempotencyKey) {
-    String key = <span class="str">"idempotency-key:"</span> + idempotencyKey;
-    Boolean success = redisTemplate.opsForValue()
-        .setIfAbsent(key, <span class="str">"processed"</span>, Duration.ofMinutes(<span class="num">5</span>));
-    <span class="kw">return</span> Boolean.TRUE.equals(success);
-}</code></pre>
-        <p class="prose note">
-            AOP 는 "같은 요청이 맞는가" 에 초점이 있다면, 여기는 <strong>"같은 결제 의도에 대한 고유키"</strong> (클라이언트가 생성) 를 5분간 잠근다.
-            AOP 가 실패해도(Redis 장애, 키 생성 버그) 이 레이어에서 한 번 더 방어된다.
-        </p>
-
-        <h3 class="h3">③ Toss Idempotency-Key + 자동 롤백</h3>
-        <pre class="code"><code><span class="kw">try</span> {
-    HttpHeaders headers = <span class="kw">new</span> HttpHeaders();
-    headers.set(<span class="str">"Idempotency-Key"</span>, idempotencyKey);  <span class="cmt">// Toss 자체 멱등성</span>
-    ResponseEntity&lt;String&gt; response = restTemplate.exchange(
-        TOSS_CONFIRM_URL, HttpMethod.POST,
-        <span class="kw">new</span> HttpEntity&lt;&gt;(body, headers), String.class);
-    ...
-} <span class="kw">catch</span> (Exception e) {
-    <span class="cmt">// 실패 시 즉시 환불 — 승인은 됐는데 후처리만 실패한 상태를 방치하지 않기 위함</span>
-    payService.refundPayment(paymentKey, amount, <span class="str">"결제 검증 실패"</span>);
-    <span class="kw">throw</span> e;
-}</code></pre>
 
         <div class="decision">
             <div class="decision-label">놓치기 쉬운 포인트</div>
             <div class="decision-body">
-                "우리 시스템에서 예외가 났다" = "Toss 에서도 실패했다" 가 <strong>아니다</strong>.
-                Toss 는 승인이 성공했는데 우리 후처리에서 실패하는 경우가 있다.
-                이때 <strong>자동 환불 호출</strong>까지 설계해두지 않으면 "Toss 에는 돈이 있는데 우리 DB 엔 매칭권이 없음" 같은 사고가 난다.
+                Fetch Join은 만능이 아닙니다. <strong>컬렉션을 2개 이상 Fetch Join하면 예외가 발생</strong>하고(MultipleBagFetchException),
+                페이징과 함께 쓰면 메모리에서 페이징이 일어납니다. 이 조회는 ToOne 연관만 걸려 있어 안전했습니다 —
+                <strong>"어떤 연관인지 확인하고 쓰는 것"</strong>까지가 이 도구의 사용법이라고 생각합니다.
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>결제 이중 과금 <strong>0건</strong> (축제 운영 기간 전체)</li>
-            <li>한 계층이 실패해도 다른 계층에서 중복을 거를 수 있게 했다</li>
-            <li>예외 시 <strong>자동 환불</strong>로 "돈이 떠있는 상태" 발생 차단</li>
+            <li>채팅방 N개 조회 시 최대 <strong>1 + 4N번</strong> 나가던 쿼리를 <strong>1번</strong>으로 줄였습니다</li>
+            <li>목록 크기와 무관하게 <strong>조회 비용이 일정</strong>해졌습니다</li>
+            <li>같은 기준으로 취미 목록(UserAiFeature ↔ hobbyList) 조회에도 Fetch Join을 적용했습니다</li>
         </ul>
     </div>
 </section>
@@ -227,68 +191,82 @@
         <div class="story-head">
             <div class="story-num">02</div>
             <div>
-                <div class="story-kicker">Business Logic · Matching</div>
-                <h2 class="story-title">중요·일반 옵션 다단계 필터링</h2>
-                <div class="story-tag">"매칭 성공률과 사용자 신뢰의 균형"</div>
+                <div class="story-kicker">Payment · Idempotency</div>
+                <h2 class="story-title">PG 도입을 대비한 결제 멱등성 설계</h2>
+                <div class="story-tag">"승인 요청은 몇 번을 보내도 결과가 한 번이어야 한다"</div>
             </div>
         </div>
 
-        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <div class="sub-head"><span class="sub-num">배경</span></div>
         <p class="prose">
-            매칭에는 두 종류 조건이 있다. <strong>중요 옵션</strong>(흡연/음주 등 절대 타협 불가) 과 <strong>일반 옵션</strong>(취미/학과 등 가능하면 맞으면 좋은 것).
-            단일 조건으로 필터링하면 <strong>매칭 실패율이 너무 높아지거나</strong>, 반대로 <strong>중요 조건을 어기는 매칭이 나오거나</strong> 둘 중 하나가 망한다.
-            실제 운영에서 이 균형을 어떻게 코드로 표현할지가 핵심 문제였다.
+            실제 운영에서 결제는 계좌이체로 진행했지만, PG(토스페이먼츠) 도입을 준비하며 결제 승인·취소 흐름을 미리 구현해 두었습니다.
+            결과적으로 업종 제한 때문에 PG를 붙이지 못했지만, 이 과정에서 <strong>"결제 요청이 중복으로 들어오면 어떻게 되는가"</strong>를 설계의 중심에 두게 됐습니다.
+            사용자의 연타, 네트워크 타임아웃 후 재시도 — 같은 승인 요청이 두 번 들어오는 경로는 생각보다 많습니다.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① 필터를 순서대로 적용하되, 통과 기준(minSize)을 옵션 타입별로 다르게</h3>
-        <pre class="code"><code><span class="kw">private</span> List&lt;Users&gt; applyFiltersInOrder(
-        List&lt;Users&gt; candidates,
-        List&lt;FilterCondition&gt; filters) {
-
-    List&lt;Users&gt; current = candidates;
-    <span class="kw">for</span> (FilterCondition filter : filters) {
-        List&lt;Users&gt; filtered = filter.apply(current);
-
-        <span class="cmt">// 중요 옵션: 후보 1명만 남아도 진행 (절대 조건이므로)</span>
-        <span class="cmt">// 일반 옵션: 최소 3명 유지 (다양성 확보)</span>
-        <span class="kw">if</span> (filtered.size() &lt; filter.minSize()) {
-            <span class="kw">break</span>;  <span class="cmt">// 이 필터는 무시, 직전 상태 유지</span>
-        }
-        current = filtered;
+        <h3 class="h3">① 승인 전 3가지 검증 — 상태 · 금액 · 멱등키</h3>
+        <pre class="code"><code><span class="kw">private void</span> validateOrder(Orders order, String idempotencyKey, Long amount) {
+    <span class="cmt">// 1. 주문 상태 검증 — 이미 처리된 주문의 재승인 차단</span>
+    <span class="kw">if</span> (!order.getOrderStatus().equals(OrderStatus.<span class="fld">ORDER_REQUEST</span>)) {
+        <span class="kw">throw new</span> BusinessException(ResponseCode.<span class="fld">BAD_REQUEST</span>);
     }
-    <span class="kw">return</span> current;
+    <span class="cmt">// 2. 금액 검증 — 클라이언트 금액 위변조 차단</span>
+    <span class="kw">if</span> (!order.getAmount().equals(amount)) {
+        <span class="kw">throw new</span> BusinessException(ResponseCode.<span class="fld">BAD_REQUEST</span>);
+    }
+    <span class="cmt">// 3. 멱등키 검증 — 같은 요청의 중복 실행 차단</span>
+    <span class="kw">if</span> (!payRedisService.isIdempotent(idempotencyKey, order.getOrderUuid())) {
+        <span class="kw">throw new</span> BusinessException(ResponseCode.<span class="fld">BAD_REQUEST</span>);
+    }
 }</code></pre>
 
-        <h3 class="h3">② 중요 옵션 실패 시 자동 환불</h3>
-        <pre class="code"><code><span class="kw">public void</span> checkAndReturnImportantOptionPay(Users user, List&lt;Users&gt; pool) {
-    <span class="kw">if</span> (user.getImportantOption() == <span class="kw">null</span>) <span class="kw">return</span>;
+        <h3 class="h3">② 멱등키는 Redis SETNX로 원자적으로 선점</h3>
+        <pre class="code"><code><span class="kw">public boolean</span> isIdempotent(String idempotencyKey, String orderUUID) {
+    String redisKey = <span class="str">"idempotency-key:"</span> + idempotencyKey;
 
-    <span class="kw">boolean</span> hasCandidate = pool.stream()
-        .anyMatch(u -&gt; matchesImportantOption(u, user.getImportantOption()));
+    <span class="cmt">// 키가 없을 때만 저장 성공 — "검사 후 저장"이 아니라 한 번의 원자적 연산</span>
+    Boolean isSet = redisTemplate.opsForValue()
+        .setIfAbsent(redisKey, orderUUID, Duration.ofMinutes(<span class="num">5</span>));
 
-    <span class="kw">if</span> (!hasCandidate) {
-        <span class="cmt">// 중요 옵션에 맞는 후보가 0명 → 300원(중요 옵션 추가 비용) 자동 환불</span>
-        payService.refundPartial(user, <span class="num">300L</span>, <span class="str">"중요 옵션 후보 부재"</span>);
-    }
+    <span class="kw">return</span> isSet != <span class="kw">null</span> &amp;&amp; isSet;
 }</code></pre>
 
         <div class="decision">
             <div class="decision-label">의사결정 근거</div>
             <div class="decision-body">
-                중요 옵션은 <strong>돈을 더 받고 제공하는 기능</strong>이다. 후보 pool 이 작은 시간대(새벽) 에 "중요 옵션에 맞는 사람이 아예 없다"면,
-                차라리 <strong>무조건 매칭 실패 → 환불</strong>이 옳다. 후보가 없는데 비슷한 사람으로 채우면 사용자 신뢰를 잃는다.
-                반면 일반 옵션은 <strong>취향 일치</strong>수준이므로 pool 을 너무 좁혀 매칭 실패를 만드는 것보다 완화가 낫다.
-                <strong>minSize 1 vs 3</strong> 은 이 철학의 코드 표현이다.
+                "Redis에서 키를 조회하고, 없으면 저장한다"를 두 번의 연산으로 하면 그 사이에 다른 요청이 끼어들 수 있습니다.
+                <strong>SETNX(setIfAbsent)는 확인과 저장을 하나의 원자적 연산</strong>으로 처리하므로,
+                동시에 들어온 두 요청 중 정확히 하나만 통과합니다. TTL 5분은 "같은 결제 의도의 재시도가 유효한 시간"으로 정했습니다.
+            </div>
+        </div>
+
+        <h3 class="h3">③ 승인 후 실패 시 자동 취소</h3>
+        <pre class="code"><code><span class="kw">try</span> {
+    <span class="cmt">// 승인 성공 후 주문 상태 변경 · 포인트 지급 등 후처리</span>
+    ...
+} <span class="kw">catch</span> (Exception e) {
+    <span class="cmt">// 후처리 실패 시 자동 취소 요청 — "PG에는 승인됐는데 우리 DB엔 없는 상태"를 방치하지 않음</span>
+    requestTossPaymentCancel(paymentKey, tempIdempotencyKey, order, cancelReason);
+    order.updateOrderStatus(OrderStatus.<span class="fld">ORDER_REFUND</span>);
+    <span class="kw">return false</span>;
+}</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">놓치기 쉬운 포인트</div>
+            <div class="decision-body">
+                "우리 서버에서 예외가 났다"가 "PG에서도 실패했다"는 뜻이 <strong>아닙니다</strong>.
+                승인은 성공했는데 우리 쪽 후처리만 실패하는 경우, 자동 취소까지 설계해 두지 않으면
+                <strong>돈은 빠져나갔는데 상품은 지급되지 않은 상태</strong>가 남습니다. 실패 경로의 복구를 정상 경로와 함께 설계했습니다.
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>중요 옵션 위반 매칭 <strong>0건</strong> — 사용자 신뢰 유지</li>
-            <li>일반 옵션은 완화 적용으로 <strong>매칭 실패율 감소</strong></li>
-            <li>중요 옵션 실패 시 <strong>자동 환불</strong>로 고객 문의/분쟁 제로</li>
+            <li>중복 승인·취소 요청이 <strong>PG API 호출 전에 차단</strong>되는 구조를 만들었습니다</li>
+            <li>상태·금액·멱등키 <strong>3단계 검증</strong>으로 재승인과 금액 위변조를 함께 방어합니다</li>
+            <li>후처리 실패 시 <strong>자동 취소</strong>로 정합성이 깨진 상태가 남지 않게 했습니다</li>
         </ul>
     </div>
 </section>
@@ -299,60 +277,66 @@
         <div class="story-head">
             <div class="story-num">03</div>
             <div>
-                <div class="story-kicker">Concurrency · Locking</div>
-                <h2 class="story-title">낙관적 락 재시도 + 비관적 락 병행</h2>
-                <div class="story-tag">"동시성 전략은 데이터 특성에 따라 다르다"</div>
+                <div class="story-kicker">Auth · Security</div>
+                <h2 class="story-title">JWT에서 세션으로 — 인증 방식을 바꾼 이유</h2>
+                <div class="story-tag">"토큰을 누가 들고 있느냐가 통제 범위를 결정한다"</div>
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
-            한 사용자가 여러 매칭 요청을 동시에 보내거나, 인기 많은 사용자(enemy) 의 <strong>pickedCount</strong> 가 동시에 증가할 때 경합이 생긴다.
-            모든 경로에 <strong>비관적 락</strong>만 쓰면 처리량이 떨어지고, <strong>낙관적 락</strong>만 쓰면 실패율이 올라간다.
-            <strong>데이터 특성별로 전략을 분리</strong>해야 했다.
+            처음에는 JWT 기반 인증으로 시작했습니다. 액세스 토큰과 리프레시 토큰을 발급하고, 리프레시 토큰은 쿠키에 담아 Redis 저장본과 대조하는 구조였습니다.
+            그런데 운영을 준비하며 이 구조의 약점이 눈에 들어왔습니다. <strong>JWT는 발급되는 순간 서버의 손을 떠납니다.</strong>
+            토큰이 탈취되어도 만료 시각까지는 유효하고, 서버가 "이 토큰은 이제 무효"라고 선언할 방법이 기본적으로는 없습니다.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① 핫한 카운터는 낙관적 락 + retry (충돌 희귀한 영역)</h3>
-        <pre class="code"><code><span class="kw">@Transactional</span>
-<span class="kw">public void</span> updateEnemyPickedCount(Users enemy) {
-    <span class="kw">int</span> retryCount = <span class="num">3</span>;
-    <span class="kw">while</span> (retryCount-- &gt; <span class="num">0</span>) {
-        <span class="kw">try</span> {
-            Users latest = usersRepository.findById(enemy.getId()).orElseThrow();
-            latest.increasePickedCount();
-            usersRepository.save(latest);
-            <span class="kw">return</span>;
-        } <span class="kw">catch</span> (OptimisticLockingFailureException e) {
-            <span class="kw">if</span> (retryCount == <span class="num">0</span>) <span class="kw">throw</span> e;
-            <span class="cmt">// 다음 루프에서 최신 버전으로 재시도</span>
-        }
-    }
-}</code></pre>
+        <h3 class="h3">세션 + Redis로 전환 — 무효화 권한을 서버로</h3>
+        <pre class="code"><code><span class="cmt">// SecurityConfig — 세션 기반 인증으로 전환</span>
+http
+    .sessionManagement(session -&gt; session
+        .sessionCreationPolicy(SessionCreationPolicy.<span class="fld">IF_REQUIRED</span>)
+        .invalidSessionUrl(<span class="str">"https://comatching.site"</span>)
+    );
 
-        <h3 class="h3">② 결정적 갱신은 비관적 락 (절대 놓칠 수 없는 영역)</h3>
-        <pre class="code"><code><span class="kw">public interface</span> <span class="cls">UsersRepository</span> <span class="kw">extends</span> JpaRepository&lt;Users, Long&gt; {
-
-    <span class="kw">@Lock</span>(LockModeType.<span class="fld">PESSIMISTIC_WRITE</span>)
-    <span class="kw">@Query</span>(<span class="str">"SELECT u FROM Users u WHERE u.uuid = :uuid"</span>)
-    Optional&lt;Users&gt; findUsersByUuidForUpdate(<span class="kw">@Param</span>(<span class="str">"uuid"</span>) String uuid);
-}</code></pre>
+http
+    .logout(logout -&gt; logout
+        .logoutUrl(<span class="str">"/logout"</span>)
+        .deleteCookies(<span class="str">"JSESSIONID"</span>)     <span class="cmt">// 클라이언트에는 세션 식별자만 남음</span>
+        .invalidateHttpSession(<span class="kw">true</span>)      <span class="cmt">// 서버에서 세션을 즉시 파기</span>
+    );</code></pre>
+        <p class="prose note">
+            세션 저장소는 <strong>spring-session-data-redis</strong>로 Redis에 두었습니다.
+            서버가 여러 대가 되어도 세션을 공유할 수 있고, 이상 징후가 보이면 서버에서 해당 세션을 즉시 파기할 수 있습니다.
+            기존 JWT 리프레시 토큰 코드는 <code>@Deprecated</code>로 남겨 전환의 흔적을 기록했습니다.
+        </p>
 
         <div class="decision">
             <div class="decision-label">의사결정 근거</div>
             <div class="decision-body">
-                <strong>pickedCount 는 "+1 한 번 더 해도 되지만, 놓치면 아쉬운 정도"</strong>다. 충돌이 적고, 재시도 3회로 대부분 복구된다 → 낙관적 락이 처리량에 유리.
-                <strong>UUID 로 찾는 사용자 본체는 결제/매칭 직전 상태 변경</strong>이 걸린 데이터다. 재시도가 실패하면 사용자 경험이 깨진다 → 비관적 락으로 직렬화.
-                <strong>"두 전략 중 하나를 고른다" 가 아니라, "영역마다 맞는 걸 고른다"</strong>.
+                표준적으로 인증 상태는 <strong>"누가 들고 있느냐"의 트레이드오프</strong>입니다.
+                JWT(클라이언트 보관)는 서버가 상태를 갖지 않아 확장에 유리하지만, 발급 후 통제가 어렵습니다.
+                세션(서버 보관)은 서버가 상태 관리 비용을 지불하는 대신, <strong>무효화 권한을 서버가 가집니다</strong>.
+                당시 코매칭은 단일 서버 규모였고 stateless 확장의 이점을 누릴 일이 없었기 때문에,
+                탈취 대응이 가능한 세션 쪽이 얻는 것이 더 많다고 판단했습니다.
+            </div>
+        </div>
+
+        <div class="decision">
+            <div class="decision-label">이 선택의 다음 이야기</div>
+            <div class="decision-body">
+                MSA로 재설계한 <strong>코매칭 v5에서는 다시 JWT로 돌아갑니다</strong>. 게이트웨이가 상태 없이 토큰을 검증해야 했기 때문입니다.
+                다만 이때는 세션에서 배운 "서버가 무효화 권한을 가져야 한다"를
+                <strong>Refresh Token Rotation과 로그아웃 토큰 Denylist</strong>로 구현했습니다. 자세한 내용은 코매칭 v5에서 다룹니다.
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>핫 카운터 업데이트는 <strong>낙관적 락 + 재시도 3회</strong>로 대부분 성공</li>
-            <li>결제/매칭 경로의 본체 User 는 <strong>비관적 락</strong>으로 경합 직렬화</li>
-            <li>축제 운영 중 <strong>동시성 관련 장애 0건</strong></li>
+            <li>탈취 의심 시 <strong>서버에서 세션을 즉시 무효화</strong>할 수 있는 구조가 됐습니다</li>
+            <li>클라이언트 쿠키에는 토큰 대신 <strong>세션 식별자만</strong> 남습니다</li>
+            <li>Redis 세션 저장소로 <strong>서버 증설 시에도 세션 공유</strong>가 가능하게 준비했습니다</li>
         </ul>
     </div>
 </section>
@@ -364,19 +348,19 @@
             <div class="takeaway">
                 <div class="tk-num">01</div>
                 <div class="tk-body">
-                    <strong>다중 방어선이 안전을 만든다</strong> — AOP / 서비스 계층 / 외부 API 자체 멱등성까지 3단으로 겹쳐두면 하나가 실패해도 다른 레이어가 잡는다.
+                    <strong>조회 비용은 데이터가 아니라 구조가 결정합니다</strong> — N+1은 데이터가 늘어난 뒤에야 보입니다. 목록 조회를 만들 때 쿼리가 몇 번 나가는지 먼저 세는 습관이 생겼습니다.
                 </div>
             </div>
             <div class="takeaway">
                 <div class="tk-num">02</div>
                 <div class="tk-body">
-                    <strong>환불 조건도 설계의 일부다</strong> — "실패 시 어떻게 상태를 되돌릴 것인가" 를 정상 로직과 함께 설계해야 사용자 신뢰가 생긴다.
+                    <strong>실패 경로도 정상 경로와 함께 설계해야 합니다</strong> — 멱등성 검증과 자동 취소는 "잘 되는 경우"가 아니라 "잘못되는 경우"를 위한 코드입니다. 결제처럼 되돌리기 어려운 도메인일수록 실패 설계가 먼저입니다.
                 </div>
             </div>
             <div class="takeaway">
                 <div class="tk-num">03</div>
                 <div class="tk-body">
-                    <strong>동시성 전략은 영역별로 다르다</strong> — 모든 곳에 비관적 락이면 처리량이 죽고, 모든 곳에 낙관적 락이면 결정적 경로가 깨진다. 데이터 특성을 읽고 나눠 쓰는 게 맞다.
+                    <strong>인증 방식에 정답은 없습니다</strong> — JWT와 세션은 우열이 아니라 "통제와 확장성 중 지금 무엇이 필요한가"의 문제였습니다. 서비스 규모가 바뀌면 답도 바뀐다는 것을 v5에서 다시 확인했습니다.
                 </div>
             </div>
         </div>
@@ -391,7 +375,7 @@
         </a>
         <a href="02_comatching5.html" class="next-link">
             <div class="next-kicker">Next 02 →</div>
-            <div class="next-title">Comatching5 · MSA 기반 재구성</div>
+            <div class="next-title">코매칭 v5 · MSA 재설계</div>
         </a>
     </div>
 </section>

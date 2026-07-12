@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Harucut · 천승환 포트폴리오</title>
+    <title>하루컷 · 천승환 포트폴리오</title>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="project.css">
 </head>
-<body data-accent="green">
+<body data-accent="teal">
 
 <nav>
     <div class="wrap">
@@ -26,15 +26,15 @@
 
 <div class="hero project-hero">
     <div class="wrap">
-        <div class="eyebrow fu">Project 03 · 미디어 파이프라인</div>
+        <div class="eyebrow fu">Project 03</div>
         <h1 class="fu fu1">
-            Harucut<br>
+            하루컷<br>
             <span class="line2">온라인 네컷사진 플랫폼</span>
         </h1>
         <p class="hero-desc fu fu2">
-            브라우저에서 촬영한 <code>.webm</code> 영상을 서버에서 <strong>비동기 변환 · 저장</strong>하고,
-            사용자가 프레임을 선택·합성해 자신만의 네컷을 완성하는 서비스.
-            <strong>AWS MediaConvert · S3 Strategy · 중복 요청 차단 AOP</strong> 세 축의 설계 결정을 기록합니다.
+            브라우저에서 촬영한 사진을 프레임과 합성해 주는 온라인 네컷사진 서비스입니다.
+            <strong>대용량 미디어 업로드의 보안과 성능, 외부 인프라 장애 시의 정책 결정, 회원 탈퇴의 트랜잭션 설계</strong>처럼
+            "기능 밖의 문제"들을 다뤘습니다.
         </p>
         <div class="meta-row fu fu3">
             <div class="meta-item">
@@ -46,21 +46,18 @@
                 <div class="meta-val">2025 ~ 진행 중</div>
             </div>
             <div class="meta-item">
-                <div class="meta-lbl">Status</div>
-                <div class="meta-val" style="color: var(--green);">● Refactoring</div>
+                <div class="meta-lbl">Repository</div>
+                <div class="meta-val"><a href="https://github.com/harucut/harucut_BE" target="_blank" rel="noopener" style="color: var(--page-accent); text-decoration: none;">GitHub ↗</a></div>
             </div>
         </div>
         <div class="stack-row fu fu4">
-            <span class="chip">Java 21</span>
-            <span class="chip">Spring Boot 3</span>
-            <span class="chip">Spring Security</span>
+            <span class="chip">Java</span>
+            <span class="chip">Spring Boot</span>
             <span class="chip">Spring Data JPA</span>
-            <span class="chip">AWS S3</span>
-            <span class="chip">AWS MediaConvert</span>
-            <span class="chip">AWS SNS</span>
+            <span class="chip">MySQL</span>
             <span class="chip">Redis</span>
-            <span class="chip">AOP</span>
-            <span class="chip">JUnit 5</span>
+            <span class="chip">AWS S3</span>
+            <span class="chip">OAuth2</span>
         </div>
     </div>
 </div>
@@ -74,61 +71,51 @@
                 <div class="arch-layer">
                     <div class="arch-node">
                         <div class="node-label">Client</div>
-                        <div class="node-title">Browser (MediaRecorder)</div>
-                        <div class="node-sub">.webm 녹화 · 직접 업로드</div>
+                        <div class="node-title">Web (촬영 · 합성)</div>
+                        <div class="node-sub">파일은 Presigned URL로<br>S3에 직접 업로드</div>
                     </div>
                 </div>
 
-                <div class="arch-arrow">① Presigned URL 요청 / ③ Direct PUT</div>
+                <div class="arch-arrow">HTTPS · REST (메타데이터) / Presigned PUT (파일)</div>
 
                 <!-- Backend Layer -->
                 <div class="arch-layer">
                     <div class="arch-node arch-node-wide">
                         <div class="node-label">Backend</div>
-                        <div class="node-title">Spring Boot 3 · Java 21</div>
-                        <div class="node-sub">
-                            FileController → S3FileStorageService → UploadPathStrategy 6종<br>
-                            TranscodingService · WebhookController · @PreventDuplicateRequest AOP
-                        </div>
+                        <div class="node-title">Spring Boot · Java</div>
+                        <div class="node-sub">REST API · OAuth2 · 중복 요청 차단 AOP · 탈퇴 배치</div>
                         <div class="node-tags">
-                            <span class="node-tag">Strategy 패턴</span>
-                            <span class="node-tag">taskId ↔ jobId</span>
-                            <span class="node-tag">FAIL_OPEN / CLOSE</span>
+                            <span class="node-tag">FileStorageService</span>
+                            <span class="node-tag">UploadPathStrategy</span>
+                            <span class="node-tag">DuplicateRequestAspect</span>
+                            <span class="node-tag">UserDeletionScheduler</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="arch-arrow">② Presigned PUT · ④ SNS Webhook · ⑤ 상태 저장</div>
+                <div class="arch-arrow">JDBC · Redis Client · AWS SDK</div>
 
                 <!-- Infra Layer -->
                 <div class="arch-layer">
-                    <div class="arch-group external">
-                        <div class="group-label">AWS (외주화된 책임)</div>
+                    <div class="arch-group docker">
+                        <div class="group-label">Infrastructure</div>
                         <div class="group-nodes">
-                            <div class="arch-node ext">
-                                <div class="node-title">S3</div>
-                                <div class="node-sub">uploads/users/{id}/<br>webm (원본) · mp4 (변환)</div>
+                            <div class="arch-node db">
+                                <div class="node-title">MySQL</div>
+                                <div class="node-sub">사용자 · 프레임<br>미디어 메타데이터</div>
                             </div>
-                            <div class="arch-node ext">
-                                <div class="node-title">MediaConvert</div>
-                                <div class="node-sub">webm → mp4 H.264<br>jobTemplate 재사용</div>
-                            </div>
-                            <div class="arch-node ext">
-                                <div class="node-title">SNS</div>
-                                <div class="node-sub">Job 상태 통보<br>Subscription 자동 승인</div>
+                            <div class="arch-node cache">
+                                <div class="node-title">Redis</div>
+                                <div class="node-sub">중복 요청 차단 키<br>인증 코드 TTL</div>
                             </div>
                         </div>
                     </div>
-                    <div class="arch-group docker">
-                        <div class="group-label">Redis</div>
+                    <div class="arch-group external">
+                        <div class="group-label">AWS</div>
                         <div class="group-nodes">
-                            <div class="arch-node cache">
-                                <div class="node-title">media:transcode:*</div>
-                                <div class="node-sub">TTL 7일 자연 소멸<br>task ↔ job 역인덱스</div>
-                            </div>
-                            <div class="arch-node cache">
-                                <div class="node-title">duplicate:request:*</div>
-                                <div class="node-sub">SETNX 멱등성 락<br>SpEL 기반 동적 키</div>
+                            <div class="arch-node ext">
+                                <div class="node-title">S3 (비공개 버킷)</div>
+                                <div class="node-sub">모든 접근은<br>Presigned URL로만</div>
                             </div>
                         </div>
                     </div>
@@ -144,118 +131,71 @@
         <div class="story-head">
             <div class="story-num">01</div>
             <div>
-                <div class="story-kicker">Async Pipeline · AWS MediaConvert</div>
-                <h2 class="story-title">MediaConvert 비동기 변환 파이프라인</h2>
-                <div class="story-tag">"변환은 AWS 가, 상태 추적은 우리가"</div>
+                <div class="story-kicker">Storage · Security</div>
+                <h2 class="story-title">S3 Presigned URL과 Strategy 패턴</h2>
+                <div class="story-tag">"버킷은 잠그고, 업로드는 서버를 거치지 않게"</div>
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
-            브라우저 MediaRecorder 는 <code>.webm</code>(VP8/VP9) 을 출력하지만 iOS Safari 등에서 재생이 제한돼 <strong>.mp4(H.264) 변환이 필수</strong>였다.
-            처음엔 서버에서 FFmpeg 로 직접 변환했는데 두 가지가 치명적이었다.
-            <strong>동기 blocking</strong> — 네컷 기준 수 초~수십 초 걸리는 변환이 Tomcat 스레드를 묶어 다른 요청이 밀렸고,
-            <strong>서버 자원 고갈</strong> — FFmpeg 의 CPU 부하가 전체 API 응답 시간을 끌어내렸다.
-            서버에서 직접 인코딩할 이유가 없다고 판단했다.
+            네컷사진 서비스의 본질은 파일입니다. 사진 원본, 합성 결과물, 프레임 에셋, 프로필 이미지 —
+            전부 크기가 크고 자주 오갑니다. 파일을 서버로 받아 S3에 올리는 방식은
+            <strong>서버 메모리와 대역폭을 파일 크기만큼 소모</strong>하고, 업로드가 몰리면 API 서버 전체가 느려집니다.
+            그렇다고 버킷을 공개로 열면 누구나 URL로 원본에 접근할 수 있습니다.
+            <strong>보안(비공개 버킷)과 성능(서버 우회)을 동시에</strong> 잡아야 했습니다.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① 책임 경계 재설계 — taskId 와 jobId 분리</h3>
-        <pre class="code"><code><span class="cmt">// TranscodingService.java — 요청 / 완료를 분리</span>
-<span class="kw">public</span> TranscodeTaskSubmitResponse submitTranscodeTask(String userPublicId, String fileName) {
-    String taskId = UUID.randomUUID().toString();
-    LocalDateTime now = LocalDateTime.now();
+        <h3 class="h3">① 업로드·조회 모두 Presigned URL — 버킷은 완전 비공개</h3>
+        <pre class="code"><code><span class="cmt">// S3FileStorageService — 업로드용 PUT Presigned URL 발급</span>
+<span class="kw">public</span> PresignedUploadResponse generatePresignedUploadUrl(UploadType type, String filename) {
+    UploadPathStrategy strategy = strategyMap.get(type);
+    String key = strategy.generateKey(publicId, filename, <span class="kw">true</span>);  <span class="cmt">// temp 경로로 발급</span>
 
-    <span class="cmt">// ① 우리 시스템의 taskId 로 상태 먼저 기록 (QUEUED)</span>
-    TranscodeTaskState queuedState = TranscodeTaskState.queued(taskId, userPublicId, fileName, now);
-    transcodeTaskRepository.save(queuedState);
+    PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+        .signatureDuration(Duration.ofMinutes(<span class="num">10</span>))   <span class="cmt">// 업로드 권한은 10분만</span>
+        .putObjectRequest(r -&gt; r.bucket(bucket).key(key))
+        .build();
 
-    <span class="cmt">// ② AWS 에 Job 생성 요청 → MediaConvert jobId 획득</span>
-    String jobId = createConversionJob(userPublicId, fileName);
+    <span class="kw">return new</span> PresignedUploadResponse(key, s3Presigner.presignPutObject(presignRequest).url());
+}
 
-    <span class="cmt">// ③ 두 ID 를 bidirectional 매핑 (콜백에서 taskId 역추적용)</span>
-    TranscodeTaskState submittedState = queuedState.withSubmitted(jobId, LocalDateTime.now());
-    transcodeTaskRepository.save(submittedState);
-    transcodeTaskRepository.linkJobToTask(jobId, taskId);
-
-    <span class="kw">return new</span> TranscodeTaskSubmitResponse(taskId, jobId, submittedState.status(), ...);
+<span class="cmt">// 조회도 서명된 URL로만 — 비공개 버킷 유지</span>
+<span class="kw">public</span> String generatePresignedGetUrl(String key) {
+    GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+        .signatureDuration(<span class="fld">EXPIRY</span>)                    <span class="cmt">// 조회는 1일</span>
+        .getObjectRequest(r -&gt; r.bucket(bucket).key(key))
+        .build();
+    <span class="kw">return</span> s3Presigner.presignGetObject(presignRequest).url().toString();
 }</code></pre>
+
+        <h3 class="h3">② 업로드 경로 규칙은 Strategy 패턴으로 분리</h3>
+        <pre class="code"><code><span class="kw">public interface</span> <span class="cls">UploadPathStrategy</span> {
+    UploadType getUploadType();
+    String generateKey(String publicId, String originalFilename, <span class="kw">boolean</span> isTemp);
+}
+
+<span class="cmt">// 구현체: FrameUploadPathStrategy · FourcutPhotoUploadPathStrategy</span>
+<span class="cmt">//        ProfileUploadPathStrategy · FrameComponentUploadPathStrategy</span>
+<span class="cmt">// 스프링이 구현체들을 Map으로 주입 — 업로드 유형 추가 시 구현체 하나만 늘어난다</span></code></pre>
 
         <div class="decision">
-            <div class="decision-label">의사결정 근거 — 왜 taskId 와 jobId 를 분리했는가?</div>
+            <div class="decision-label">의사결정 근거 — temp 업로드 후 승격</div>
             <div class="decision-body">
-                <code>jobId</code> 는 AWS 가 발급하는 <strong>외부 식별자</strong>다. 이걸 그대로 사용자에게 노출하면
-                (1) AWS 인프라가 교체되는 순간 API 계약이 깨지고
-                (2) AWS 요청이 실패한 시점부터 완료까지 사이에는 jobId 가 존재하지 않아 클라이언트에게 돌려줄 핸들이 없다.
-                우리 시스템의 <code>taskId</code> 를 먼저 발급하고 AWS jobId 와 매핑하면, AWS 요청 실패도
-                <strong>"QUEUED 로 기록된 task 가 제출 실패했다"</strong> 는 식으로 일관되게 표현된다.
-            </div>
-        </div>
-
-        <h3 class="h3">② 상태 모델 — immutable record + 전이 메서드</h3>
-        <pre class="code"><code><span class="kw">public record</span> <span class="cls">TranscodeTaskState</span>(
-    String taskId, String userPublicId, String originalFileName,
-    String jobId, TranscodeTaskStatus status, String errorMessage,
-    UserMediaResponse media, LocalDateTime createdAt, LocalDateTime updatedAt
-) {
-    <span class="kw">public static</span> TranscodeTaskState queued(...)                      { ... }
-    <span class="kw">public</span> TranscodeTaskState withSubmitted(String jobId, LocalDateTime now)   { ... }
-    <span class="kw">public</span> TranscodeTaskState withProgressing(LocalDateTime now)               { ... }
-    <span class="kw">public</span> TranscodeTaskState withComplete(UserMediaResponse m, LocalDateTime n) { ... }
-    <span class="kw">public</span> TranscodeTaskState withError(String message, LocalDateTime now)     { ... }
-}</code></pre>
-        <p class="prose note">
-            상태 전이(<code>QUEUED → SUBMITTED → PROGRESSING → COMPLETE | ERROR</code>)를 각 <code>with*</code> 메서드로 강제.
-            <strong>부분 업데이트를 허용하지 않고, 전이별로 어떤 필드가 바뀌는지 타입이 강제</strong>한다 — <code>withError</code> 는 errorMessage 필수,
-            <code>withComplete</code> 는 media 필수. 잘못된 전이는 컴파일 타임에 차단된다.
-        </p>
-
-        <h3 class="h3">③ 저장소는 Redis — TTL 7일 자연 소멸</h3>
-        <pre class="code"><code><span class="kw">private static final</span> String TASK_KEY_PREFIX = <span class="str">"media:transcode:task:"</span>;
-<span class="kw">private static final</span> String JOB_KEY_PREFIX  = <span class="str">"media:transcode:job:"</span>;
-<span class="kw">private static final</span> Duration TASK_TTL = Duration.ofDays(<span class="num">7</span>);
-
-<span class="kw">@Override</span>
-<span class="kw">public void</span> linkJobToTask(String jobId, String taskId) {
-    <span class="cmt">// jobId → taskId 역인덱스 (SNS 콜백은 jobId 만 전달)</span>
-    redisTemplate.opsForValue().set(JOB_KEY_PREFIX + jobId, taskId, TASK_TTL);
-}</code></pre>
-        <p class="prose note">
-            변환 작업 상태는 <strong>수명이 짧고</strong> (완료되면 UserMedia 로 영속화), <strong>조회는 빈번</strong> (폴링).
-            이 특성에 RDB 는 과하다. Redis 는 TTL 7일 후 자동 정리 → <strong>좀비 레코드 관리 비용 제로</strong>,
-            단일 GET 으로 역인덱스 조회, 쓰기 지연이 거의 없어 상태 전이에 적합.
-        </p>
-
-        <h3 class="h3">④ SNS Webhook — 변환 성공했는데 DB 저장 실패 시나리오</h3>
-        <pre class="code"><code><span class="kw">private void</span> processConversionResult(String messageJson) {
-    String state = detail.path(<span class="str">"status"</span>).asText(<span class="str">"UNKNOWN"</span>);
-    <span class="kw">if</span> (<span class="str">"COMPLETE"</span>.equals(state)) {
-        <span class="kw">try</span> {
-            transcodingService.handleCompletedJob(jobId, userPublicId, originalFileName, outputS3Path);
-        } <span class="kw">catch</span> (Exception e) {
-            <span class="cmt">// DB 저장 실패 시 ERROR 로 전이 — 완료로 잘못 커밋하지 않음</span>
-            transcodingService.handleFailedJob(jobId, <span class="str">"Failed to persist transcoded video"</span>);
-        }
-    } <span class="kw">else if</span> (<span class="str">"ERROR"</span>.equals(state)) {
-        transcodingService.handleFailedJob(jobId, errorMessage);
-    }
-}</code></pre>
-
-        <div class="decision">
-            <div class="decision-label">놓치기 쉬운 포인트</div>
-            <div class="decision-body">
-                AWS 는 COMPLETE 를 보냈지만 우리 쪽 DB 저장이 실패할 수 있다 (커넥션 오류 등).
-                이때 클라이언트 관점에선 <strong>"변환은 끝났는데 내 영상이 목록에 안 뜬다"</strong> 는 상태가 된다.
-                그래서 catch 에서 <code>handleFailedJob</code> 으로 전이시켜, 사용자가 보는 결과(영상이 보이는지)를 기준으로 상태를 맞췄다.
+                Presigned URL을 발급해도 사용자가 실제로 업로드를 완료할지는 알 수 없습니다.
+                그래서 업로드는 <strong>temp 경로로 먼저</strong> 받고, 저장 확정 시점에 <code>copyObject</code>로 정식 경로로 승격합니다.
+                업로드 도중 이탈한 파일은 temp에만 남아 정리 대상이 명확해지고,
+                <strong>정식 경로에는 확정된 파일만 존재</strong>한다는 불변식이 생깁니다.
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>Tomcat 스레드가 인코딩 작업에 묶이지 않음 — API 응답은 <strong>수백ms</strong>, 인코딩(수십 초)은 AWS 전담</li>
-            <li>서버 CPU 급등 해소, 동시 변환 처리 한도를 <strong>AWS 스케일링에 위임</strong></li>
-            <li>taskId ↔ jobId 매핑으로 <strong>AWS 인프라 변경이 API 계약에 영향 없음</strong></li>
+            <li>파일이 <strong>서버를 거치지 않아</strong> API 서버의 메모리·대역폭 사용이 파일 크기와 무관해졌습니다</li>
+            <li>버킷을 <strong>완전 비공개로 유지</strong>하면서 업로드 10분·조회 1일의 시간 제한 접근만 허용합니다</li>
+            <li>업로드 유형 4종의 경로 규칙이 <strong>Strategy 구현체로 분리</strong>되어 유형 추가가 기존 코드를 건드리지 않습니다</li>
         </ul>
     </div>
 </section>
@@ -266,112 +206,73 @@
         <div class="story-head">
             <div class="story-num">02</div>
             <div>
-                <div class="story-kicker">Strategy Pattern · Presigned URL</div>
-                <h2 class="story-title">S3 업로드 Strategy + Presigned URL</h2>
-                <div class="story-tag">"업로드 경로가 6종이고, 앞으로도 늘어난다"</div>
+                <div class="story-kicker">Reliability · AOP</div>
+                <h2 class="story-title">중복 요청 차단 AOP — FAIL_OPEN과 FAIL_CLOSE</h2>
+                <div class="story-tag">"Redis가 죽었을 때, 기능을 열 것인가 막을 것인가"</div>
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
-            업로드 타입이 6종으로 불어났다 — PROFILE / FRAME / FRAME_COMPONENT / FOURCUT_PHOTO / FOURCUT_VIDEO.
-            각 타입마다 S3 경로, 파일명, 임시/영구 구분이 조금씩 달랐다.
-            초기엔 <code>FileService</code> 한 곳에서 switch-case 로 분기했는데 타입이 추가될 때마다
-            <strong>메서드가 계속 길어지고 특정 타입만 격리 테스트가 어려웠다</strong>.
-            더 큰 문제는 업로드 방식 — "파일 → 서버 → S3" 라우팅으로 받다보니 네컷 영상(수십 MB) 이 서버 대역폭 · 메모리를 크게 먹었다.
+            메일 인증 발송 버튼을 빠르게 두 번 누르면("따닥") 인증 메일이 두 통 발송됩니다.
+            이런 중복 요청 차단은 여러 엔드포인트에 필요한 공통 관심사라 AOP로 분리했는데,
+            구현 중에 더 어려운 질문을 만났습니다 — <strong>차단 장치가 의존하는 Redis 자체가 장애라면?</strong>
+            차단을 못 하니 요청을 전부 거부할 것인가, 아니면 중복을 감수하고 전부 통과시킬 것인가.
+            정답이 하나가 아니라는 것이 이 문제의 본질이었습니다.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① 업로드 방식을 Presigned URL 로 전환</h3>
-        <pre class="code"><code><span class="kw">@Override</span>
-<span class="kw">public</span> PresignedUploadResponse generatePresignedUploadUrl(
-    UploadType uploadType, String originalFilename,
-    ContentType contentType, String publicId, <span class="kw">boolean</span> isTemp
-) {
-    <span class="cmt">// MIME-확장자 일관성 검증 (image/png 인데 .mp4 를 보내는 위조 차단)</span>
-    ContentType validated = ContentType.validate(contentType.getMimeType(),
-                                                 extractExtension(originalFilename));
+        <h3 class="h3">① SpEL 키 + Redis SETNX 기반 차단 AOP</h3>
+        <pre class="code"><code><span class="kw">@Around</span>(<span class="str">"@annotation(preventDuplicateRequest)"</span>)
+<span class="kw">public</span> Object checkDuplicate(ProceedingJoinPoint joinPoint,
+                             PreventDuplicateRequest preventDuplicateRequest) <span class="kw">throws</span> Throwable {
 
-    <span class="cmt">// Strategy 선택</span>
-    UploadPathStrategy strategy = strategyMap.get(uploadType);
-    <span class="kw">if</span> (strategy == <span class="kw">null</span>) <span class="kw">throw new</span> BusinessException(StorageErrorCode.<span class="fld">UNSUPPORTED_UPLOAD_TYPE</span>);
-    String key = strategy.generateKey(publicId, originalFilename, isTemp);
+    <span class="cmt">// SpEL로 파라미터에서 키 추출 — 예: "#request.email"</span>
+    String uniqueKey = generateUniqueKey(joinPoint, preventDuplicateRequest.key());
+    String redisKey = <span class="str">"duplicate:request:"</span> + uniqueKey;
 
-    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-        .bucket(bucketName).key(key)
-        .contentType(validated.getMimeType())   <span class="cmt">// 서명에 MIME 타입까지 묶음</span>
-        .build();
+    <span class="kw">try</span> {
+        Boolean isSuccess = redisTemplate.opsForValue()
+            .setIfAbsent(redisKey, <span class="str">"locked"</span>, Duration.ofMillis(unit.toMillis(time)));
 
-    PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(
-        PutObjectPresignRequest.builder()
-            .signatureDuration(EXPIRY)          <span class="cmt">// 1일</span>
-            .putObjectRequest(putObjectRequest)
-            .build()
-    );
-    <span class="kw">return new</span> PresignedUploadResponse(key, presigned.url().toString(), ...);
+        <span class="kw">if</span> (isSuccess == <span class="kw">null</span> || !isSuccess) {
+            <span class="kw">throw new</span> BusinessException(GlobalErrorCode.<span class="fld">DUPLICATE_REQUEST</span>);
+        }
+    } <span class="kw">catch</span> (Exception e) {
+        <span class="kw">if</span> (e <span class="kw">instanceof</span> BusinessException) <span class="kw">throw</span> e;
+
+        <span class="cmt">// Redis 장애 — 엔드포인트가 선언한 정책에 따라 분기</span>
+        <span class="kw">if</span> (strategy == LockStrategy.<span class="fld">FAIL_OPEN</span>) {
+            log.error(<span class="str">"Redis 연결 실패 - Fail Open 정책에 의해 로직 실행 허용"</span>);
+        } <span class="kw">else</span> {
+            <span class="kw">throw new</span> BusinessException(GlobalErrorCode.<span class="fld">REDIS_CONNECTION_ERROR</span>);
+        }
+    }
+    <span class="kw">return</span> joinPoint.proceed();
 }</code></pre>
+
+        <h3 class="h3">② 장애 정책을 엔드포인트가 선언</h3>
+        <pre class="code"><code><span class="cmt">// 메일 인증 발송 — Redis가 죽어도 가입은 계속되어야 하므로 FAIL_OPEN</span>
+<span class="kw">@PreventDuplicateRequest</span>(key = <span class="str">"#request.email"</span>, strategy = LockStrategy.<span class="fld">FAIL_OPEN</span>)
+<span class="kw">@PostMapping</span>(<span class="str">"/mail/send"</span>)
+<span class="kw">public</span> ApiResponse&lt;Void&gt; sendAuthMail(<span class="kw">@RequestBody</span> EmailAuthRequest request) { ... }</code></pre>
 
         <div class="decision">
-            <div class="decision-label">Presigned URL 의 보안 이중 방어선</div>
+            <div class="decision-label">의사결정 근거 — 왜 정책을 선택지로 만들었는가</div>
             <div class="decision-body">
-                PUT URL 만 내주는 게 아니라 <strong>PutObjectRequest 자체에 contentType 까지 묶어서 서명</strong>했다.
-                이러면 클라이언트가 다른 MIME 으로 올리면 S3 가 거부한다.
-                여기에 <code>ContentType.validate(mime, ext)</code> 로 "image/png 인데 확장자 .exe" 같은 헤더-확장자 불일치를 사전 차단 — 이중 방어선.
-                URL 유효기간도 1일로 짧게 제한해 탈취 시 영향 범위를 제한했다.
-            </div>
-        </div>
-
-        <h3 class="h3">② 경로 규칙을 Strategy 패턴으로 분리</h3>
-        <pre class="code"><code><span class="kw">public interface</span> <span class="cls">UploadPathStrategy</span> {
-    UploadType getUploadType();
-    String generateKey(String publicId, String originalFilename, <span class="kw">boolean</span> isTemp);
-}
-
-<span class="kw">@Component</span>
-<span class="kw">public class</span> <span class="cls">ProfileUploadPathStrategy</span> <span class="kw">implements</span> UploadPathStrategy {
-    <span class="kw">public</span> UploadType getUploadType() { <span class="kw">return</span> UploadType.<span class="fld">PROFILE</span>; }
-    <span class="kw">public</span> String generateKey(String publicId, String originalFilename, <span class="kw">boolean</span> isTemp) {
-        String uniqueName = UUID.randomUUID() + extractExtension(originalFilename);
-        <span class="kw">return</span> String.format(<span class="str">"uploads/users/%s/profile/%s"</span>, publicId, uniqueName);
-    }
-}
-
-<span class="kw">@Component</span>
-<span class="kw">public class</span> <span class="cls">FourcutVideoUploadPathStrategy</span> <span class="kw">implements</span> UploadPathStrategy {
-    <span class="kw">public</span> UploadType getUploadType() { <span class="kw">return</span> UploadType.<span class="fld">FOURCUT_VIDEO</span>; }
-    <span class="kw">public</span> String generateKey(String publicId, String originalFilename, <span class="kw">boolean</span> isTemp) {
-        <span class="kw">return</span> String.format(<span class="str">"uploads/users/%s/webm/%s"</span>,
-                             publicId, UUID.randomUUID() + extractExtension(originalFilename));
-    }
-}</code></pre>
-
-        <h3 class="h3">③ Spring DI 로 Map 자동 조립</h3>
-        <pre class="code"><code><span class="kw">public</span> S3FileStorageService(
-    S3Client s3Client, S3Presigner s3Presigner,
-    Set&lt;UploadPathStrategy&gt; strategies,   <span class="cmt">// Spring 이 모든 구현체를 자동 수집</span>
-    String bucketName
-) {
-    <span class="kw">this</span>.strategyMap = strategies.stream()
-        .collect(Collectors.toMap(UploadPathStrategy::getUploadType, Function.identity()));
-}</code></pre>
-
-        <div class="decision">
-            <div class="decision-label">의사결정 근거 — 왜 Strategy 패턴인가 (switch 로도 되는데)</div>
-            <div class="decision-body">
-                Strategy 가 <code>@Component</code> 로 빈이 되면
-                (1) 다른 서비스(MediaConvert 출력 경로 등)에서도 주입받아 쓸 수 있고
-                (2) 새 업로드 타입 추가 시 <strong>기존 코드를 열지 않아도 되어 OCP 만족</strong>.
-                (3) 각 Strategy 를 독립적으로 유닛 테스트할 수 있어 회귀 버그 방지.
-                경로 규칙이 상품팀 요청으로 자주 바뀌는 영역이라 효과가 컸다.
+                메일 인증이 Redis 장애 때문에 막히면 <strong>회원가입 자체가 불가능</strong>해집니다. 중복 메일 두 통은 불편이지만
+                가입 불가는 장애입니다 → FAIL_OPEN. 반대로 결제처럼 중복 실행의 피해가 차단의 피해보다 큰 기능은
+                FAIL_CLOSE가 맞습니다. 즉 <strong>"장애 시 무엇을 포기할 것인가"는 기능마다 답이 다르고</strong>,
+                그 판단을 인프라 코드가 아니라 <strong>각 엔드포인트가 어노테이션으로 선언</strong>하게 했습니다.
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>서버가 업로드 트래픽을 <strong>경유하지 않음</strong> — 수십 MB 영상도 서버 대역폭/메모리 부담 없음</li>
-            <li>새 업로드 타입 추가 = <strong>Strategy 클래스 1개 + UploadType enum 값 1개</strong> (기존 코드 무수정)</li>
-            <li>MIME-확장자 일관성 검증 + 서명에 ContentType 포함으로 <strong>위조 업로드 이중 방어</strong></li>
+            <li>"따닥" 중복 요청이 <strong>비즈니스 로직 진입 전에 차단</strong>됩니다</li>
+            <li>Redis 장애 시의 동작이 <strong>엔드포인트별 선언</strong>으로 명시되어, 장애 상황의 동작을 코드만 보고 알 수 있습니다</li>
+            <li>차단 로직이 AOP로 분리되어 <strong>비즈니스 코드에 중복 차단 코드가 섞이지 않습니다</strong></li>
         </ul>
     </div>
 </section>
@@ -382,110 +283,70 @@
         <div class="story-head">
             <div class="story-num">03</div>
             <div>
-                <div class="story-kicker">AOP · Availability vs Consistency</div>
-                <h2 class="story-title">중복 요청 차단 AOP · FAIL_OPEN / FAIL_CLOSE</h2>
-                <div class="story-tag">"Redis 가 죽었을 때 서비스도 같이 죽일 것인가?"</div>
+                <div class="story-kicker">Batch · Transaction</div>
+                <h2 class="story-title">회원 탈퇴 — 유예 기간과 배치 삭제의 트랜잭션 설계</h2>
+                <div class="story-tag">"한 명의 실패가 전체 배치를 멈추면 안 된다"</div>
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
-            이메일 인증, 회원가입, 프레임 업로드 등 일부 엔드포인트는 <strong>연타되면 비용이 발생하거나 일관성이 깨진다</strong>.
-            클라이언트 debounce 만으로는 신뢰할 수 없어 서버 단에서 멱등성을 강제해야 했다.
-            AOP + Redis SETNX 는 전형적 해결책이지만 한 가지 질문이 따라붙었다 —
-            <strong>"Redis 가 죽었을 때 정책이 다르다"</strong>.
-            이메일 인증 코드는 차라리 발송을 허용해야 (가입 봉쇄 방지), 결제/회원가입은 차라리 차단해야 (데이터 오염 방지).
-            엔드포인트마다 다른 정책을 어노테이션 하나로 표현할 수 있어야 했다.
+            회원 탈퇴는 "DELETE 한 줄"이 아닙니다. 실수로 탈퇴한 사용자의 복구 요청은 실제로 존재하고,
+            사용자의 미디어 파일·프레임 데이터처럼 <strong>여러 도메인에 흩어진 데이터</strong>를 함께 정리해야 합니다.
+            그리고 이걸 배치로 처리할 때 가장 위험한 설계는 <strong>전체를 하나의 트랜잭션으로 묶는 것</strong>입니다 —
+            100명 중 1명의 삭제가 실패하면 99명의 삭제까지 롤백됩니다.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① 어노테이션에 전략을 선언적으로 명시</h3>
-        <pre class="code"><code><span class="kw">public enum</span> <span class="cls">LockStrategy</span> {
-    <span class="fld">FAIL_CLOSE</span>,   <span class="cmt">// Redis 장애 시 요청 차단 (가용성 &lt; 일관성)</span>
-    <span class="fld">FAIL_OPEN</span>     <span class="cmt">// Redis 장애 시 요청 허용 (가용성 &gt; 일관성)</span>
-}
+        <h3 class="h3">① 즉시 삭제 대신 7일 유예 — 상태 전환</h3>
+        <pre class="code"><code><span class="cmt">// 탈퇴 요청 시점: 실제 삭제 없이 상태만 전환</span>
+user.updateStatus(UserStatus.<span class="fld">DELETED_REQUESTED</span>);
 
-<span class="kw">@Target</span>(ElementType.<span class="fld">METHOD</span>)
-<span class="kw">@Retention</span>(RetentionPolicy.<span class="fld">RUNTIME</span>)
-<span class="kw">public @interface</span> <span class="cls">PreventDuplicateRequest</span> {
-    String key()            <span class="kw">default</span> <span class="str">""</span>;                                   <span class="cmt">// SpEL 식</span>
-    <span class="kw">long</span>   time()           <span class="kw">default</span> <span class="num">3000</span>;                                 <span class="cmt">// 락 유지 시간</span>
-    TimeUnit timeUnit()     <span class="kw">default</span> TimeUnit.<span class="fld">MILLISECONDS</span>;
-    LockStrategy strategy() <span class="kw">default</span> LockStrategy.<span class="fld">FAIL_CLOSE</span>;             <span class="cmt">// 기본은 안전한 쪽</span>
-}</code></pre>
+<span class="cmt">// 7일 안에 다시 로그인하면 복구 가능</span></code></pre>
 
-        <div class="decision">
-            <div class="decision-label">의사결정 근거 — 왜 default 가 FAIL_CLOSE 인가?</div>
-            <div class="decision-body">
-                "무조건 기본값이 안전한 쪽" 이라는 원칙을 따랐다.
-                개발자가 전략을 잊어버리거나 신입이 어노테이션을 새로 붙여도 <strong>일관성이 깨지지 않는 방향</strong>이 기본값이어야 한다.
-                FAIL_OPEN 은 <strong>명시적으로 의도를 선언</strong>해야만 활성화된다.
-            </div>
-        </div>
+        <h3 class="h3">② 자정 배치 — 유저 단위 트랜잭션 격리</h3>
+        <pre class="code"><code><span class="cmt">// UserDeletionScheduler</span>
+<span class="kw">@Scheduled</span>(cron = <span class="str">"0 0 0 * * *"</span>)
+<span class="kw">public void</span> run() {
+    LocalDateTime threshold = LocalDateTime.now(clock).minusDays(<span class="num">7</span>);
 
-        <h3 class="h3">② AOP 에서 전략 분기</h3>
-        <pre class="code"><code><span class="kw">@Around</span>(<span class="str">"@annotation(preventDuplicateRequest)"</span>)
-<span class="kw">public</span> Object checkDuplicate(ProceedingJoinPoint joinPoint,
-                             PreventDuplicateRequest preventDuplicateRequest) <span class="kw">throws</span> Throwable {
-    String uniqueKey = generateUniqueKey(joinPoint, preventDuplicateRequest.key());
-    String redisKey  = <span class="str">"duplicate:request:"</span> + uniqueKey;
+    List&lt;Long&gt; userIds = userRepository.findExpiredDeleteRequestedUserIds(
+        UserStatus.<span class="fld">DELETED_REQUESTED</span>, threshold);
 
-    <span class="kw">try</span> {
-        <span class="cmt">// ① SETNX 로 선착순 락 획득</span>
-        Boolean isSuccess = redisTemplate.opsForValue()
-            .setIfAbsent(redisKey, <span class="str">"locked"</span>, Duration.ofMillis(unit.toMillis(time)));
-
-        <span class="kw">if</span> (isSuccess == <span class="kw">null</span> || !isSuccess) {
-            <span class="cmt">// ② 이미 누가 잡고 있음 → 중복 차단 (전략과 무관, 항상 차단)</span>
-            <span class="kw">throw new</span> BusinessException(GlobalErrorCode.<span class="fld">DUPLICATE_REQUEST</span>);
-        }
-    } <span class="kw">catch</span> (Exception e) {
-        <span class="kw">if</span> (e <span class="kw">instanceof</span> BusinessException) <span class="kw">throw</span> e;
-
-        <span class="cmt">// ③ 여기면 Redis 자체가 맛이 간 상황</span>
-        <span class="kw">if</span> (strategy == LockStrategy.<span class="fld">FAIL_OPEN</span>) {
-            log.error(<span class="str">"Redis 연결 실패 - Fail Open 정책에 의해 로직 실행 허용"</span>);
-            <span class="cmt">// 로직 계속 진행</span>
-        } <span class="kw">else</span> {
-            <span class="kw">throw new</span> BusinessException(GlobalErrorCode.<span class="fld">REDIS_CONNECTION_ERROR</span>);
+    <span class="kw">for</span> (Long userId : userIds) {
+        <span class="kw">try</span> {
+            <span class="cmt">// 유저마다 독립된 새 트랜잭션(REQUIRES_NEW)으로 처리</span>
+            userExitBatchService.exitInNewTransaction(userId);
+        } <span class="kw">catch</span> (Exception e) {
+            <span class="cmt">// 한 명의 실패는 기록만 하고 다음 유저로 — 전체 배치는 계속</span>
+            log.warn(<span class="str">"[탈퇴 일괄처리 예외] 발생 유저 Id {}"</span>, userId, e);
         }
     }
-    <span class="kw">return</span> joinPoint.proceed();
 }</code></pre>
-        <p class="prose note">
-            첫 번째 <code>throw(DUPLICATE_REQUEST)</code> 는 catch 에서 재던짐 (instanceof 체크).
-            두 번째 <code>throw(REDIS_CONNECTION_ERROR)</code> 는 <strong>완전히 다른 원인</strong> —
-            "너무 빨리 다시 눌렀어요" 와 "서버 인프라 문제" 는 메시지 · 재시도 전략이 달라야 한다.
-            에러 코드를 분리해 프론트에서 <strong>사용자 안내 문구와 재시도 정책을 구분</strong>할 수 있게 됐다.
-        </p>
 
-        <h3 class="h3">③ SpEL 기반 동적 키 + 엔드포인트별 차등 적용</h3>
-        <pre class="code"><code><span class="cmt">// MailAuthController — 이메일 인증 발송: FAIL_OPEN</span>
-<span class="kw">@PreventDuplicateRequest</span>(key = <span class="str">"#request.email"</span>, strategy = LockStrategy.<span class="fld">FAIL_OPEN</span>)
-<span class="kw">@PostMapping</span>(<span class="str">"/code"</span>)
-<span class="kw">public</span> ResponseEntity&lt;Response&lt;Void&gt;&gt; sendAuthCode(<span class="kw">@RequestBody @Valid</span> EmailAuthRequest request) {
-    mailAuthService.sendAuthCode(request.email());
-    <span class="kw">return</span> ResponseEntity.ok(Response.success());
-}</code></pre>
+        <h3 class="h3">③ 도메인별 정리는 DeletionHandler로 분리</h3>
+        <pre class="code"><code><span class="cmt">// 유저 삭제 시 함께 정리할 것들을 도메인별 핸들러로 분리</span>
+<span class="cmt">// UserMediaDeletionHandler  — 사용자의 미디어 · S3 파일 정리</span>
+<span class="cmt">// FrameUserDeletionHandler  — 사용자의 프레임 데이터 정리</span>
+<span class="cmt">// 새 도메인이 생기면 핸들러 하나를 추가 — 탈퇴 로직 본체는 불변</span></code></pre>
 
         <div class="decision">
-            <div class="decision-label">의사결정 근거 — 이메일 인증에 FAIL_OPEN 을 선택한 이유</div>
+            <div class="decision-label">의사결정 근거 — 트랜잭션 경계를 어디에 긋는가</div>
             <div class="decision-body">
-                이메일 인증은 "가입 전 단계" 다. 여기서 Redis 장애로 요청이 차단되면 <strong>신규 가입 자체가 막힌다</strong> —
-                서비스 출발점이 봉쇄되는 것. 반면 장애 중 연타로 이메일이 2~3번 가는 것은
-                (a) 사용자 불편은 "한 번 더 받아서 무시" 수준이고
-                (b) SMTP 서버 Rate Limit 을 따로 걸면 과금 위험도 제한된다.
-                <strong>"기반 시설 장애가 핵심 사용자 여정을 봉쇄하는 것보다 낫다"</strong> 는 trade-off.
+                "탈퇴 배치 전체가 원자적이어야 하는가?"를 먼저 물었습니다. 답은 아니오였습니다 —
+                유저 A의 삭제와 유저 B의 삭제는 서로 무관하므로, <strong>원자성이 필요한 단위는 '유저 한 명'</strong>입니다.
+                그래서 유저별로 REQUIRES_NEW 트랜잭션을 열고, 실패는 로그로 격리했습니다.
+                실패한 유저는 상태가 그대로 남아 <strong>다음 날 배치가 자연스럽게 재시도</strong>합니다. 별도 재시도 큐 없이도
+                상태 기반 조회가 재시도를 겸하는 구조입니다.
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>어노테이션 한 줄로 <strong>중복 방지 + SpEL 키 + 장애 시 정책</strong> 을 선언적으로 표현</li>
-            <li>FAIL_OPEN / FAIL_CLOSE 를 <strong>엔드포인트별로 차등 적용</strong> — 가용성/일관성 trade-off 가능</li>
-            <li>핵심 사용자 여정이 Redis 장애로 <strong>전체 봉쇄되는 최악 시나리오 방지</strong></li>
-            <li><code>DuplicateRequestAspectTest</code> 로 SETNX 실패 · Redis 예외 · SpEL 추출 케이스 분리 검증</li>
+            <li>탈퇴 후 <strong>7일 안에는 복구</strong>할 수 있어 실수 탈퇴 문의에 대응할 수 있습니다</li>
+            <li>배치에서 <strong>한 명의 실패가 다른 유저의 삭제에 영향을 주지 않습니다</strong></li>
+            <li>실패 건은 상태가 유지되어 <strong>다음 배치에서 자동 재시도</strong>됩니다</li>
         </ul>
     </div>
 </section>
@@ -497,22 +358,19 @@
             <div class="takeaway">
                 <div class="tk-num">01</div>
                 <div class="tk-body">
-                    <strong>비동기 외주화 설계</strong> — 서버가 직접 하지 않아도 되는 작업(인코딩)을 AWS 에 위임하고,
-                    <code>taskId ↔ jobId</code> 매핑으로 우리 도메인 모델의 정합성을 지켰다.
+                    <strong>파일은 서버의 일이 아닐 수 있습니다</strong> — Presigned URL은 "업로드를 대신 해주는 것"이 아니라 "권한을 시간 제한으로 위임하는 것"이었습니다. 보안과 성능이 상충하지 않는 설계가 가능했습니다.
                 </div>
             </div>
             <div class="takeaway">
                 <div class="tk-num">02</div>
                 <div class="tk-body">
-                    <strong>Strategy 패턴 + DI</strong> — 업로드 경로 규칙을 <strong>확장에 열려있고 변경에 닫힌(OCP)</strong> 구조로 분리해,
-                    새 업로드 타입 추가가 기존 코드에 영향을 주지 않게 했다.
+                    <strong>장애 시의 동작도 요구사항입니다</strong> — FAIL_OPEN/FAIL_CLOSE는 "인프라가 죽었을 때 무엇을 포기할 것인가"라는 질문에 기능별로 답한 결과입니다. 이 판단은 인프라 코드가 아니라 기능이 선언해야 한다고 생각합니다.
                 </div>
             </div>
             <div class="takeaway">
                 <div class="tk-num">03</div>
                 <div class="tk-body">
-                    <strong>장애 시나리오를 타입으로 강제</strong> — <code>FAIL_OPEN/FAIL_CLOSE</code> 를 enum 으로 선언해
-                    "인프라 장애 시 무엇을 우선할 것인가" 를 개발자가 <strong>의식적으로 선택하게</strong> 만들었다.
+                    <strong>트랜잭션 경계는 "무엇이 함께 실패해야 하는가"로 정합니다</strong> — 배치 전체가 아니라 유저 한 명이 원자성의 단위였습니다. 경계를 잘못 그으면 격리가 아니라 연쇄 실패가 됩니다.
                 </div>
             </div>
         </div>
@@ -523,11 +381,11 @@
     <div class="wrap">
         <a href="02_comatching5.html" class="next-link prev">
             <div class="next-kicker">← Prev 02</div>
-            <div class="next-title">comatching5 · MSA 재설계</div>
+            <div class="next-title">코매칭 v5 · MSA 재설계</div>
         </a>
         <a href="04_unitt.html" class="next-link">
             <div class="next-kicker">Next 04 →</div>
-            <div class="next-title">UniTT · 모듈러 모놀리스</div>
+            <div class="next-title">유니트 · 모듈러 모놀리스</div>
         </a>
     </div>
 </section>

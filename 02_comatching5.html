@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comatching5 · 천승환 포트폴리오</title>
+    <title>코매칭 v5 · 천승환 포트폴리오</title>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="project.css">
@@ -26,14 +26,15 @@
 
 <div class="hero project-hero">
     <div class="wrap">
-        <div class="eyebrow fu">Project 02 · MSA 기반 재구성</div>
+        <div class="eyebrow fu">Project 02</div>
         <h1 class="fu fu1">
-            Comatching5<br>
-            <span class="line2">MSA 기반으로 재구성한 매칭 플랫폼</span>
+            코매칭 v5<br>
+            <span class="line2">MSA로 다시 만든 코매칭</span>
         </h1>
         <p class="hero-desc fu fu2">
-            모놀리식이던 Comatching을 <strong>Spring Cloud Gateway·Kafka·OpenFeign 기반 MSA</strong>로 재구성한 버전입니다.
-            서비스 간 통신 방식 선택, 이벤트 발행 신뢰성, 분산 락 설계를 다뤘습니다.
+            코매칭을 MSA로 재설계한 프로젝트입니다. MSA를 책이 아니라 몸으로 배우기 위해 의도적으로 선택했고,
+            그 대가로 <strong>분산 환경의 비용 — 서비스 간 호출, 데이터 정합성, 동시성</strong> — 을 정면으로 만났습니다.
+            여기서 배운 것들이 다음 프로젝트(유니트)의 아키텍처 선택 근거가 됐습니다.
         </p>
         <div class="meta-row fu fu3">
             <div class="meta-item">
@@ -45,23 +46,19 @@
                 <div class="meta-val">2024.08 ~ 2026.05</div>
             </div>
             <div class="meta-item">
-                <div class="meta-lbl">Status</div>
-                <div class="meta-val" style="color: var(--accent);">● 완료</div>
+                <div class="meta-lbl">Repository</div>
+                <div class="meta-val"><a href="https://github.com/COMAtching/Comatching5_BE" target="_blank" rel="noopener" style="color: var(--page-accent); text-decoration: none;">GitHub ↗</a></div>
             </div>
         </div>
         <div class="stack-row fu fu4">
-            <span class="chip">Java 17</span>
-            <span class="chip">Spring Boot 3.5.9</span>
+            <span class="chip">Java</span>
+            <span class="chip">Spring Boot</span>
             <span class="chip">Spring Cloud Gateway</span>
-            <span class="chip">OpenFeign</span>
             <span class="chip">Kafka</span>
-            <span class="chip">Redis</span>
-            <span class="chip">Redisson</span>
-            <span class="chip">MySQL 8</span>
+            <span class="chip">OpenFeign</span>
+            <span class="chip">MySQL</span>
             <span class="chip">MongoDB</span>
-            <span class="chip">QueryDSL 5.0</span>
-            <span class="chip">Docker Compose</span>
-            <span class="chip">JUnit 5</span>
+            <span class="chip">Redis · Redisson</span>
         </div>
     </div>
 </div>
@@ -76,70 +73,74 @@
                     <div class="arch-node">
                         <div class="node-label">Client</div>
                         <div class="node-title">Web / Mobile</div>
-                        <div class="node-sub">JWT 인증 요청</div>
+                        <div class="node-sub">모든 요청은 게이트웨이를 통과</div>
                     </div>
                 </div>
 
                 <div class="arch-arrow">HTTPS · JWT</div>
 
-                <!-- Gateway Layer -->
+                <!-- Gateway -->
                 <div class="arch-layer">
                     <div class="arch-node arch-node-wide">
-                        <div class="node-label">API Gateway</div>
-                        <div class="node-title">Spring Cloud Gateway · :8080</div>
-                        <div class="node-sub">JWT 검증 · X-Member-Id 헤더 주입 · 라우팅</div>
+                        <div class="node-label">Gateway</div>
+                        <div class="node-title">Spring Cloud Gateway</div>
+                        <div class="node-sub">JWT 검증 · 로그아웃 토큰 Denylist · 인증 헤더 주입</div>
                     </div>
                 </div>
 
-                <div class="arch-arrow">Routing · Header Enrichment</div>
+                <div class="arch-arrow">라우팅 · X-Member-* 헤더 전파</div>
 
-                <!-- Services Layer -->
+                <!-- Services -->
                 <div class="arch-layer">
                     <div class="arch-group docker">
                         <div class="group-label">Microservices</div>
                         <div class="group-nodes">
                             <div class="arch-node">
                                 <div class="node-title">user-service</div>
-                                <div class="node-sub">:9000<br>MySQL + Redis<br>auth · member · profile 통합</div>
+                                <div class="node-sub">인증 · 회원<br>RTR · OAuth2</div>
                             </div>
                             <div class="arch-node">
                                 <div class="node-title">matching-service</div>
-                                <div class="node-sub">:9001<br>MySQL + Redis<br>Redisson 분산 락</div>
+                                <div class="node-sub">매칭 요청<br>분산 락</div>
                             </div>
                             <div class="arch-node">
                                 <div class="node-title">chat-service</div>
-                                <div class="node-sub">:9003<br>MongoDB + Redis<br>Pub/Sub 메시지</div>
+                                <div class="node-sub">채팅 · 차단<br>MongoDB</div>
                             </div>
                             <div class="arch-node">
                                 <div class="node-title">item-service</div>
-                                <div class="node-sub">:9006<br>MySQL<br>아이템 · 결제</div>
+                                <div class="node-sub">재고 · 주문<br>비관적 락</div>
                             </div>
                             <div class="arch-node">
                                 <div class="node-title">notification</div>
-                                <div class="node-sub">:9005<br>Kafka 구독<br>알림 발송</div>
+                                <div class="node-sub">FCM 푸시<br>Kafka 소비</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="arch-arrow">Kafka Event Bus · Feign (sync)</div>
+                <div class="arch-arrow">Kafka(비동기) · OpenFeign(동기) · JDBC · Redis Client</div>
 
-                <!-- Event Bus Layer -->
+                <!-- Infra -->
                 <div class="arch-layer">
-                    <div class="arch-group external">
-                        <div class="group-label">Kafka Topics</div>
+                    <div class="arch-group docker">
+                        <div class="group-label">Infrastructure</div>
                         <div class="group-nodes">
-                            <div class="arch-node ext">
-                                <div class="node-title">profile-updates</div>
-                                <div class="node-sub">프로필 변경<br>fan-out 이벤트</div>
+                            <div class="arch-node db">
+                                <div class="node-title">MySQL</div>
+                                <div class="node-sub">회원 · 주문 · 재고<br>정합성 중심 데이터</div>
+                            </div>
+                            <div class="arch-node db">
+                                <div class="node-title">MongoDB</div>
+                                <div class="node-sub">채팅 메시지<br>append 중심 데이터</div>
+                            </div>
+                            <div class="arch-node cache">
+                                <div class="node-title">Redis</div>
+                                <div class="node-sub">분산 락 · 캐시<br>RefreshToken · Denylist</div>
                             </div>
                             <div class="arch-node ext">
-                                <div class="node-title">member-signup</div>
-                                <div class="node-sub">회원 가입 / 탈퇴<br>생명주기 이벤트</div>
-                            </div>
-                            <div class="arch-node ext">
-                                <div class="node-title">matching-success</div>
-                                <div class="node-sub">매칭 성공 알림<br>다수 구독자</div>
+                                <div class="node-title">Kafka</div>
+                                <div class="node-sub">이벤트 브로커<br>알림 · 서비스 간 동기화</div>
                             </div>
                         </div>
                     </div>
@@ -155,71 +156,82 @@
         <div class="story-head">
             <div class="story-num">01</div>
             <div>
-                <div class="story-kicker">MSA Communication · Hybrid</div>
-                <h2 class="story-title">Kafka + OpenFeign 하이브리드 통신</h2>
-                <div class="story-tag">"성격에 따라 통신 방식을 나눈다"</div>
+                <div class="story-kicker">Concurrency · Distributed Lock</div>
+                <h2 class="story-title">분산 락과 비관적 락의 이중 방어</h2>
+                <div class="story-tag">"서버가 여러 대가 되는 순간, synchronized는 아무것도 지켜주지 못한다"</div>
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
-            v3(모놀리식) → v5(MSA) 로 분리하자마자 상반된 문제가 동시에 터졌다.
-            <strong>정합성 깨짐</strong> — user-service 에서 프로필을 수정해도 matching-service 의 후보 테이블은 예전 값이라 잘못된 매칭이 나왔다.
-            그렇다고 매번 동기 조회하면 <strong>매칭 한 번에 수백 번의 내부 호출</strong>이 발생.
-            반대로 <strong>매칭 상대의 최신 프로필</strong>을 화면에 띄울 땐 로컬 복제본으로는 안 되고 즉시 일관성이 필요했다.
-            단일 통신 방식으로는 둘 다 풀 수 없었다.
+            v3 운영에서 정합성이 깨지는 사건을 겪었습니다. "한 사용자는 최대 5회까지 뽑힐 수 있다"는 정책이 있었는데,
+            뽑힌 횟수를 락 없이 DB 컬럼으로 세다 보니 <strong>동시 요청이 겹치면 5회를 초과하는 사용자</strong>가 실제로 나왔습니다.
+            v5는 여기에 조건이 하나 더 붙습니다 — 서비스가 여러 인스턴스로 뜨는 분산 환경이라,
+            <strong>한 JVM 안에서만 유효한 동기화로는 아무것도 보장할 수 없습니다</strong>.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① Kafka — 최종 일관성 경로 (로컬 복제본)</h3>
-        <pre class="code"><code><span class="cmt">// matching-service/infra/kafka/ProfileEventConsumer.java</span>
-<span class="kw">@KafkaListener</span>(topics = <span class="str">"profile-updates"</span>, groupId = <span class="str">"matching-service-group"</span>)
-<span class="kw">public void</span> consumeProfileUpdate(ProfileUpdatedMatchingEvent event) {
-    candidateService.upsertCandidate(event);
-}</code></pre>
-        <p class="prose note">
-            matching-service 가 자기만의 <strong>MatchingCandidate</strong> 테이블을 갖고,
-            검색/필터링/스코어링은 자기 DB 안에서만 한다 → 매칭 한 번에 수백 번의 내부 호출 제거.
-            토픽을 <code>member-signup / member-update / profile-updates / matching-success</code> 등 성격별로 분리하고,
-            groupId 를 구독자별로 분리해 <strong>오프셋 추적을 격리</strong>했다.
-        </p>
+        <h3 class="h3">① 어노테이션 하나로 선언하는 Redisson 분산 락 AOP</h3>
+        <pre class="code"><code><span class="cmt">// common-module — 모든 서비스가 공유하는 분산 락 AOP</span>
+<span class="kw">@Around</span>(<span class="str">"@annotation(com.comatching.common.annotation.DistributedLock)"</span>)
+<span class="kw">public</span> Object lock(ProceedingJoinPoint joinPoint) <span class="kw">throws</span> Throwable {
 
-        <h3 class="h3">② OpenFeign — 실시간 조회 경로</h3>
-        <pre class="code"><code><span class="cmt">// matching-service/infra/client/MemberClient.java</span>
-<span class="kw">@FeignClient</span>(name = <span class="str">"user-service"</span>,
-             path = <span class="str">"/api/internal/users"</span>,
-             url  = <span class="str">"${user-service.url}"</span>)
-<span class="kw">public interface</span> <span class="cls">MemberClient</span> {
-    <span class="kw">@GetMapping</span>(<span class="str">"/{memberId}/profile"</span>)
-    ProfileResponse getProfile(<span class="kw">@PathVariable</span> Long memberId);
+    <span class="cmt">// SpEL로 파라미터 기반 락 키 생성 — 예: "MATCHING_REQUEST:42"</span>
+    String key = distributedLock.key() + <span class="str">":"</span> + CustomSpringELParser.getDynamicValue(
+        signature.getParameterNames(), joinPoint.getArgs(), distributedLock.identifier());
+
+    RLock rLock = redissonClient.getLock(key);
+
+    <span class="kw">boolean</span> available = rLock.tryLock(
+        distributedLock.waitTime(), distributedLock.leaseTime(), distributedLock.timeUnit());
+
+    <span class="kw">if</span> (!available) {
+        <span class="kw">throw new</span> BusinessException(GeneralErrorCode.<span class="fld">TOO_MANY_REQUEST</span>);
+    }
+
+    <span class="cmt">// 락 안에서 새 트랜잭션 실행 — 락 해제 전에 커밋이 완료되도록 보장</span>
+    <span class="kw">return</span> aopForTransaction.proceed(joinPoint);
 }</code></pre>
+
+        <pre class="code"><code><span class="cmt">// matching-service — 매칭 요청은 유저 단위로 직렬화 ("따닥" 차단)</span>
+<span class="kw">@DistributedLock</span>(key = <span class="str">"MATCHING_REQUEST"</span>, identifier = <span class="str">"#memberId"</span>, leaseTime = <span class="num">15L</span>)
+<span class="kw">public</span> MatchingResponse requestMatching(Long memberId, MatchingRequest request) { ... }
+
+<span class="cmt">// item-service — 매칭권 차감도 유저+아이템 단위로 직렬화</span>
+<span class="kw">@DistributedLock</span>(key = <span class="str">"item:inventory"</span>, identifier = <span class="str">"#memberId + ':' + #itemType"</span>, leaseTime = <span class="num">10L</span>)
+<span class="kw">public void</span> useItem(Long memberId, ItemType itemType, <span class="kw">int</span> count) { ... }</code></pre>
 
         <div class="decision">
-            <div class="decision-label">의사결정 근거 — "1~2초 늦어도 사용자가 알아차릴까?"</div>
+            <div class="decision-label">놓치기 쉬운 포인트 — 락과 트랜잭션의 순서</div>
             <div class="decision-body">
-                판단 기준은 이거 하나였다. <strong>최종 일관성으로 충분한 경로는 Kafka</strong> (프로필 변경 → 매칭 후보 테이블),
-                <strong>즉시 일관성이 필요한 경로는 OpenFeign</strong> (매칭 결과 화면의 상대방 프로필).
-                내부 전용 엔드포인트 <code>/api/internal/users/</code> 는 Gateway 를 거치지 않아 JWT 재검증 오버헤드도 제거했다.
+                락 획득 → 트랜잭션 시작 → 커밋 → 락 해제 순서가 지켜져야 합니다.
+                만약 트랜잭션이 락 바깥에서 시작되면, <strong>락은 풀렸는데 커밋은 아직인 순간</strong>에 다음 요청이 진입해서
+                커밋 전의 값을 읽을 수 있습니다. 그래서 AOP가 락 안에서 새 트랜잭션(REQUIRES_NEW)을 열도록 분리했습니다.
             </div>
         </div>
 
-        <h3 class="h3">③ 통신 방식 선택 기준 (실제로 내린 판단들)</h3>
+        <h3 class="h3">② DB 레벨의 마지막 방어선 — 비관적 락</h3>
+        <pre class="code"><code><span class="cmt">// item-service ItemRepository — 재고 행은 DB에서도 잠근다</span>
+<span class="kw">@Lock</span>(LockModeType.<span class="fld">PESSIMISTIC_WRITE</span>)
+<span class="kw">@Query</span>(<span class="str">"SELECT i FROM Item i WHERE i.memberId = :memberId AND i.itemType = :itemType"</span>)
+Optional&lt;Item&gt; findByMemberIdAndItemTypeForUpdate(...);</code></pre>
+
         <div class="decision">
+            <div class="decision-label">의사결정 근거 — 왜 이중으로 잠그는가</div>
             <div class="decision-body">
-                <strong>Kafka</strong> — 프로필 업데이트 → 매칭 후보 (지연 허용),
-                회원 탈퇴 → 매칭 후보 제거 (fan-out),
-                매칭 성공 알림 (수신자 다수). <br>
-                <strong>Feign</strong> — 매칭 결과 화면의 상대방 프로필 (0초 지연),
-                포인트 차감 직전 잔액 검증 (원자성 중요).
+                분산 락만으로 충분해 보이지만, 락의 <strong>leaseTime이 만료되는 순간</strong>이 있습니다.
+                로직이 예상보다 오래 걸려 락이 먼저 풀리면 두 요청이 동시에 재고를 만질 수 있습니다.
+                분산 락은 "동시 진입을 거의 다 막는 1차 방어", 비관적 락은 "그래도 뚫린 요청을 DB가 직렬화하는 최후 방어"로 역할을 나눴습니다.
+                v3에서 정합성이 깨지는 걸 겪어봤기 때문에, <strong>정합성이 돈과 연결된 곳(재고·매칭권)은 겹쳐서 방어</strong>하기로 했습니다.
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>정합성 유지 + 성능 확보: 매칭 1회당 내부 호출 <strong>수백 번 → 0~1회</strong></li>
-            <li>Kafka 경로는 <strong>user-service 장애 시에도 matching-service 가 로컬 DB 로 계속 동작</strong></li>
-            <li>새 서비스가 붙어도 <strong>profile-updates 토픽 구독 한 줄</strong>로 연결</li>
+            <li>매칭 요청 · 재고 차감 · 주문 생성 등 <strong>6개 경로</strong>에 유저 단위 분산 락을 선언형으로 적용했습니다</li>
+            <li>v3에서 겪은 <strong>"5회 초과 뽑힘" 유형의 정합성 문제</strong>가 구조적으로 재발할 수 없게 됐습니다</li>
+            <li>락 획득 실패는 <strong>429(TOO_MANY_REQUEST)</strong>로 응답해 사용자 연타를 자연스럽게 흡수합니다</li>
         </ul>
     </div>
 </section>
@@ -230,83 +242,65 @@
         <div class="story-head">
             <div class="story-num">02</div>
             <div>
-                <div class="story-kicker">Reliability · Transactional Outbox</div>
-                <h2 class="story-title">주문 이벤트를 잃지 않기 — Transactional Outbox</h2>
-                <div class="story-tag">"DB 커밋과 이벤트 발행을 한 묶음으로"</div>
+                <div class="story-kicker">Communication · Kafka vs OpenFeign</div>
+                <h2 class="story-title">동기와 비동기 — 통신 방식의 선택 기준</h2>
+                <div class="story-tag">"지금 이 응답이 없으면 다음 줄을 실행할 수 없는가"</div>
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
-            주문·결제 상태가 바뀌면 그 사실을 Kafka 로 발행해 알림과 후속 처리가 이어진다.
-            그런데 <strong>DB 트랜잭션 커밋과 Kafka 발행은 하나로 묶이지 않는다.</strong>
-            주문은 저장됐는데 직후 브로커 연결이 끊기거나 애플리케이션이 죽으면 이벤트만 사라지고,
-            반대로 발행을 먼저 했는데 커밋이 롤백되면 <strong>일어나지 않은 일이 발행</strong>된다.
-            "보냈겠지" 를 신뢰할 수 없으니, 발행을 DB 커밋에 묶을 방법이 필요했다.
+            모놀리스에서는 메서드 호출이면 끝나던 일이, MSA에서는 전부 네트워크 통신이 됩니다.
+            채팅방 목록에 상대 프로필을 보여주려면 user-service에 물어봐야 하고,
+            매칭이 성사되면 chat-service가 채팅방을 만들어야 하고, 채팅이 오면 notification이 푸시를 보내야 합니다.
+            이걸 전부 동기 호출로 엮으면 <strong>한 서비스의 장애가 호출 체인을 타고 전파</strong>되고,
+            전부 비동기로 하면 <strong>당장 필요한 응답을 기다릴 방법이 없습니다</strong>. 기준이 필요했습니다.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① 비즈니스 트랜잭션과 같은 트랜잭션에 이벤트를 적재</h3>
-        <pre class="code"><code><span class="cmt">// 주문 생성·상태변경과 같은 트랜잭션에서 outbox 테이블에 INSERT</span>
-<span class="kw">private void</span> enqueue(Long aggregateId, String eventType, Object payload, LocalDateTime occurredAt) {
-    OrderOutboxEvent event = OrderOutboxEvent.builder()
-        .aggregateType(AGGREGATE_TYPE_ORDER)        <span class="cmt">// "ORDER"</span>
-        .aggregateId(aggregateId)
-        .eventType(eventType)                       <span class="cmt">// ORDER_CREATED / ORDER_STATUS_CHANGED</span>
-        .payload(toJson(payload))
-        .status(OrderOutboxStatus.<span class="fld">NEW</span>)
-        .occurredAt(occurredAt)
-        .build();
-    orderOutboxEventRepository.save(event);         <span class="cmt">// 주문 저장과 함께 commit → 둘 다 되거나 둘 다 안 됨</span>
+        <h3 class="h3">① 즉시 응답이 필요한 조회 — OpenFeign (동기)</h3>
+        <pre class="code"><code><span class="cmt">// chat-service — 채팅방 목록을 그리려면 지금 프로필이 필요하다</span>
+<span class="kw">@FeignClient</span>(name = <span class="str">"user-service"</span>, path = <span class="str">"/api/internal/users"</span>, url = <span class="str">"${user-service.url}"</span>)
+<span class="kw">public interface</span> <span class="cls">MemberClient</span> {
+
+    <span class="cmt">// 방마다 1번씩 N번 호출하지 않도록 벌크 API로 설계</span>
+    <span class="kw">@PostMapping</span>(<span class="str">"/profiles/bulk"</span>)
+    List&lt;ProfileResponse&gt; getProfiles(<span class="kw">@RequestBody</span> List&lt;Long&gt; memberIds);
 }</code></pre>
-        <p class="prose note">
-            이벤트가 별도 outbox 테이블 row 로 남으므로 <strong>주문이 커밋됐다 = 이벤트도 반드시 남았다</strong> 가 보장된다.
-            실제 발행은 트랜잭션 밖에서 따로 처리한다.
-        </p>
 
-        <h3 class="h3">② 폴링 디스패처가 발행 — 재시도 + 중복 방지</h3>
-        <pre class="code"><code><span class="kw">@Scheduled</span>(fixedDelayString = <span class="str">"${comatching.order.outbox-dispatch-ms:1000}"</span>)
-<span class="kw">@Transactional</span>
-<span class="kw">public void</span> dispatch() {
-    LocalDateTime now = LocalDateTime.now();
-    <span class="cmt">// ① 디스패처가 죽어 PROCESSING 에 멈춘 이벤트를 1분 뒤 회수</span>
-    orderOutboxEventRepository.resetStaleProcessing(now.minusMinutes(<span class="num">1</span>));
+        <h3 class="h3">② 결과만 전달하면 되는 흐름 — Kafka (비동기)</h3>
+        <pre class="code"><code><span class="cmt">// matching-service — 매칭 성사를 알리고 즉시 응답을 반환</span>
+kafkaTemplate.send(<span class="str">"matching-success-topic"</span>, event);
 
-    List&lt;OrderOutboxEvent&gt; events =
-        orderOutboxEventRepository.findTop100ByStatusOrderByIdAsc(OrderOutboxStatus.<span class="fld">NEW</span>);
+<span class="cmt">// chat-service — 이벤트를 구독해 채팅방을 생성</span>
+<span class="kw">@KafkaListener</span>(topics = <span class="str">"matching-success-topic"</span>, groupId = <span class="str">"chat-service"</span>)
+<span class="kw">public void</span> consumeMatchingSuccess(MatchingSuccessEvent event) {
+    chatRoomService.createRoom(event);
+}
 
-    <span class="kw">for</span> (OrderOutboxEvent event : events) {
-        <span class="cmt">// ② UPDATE ... WHERE status = NEW 로 원자적 선점 (성공 = 1행)</span>
-        <span class="kw">if</span> (orderOutboxEventRepository.markProcessingIfNew(event.getId(), now) != <span class="num">1</span>) {
-            <span class="kw">continue</span>;   <span class="cmt">// 다른 디스패처가 이미 가져감 → 중복 발행 방지</span>
-        }
-        <span class="kw">try</span> {
-            orderRealtimePublisher.publish(event);
-            orderOutboxEventRepository.markPublished(event.getId(), LocalDateTime.now());
-        } <span class="kw">catch</span> (Exception e) {
-            <span class="cmt">// ③ 실패는 RETRY 로 — lastError 기록 후 다음 폴링에서 재시도</span>
-            orderOutboxEventRepository.markRetry(event.getId(), truncateMessage(e.getMessage()));
-        }
-    }
+<span class="cmt">// notification — 채팅 이벤트를 구독해 FCM 푸시 발송</span>
+<span class="kw">@KafkaListener</span>(topics = <span class="str">"chat-notification"</span>, groupId = <span class="str">"notification"</span>)
+<span class="kw">public void</span> consume(ChatMessageEvent event) {
+    fcmService.sendNotification(event);
 }</code></pre>
 
         <div class="decision">
-            <div class="decision-label">의사결정 근거 — 왜 폴링 + 상태 컬럼인가</div>
+            <div class="decision-label">의사결정 근거</div>
             <div class="decision-body">
-                CDC(Debezium) 같은 방식도 있지만 MVP 규모에선 운영 부담이 크다.
-                outbox 테이블 + <code>@Scheduled</code> 폴링은 인프라 추가 없이 같은 DB 안에서 끝난다.
-                핵심은 두 가지다 — <code>markProcessingIfNew</code> 의 조건부 UPDATE 로 <strong>동시에 돌아도 한 번만 선점</strong>되게 하고,
-                <code>resetStaleProcessing</code> 으로 <strong>중간에 죽어도 멈춘 이벤트가 다시 흐르게</strong> 했다.
-                발행은 <strong>at-least-once</strong> 가 되고, 소비 측 멱등 처리와 합쳐 중복을 흡수한다.
+                기준은 하나였습니다. <strong>"이 응답이 없으면 다음 줄을 실행할 수 없는가?"</strong>
+                프로필 조회는 없으면 화면을 못 그리니 동기(Feign)입니다. 대신 벌크 API로 호출 횟수를 줄였습니다.
+                푸시 알림·채팅방 생성·회원가입 데이터 동기화는 "언젠가 처리되면 되는 일"이니 비동기(Kafka)입니다.
+                덤으로 notification이 죽어 있어도 <strong>채팅 저장은 성공하고, 밀린 알림은 복구 후 소비</strong>됩니다 —
+                장애 격리가 통신 방식 선택에 따라오는 걸 확인했습니다.
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>주문 커밋과 이벤트 적재가 <strong>같은 트랜잭션</strong> — 발행 누락·유령 이벤트 차단</li>
-            <li>상태 머신 <strong>NEW → PROCESSING → PUBLISHED / RETRY</strong> 로 발행 단계를 추적·재시도</li>
-            <li>조건부 UPDATE 선점 + stale 회수로 <strong>중복 발행과 멈춘 이벤트</strong>를 함께 방어</li>
+            <li>조회 3종(프로필·매칭이력·재고)은 <strong>Feign + 벌크 API</strong>, 알림·동기화 3종은 <strong>Kafka 이벤트</strong>로 분리했습니다</li>
+            <li>notification 장애가 <strong>채팅 기능에 전파되지 않는</strong> 구조를 확인했습니다</li>
+            <li>"MSA에서는 조인이 안 된다"는 문제를 <strong>벌크 내부 API</strong>라는 형태로 풀었습니다</li>
         </ul>
     </div>
 </section>
@@ -317,90 +311,167 @@
         <div class="story-head">
             <div class="story-num">03</div>
             <div>
-                <div class="story-kicker">Caching · Performance</div>
-                <h2 class="story-title">채팅 차단 Redis 캐싱 · 9배 성능</h2>
-                <div class="story-tag">"쓰기 드물고 읽기 많은 데이터 — 전형적 캐시 지점"</div>
+                <div class="story-kicker">Auth · Token Security</div>
+                <h2 class="story-title">Refresh Token Rotation과 게이트웨이 Denylist</h2>
+                <div class="story-tag">"세션에서 배운 것을 JWT 위에 다시 구현하기"</div>
             </div>
         </div>
 
         <div class="sub-head"><span class="sub-num">문제 원인</span></div>
         <p class="prose">
-            채팅 메시지 하나가 전송될 때마다 <code>isBlocked(sender, receiver)</code> 호출이 반드시 필요하다.
-            활성 채팅방 1개 = 초당 10개 메시지 기준 <strong>1분 = 600번의 DB 조회</strong>.
-            채팅방이 N 개면 × N 배. 서비스가 커질수록 병목이 선형 증가한다.
-            차단 목록은 <strong>쓰기는 드물고 읽기는 매우 빈번</strong> — 전형적인 캐시 적용 지점이지만,
-            보안 관련 데이터라 정합성이 깨지면 차단된 유저의 메시지가 새어 들어간다.
+            v3에서는 토큰 탈취에 대응하기 위해 JWT를 버리고 세션으로 갔습니다. 그런데 MSA에서는 사정이 다릅니다.
+            <strong>게이트웨이가 모든 요청을 상태 없이 검증</strong>해야 하므로 JWT가 사실상 강제됩니다.
+            그렇다면 질문이 돌아옵니다 — 세션으로 얻었던 "서버의 무효화 권한"을, JWT 위에서는 어떻게 되찾을 것인가.
         </p>
 
         <div class="sub-head"><span class="sub-num">해결 과정</span></div>
 
-        <h3 class="h3">① 캐시 키/구조 · Look-Aside 패턴</h3>
-        <pre class="code"><code><span class="kw">private static final</span> String BLOCK_CACHE_KEY_PREFIX = <span class="str">"user:block:"</span>;
-<span class="kw">private static final</span> Duration CACHE_TTL = Duration.ofMinutes(<span class="num">30</span>);
+        <h3 class="h3">① Refresh Token Rotation — 재사용을 탈취 신호로 간주</h3>
+        <pre class="code"><code><span class="cmt">// user-service AuthServiceImpl — 재발급 요청 처리</span>
+<span class="kw">public</span> TokenResponse reissue(String refreshToken) {
 
-<span class="kw">@Override</span>
-<span class="kw">@Transactional</span>(readOnly = <span class="kw">true</span>)
-<span class="kw">public</span> Set&lt;Long&gt; getBlockedUserIds(Long blockerUserId) {
-    String cacheKey = BLOCK_CACHE_KEY_PREFIX + blockerUserId;
-    Object cachedValue = redisTemplate.opsForValue().get(cacheKey);
+    Claims claims = jwtUtil.parseToken(refreshToken);
+    <span class="kw">long</span> memberId = Long.parseLong(claims.getSubject());
 
-    <span class="kw">if</span> (cachedValue != <span class="kw">null</span>) {
-        <span class="cmt">// Redis JSON 직렬화 호환: Set 이 List 로 돌아올 수 있음</span>
-        <span class="kw">if</span> (cachedValue <span class="kw">instanceof</span> List) <span class="kw">return new</span> HashSet&lt;&gt;((List&lt;Long&gt;) cachedValue);
-        <span class="kw">if</span> (cachedValue <span class="kw">instanceof</span> Set)  <span class="kw">return</span> (Set&lt;Long&gt;) cachedValue;
+    RefreshToken redisToken = refreshTokenRepository.findById(memberId)
+        .orElseThrow(() -&gt; <span class="kw">new</span> BusinessException(<span class="fld">UNAUTHORIZED</span>));
+
+    <span class="cmt">// Redis 저장본과 불일치 = 이미 사용된(회전된) 토큰의 재사용 → 탈취 가능성</span>
+    <span class="kw">if</span> (!redisToken.getToken().equals(refreshToken)) {
+        refreshTokenRepository.delete(redisToken);   <span class="cmt">// 세션 전체 무효화 → 강제 재로그인</span>
+        <span class="kw">throw new</span> BusinessException(<span class="fld">UNAUTHORIZED</span>);
     }
 
-    <span class="cmt">// 캐시 미스 → MongoDB 조회 후 적재</span>
-    Set&lt;Long&gt; blockedUserIds = userBlockRepository.findByBlockerUserId(blockerUserId).stream()
-        .map(UserBlock::getBlockedUserId)
-        .collect(Collectors.toSet());
-    redisTemplate.opsForValue().set(cacheKey, blockedUserIds, CACHE_TTL);
-    <span class="kw">return</span> blockedUserIds;
-}</code></pre>
-        <p class="prose note">
-            키 구조는 <strong>차단 주체 기준</strong> (<code>user:block:{blockerUserId}</code>) 으로 뒀다.
-            값은 <code>Set&lt;Long&gt;</code> 이라 <code>contains()</code> 가 O(1).
-            <strong>TTL 30분</strong>은 "차단 해제 후 최악의 경우라도 30분 안에 반영" 의 보장선 — 너무 짧으면 캐시 효과가 사라지고, 너무 길면 invalidate 실패 시 위험이 커진다.
-        </p>
+    <span class="cmt">// 액세스·리프레시 모두 새로 발급하고 Redis 갱신 — 리프레시 토큰은 1회용</span>
+    String newAccessToken  = jwtUtil.createAccessToken(...);
+    String newRefreshToken = jwtUtil.createRefreshToken(memberId);
+    refreshTokenRepository.save(<span class="kw">new</span> RefreshToken(memberId, newRefreshToken));
 
-        <h3 class="h3">② 캐시 무효화 — 차단/해제 시 즉시 삭제</h3>
-        <pre class="code"><code><span class="kw">public void</span> blockUser(Long blockerUserId, Long blockedUserId) {
-    ...
-    userBlockRepository.save(userBlock);
-    evictBlockCache(blockerUserId);  <span class="cmt">// ✅ 즉시 삭제</span>
-}
-
-<span class="kw">public void</span> unblockUser(Long blockerUserId, Long blockedUserId) {
-    ...
-    evictBlockCache(blockerUserId);  <span class="cmt">// ✅ 즉시 삭제</span>
+    <span class="kw">return new</span> TokenResponse(newAccessToken, newRefreshToken);
 }</code></pre>
+
+        <h3 class="h3">② 게이트웨이 — Denylist 검사와 인증 헤더 주입</h3>
+        <pre class="code"><code><span class="cmt">// gateway-service AuthorizationHeaderFilter</span>
+<span class="kw">if</span> (!jwtUtil.validateToken(accessToken)) { <span class="kw">return</span> unauthorized(exchange); }
+
+Claims claims = jwtUtil.parseToken(accessToken);
+
+<span class="cmt">// 로그아웃된 토큰인지 검사 — jti 기반 Denylist (Redis)</span>
+<span class="kw">return</span> accessTokenDenylistService.isDenied(claims.getId())
+    .flatMap(denied -&gt; {
+        <span class="kw">if</span> (denied) { <span class="kw">return</span> unauthorized(exchange); }
+
+        <span class="kw">return</span> chain.filter(exchange.mutate()
+            .request(builder -&gt; builder.headers(headers -&gt; {
+                <span class="cmt">// 클라이언트가 위조해서 보낸 헤더를 먼저 제거 — 스푸핑 방지</span>
+                headers.remove(<span class="str">"X-Member-Id"</span>);
+                headers.remove(<span class="str">"X-Member-Email"</span>);
+                headers.remove(<span class="str">"X-Member-Role"</span>);
+                <span class="cmt">// 검증된 값으로 다시 주입 — 내부 서비스는 이 헤더만 신뢰</span>
+                headers.add(<span class="str">"X-Member-Id"</span>, memberId);
+                ...
+            })).build());
+    });</code></pre>
 
         <div class="decision">
-            <div class="decision-label">의사결정 근거 — TTL + 즉시 무효화 이중 안전장치</div>
+            <div class="decision-label">의사결정 근거</div>
             <div class="decision-body">
-                TTL 만으로 끝내면 차단 해제 후에도 30분간 차단 상태 유지 → UX 문제.
-                즉시 무효화 만으로 끝내면 Redis 장애 시 영원히 stale → 안전 문제.
-                <strong>둘 다 적용</strong>: 정상 상태에서는 즉시 반영, Redis 장애 시에도 최대 30분 뒤 자연 복구.
-                하나만 쓰는 건 둘 중 하나의 실패 시나리오를 방치하는 것과 같다.
+                JWT의 약점은 "발급 후 통제 불가"입니다. 이걸 두 겹으로 보완했습니다.
+                <strong>RTR</strong>은 리프레시 토큰을 1회용으로 만들어, 탈취범과 원래 사용자 중 누구든 먼저 쓰는 순간
+                다른 쪽의 재사용이 감지되고 세션 전체가 무효화됩니다.
+                <strong>Denylist</strong>는 로그아웃한 액세스 토큰의 남은 유효시간을 차단합니다.
+                결국 v3의 세션이 주던 "서버가 끊을 수 있는 권한"을, stateless 검증을 유지하면서 되찾은 셈입니다.
             </div>
         </div>
 
-        <div class="sub-head"><span class="sub-num">결과 — JUnit 성능 테스트로 정량 검증</span></div>
-        <pre class="code"><code><span class="cmt">┌─────────────┬───────────┬──────────┬───────────┐</span>
-<span class="cmt">│ 호출 횟수   │  미적용    │  적용    │  향상     │</span>
-<span class="cmt">├─────────────┼───────────┼──────────┼───────────┤</span>
-<span class="cmt">│   100 회    │  1,242ms  │   144ms  │   8.6 ×   │</span>
-<span class="cmt">│ 1,000 회    │ 12,250ms  │ 1,321ms  │   9.3 ×   │</span>
-<span class="cmt">│ 5,000 회    │ 61,233ms  │ 6,427ms  │   9.5 ×   │</span>
-<span class="cmt">└─────────────┴───────────┴──────────┴───────────┘</span>
+        <div class="decision">
+            <div class="decision-label">놓치기 쉬운 포인트 — 헤더 스푸핑</div>
+            <div class="decision-body">
+                내부 서비스는 게이트웨이가 넣어준 <code>X-Member-Id</code>를 신뢰합니다. 그런데 클라이언트가 이 헤더를
+                직접 넣어 보내면? 게이트웨이가 <strong>주입 전에 같은 이름의 헤더를 제거</strong>하지 않으면
+                인증 우회가 됩니다. 신뢰 경계를 만들 때는 "신뢰할 값을 넣는 것"만큼 "신뢰할 수 없는 값을 지우는 것"이 중요했습니다.
+            </div>
+        </div>
 
-<span class="cmt">// 실서비스 시나리오 (1분 · 초당 10개 메시지 = 600건)</span>
-<span class="cmt">//   누적 지연    : 7.3초 → 0.8초   (9.3배 향상)</span>
-<span class="cmt">//   DB 쿼리 수   :  600  →   1     (99.8% 감소)</span></code></pre>
+        <div class="sub-head"><span class="sub-num">결과</span></div>
         <ul class="result-list">
-            <li>DB 쿼리 <strong>99.8% 감소</strong> — MongoDB 부하 거의 제거, 채팅방이 100배 늘어나도 여유</li>
-            <li>호출 수가 늘수록 배율이 올라감 (8.6 → 9.3 → 9.5) — <strong>스케일링에 유리한 특성</strong></li>
-            <li>실시간 채팅 UX 핵심인 "즉시성" 을 지킬 수 있는 구조</li>
+            <li>리프레시 토큰 재사용이 감지되면 <strong>세션 전체가 즉시 무효화</strong>됩니다</li>
+            <li>로그아웃 후 남은 액세스 토큰은 <strong>게이트웨이에서 차단</strong>됩니다</li>
+            <li>내부 서비스는 인증 로직 없이 <strong>검증된 헤더만 신뢰</strong>하면 되는 구조가 됐습니다</li>
+        </ul>
+    </div>
+</section>
+
+<!-- STORY 4 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">04</div>
+            <div>
+                <div class="story-kicker">Cache · Data Store</div>
+                <h2 class="story-title">채팅 차단 목록 캐싱과 저장소 선택</h2>
+                <div class="story-tag">"메시지 한 건마다 실행되는 조회는 비용이 다르다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <p class="prose">
+            채팅에는 차단 기능이 있습니다. 문제는 검사 위치입니다 —
+            <strong>메시지가 한 건 올 때마다</strong> "수신자가 발신자를 차단했는가"를 확인해야 합니다.
+            채팅방 목록을 그릴 때도 차단한 상대를 걸러야 합니다.
+            차단 데이터 자체는 거의 바뀌지 않는데, 조회는 채팅 트래픽에 비례해서 일어나는 전형적인 <strong>읽기 편중</strong> 패턴이었습니다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">해결 과정</span></div>
+
+        <h3 class="h3">Cache-Aside + 쓰기 시점 무효화</h3>
+        <pre class="code"><code><span class="cmt">// chat-service BlockServiceImpl</span>
+<span class="kw">private static final</span> String <span class="fld">BLOCK_CACHE_KEY_PREFIX</span> = <span class="str">"user:block:"</span>;
+<span class="kw">private static final</span> Duration <span class="fld">CACHE_TTL</span> = Duration.ofMinutes(<span class="num">30</span>);
+
+<span class="kw">public</span> Set&lt;Long&gt; getBlockedUserIds(Long blockerUserId) {
+    String cacheKey = <span class="fld">BLOCK_CACHE_KEY_PREFIX</span> + blockerUserId;
+
+    Object cached = redisTemplate.opsForValue().get(cacheKey);
+    <span class="kw">if</span> (cached != <span class="kw">null</span>) { <span class="kw">return</span> toSet(cached); }      <span class="cmt">// 캐시 히트</span>
+
+    Set&lt;Long&gt; blockedIds = loadFromDb(blockerUserId);     <span class="cmt">// 미스 → DB 조회</span>
+    redisTemplate.opsForValue().set(cacheKey, blockedIds, <span class="fld">CACHE_TTL</span>);
+    <span class="kw">return</span> blockedIds;
+}
+
+<span class="kw">public void</span> blockUser(Long blockerUserId, Long blockedUserId) {
+    userBlockRepository.save(...);
+    evictBlockCache(blockerUserId);   <span class="cmt">// 쓰기 시점에 캐시 무효화 — 다음 조회가 새로 적재</span>
+}</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">의사결정 근거 — TTL과 무효화를 둘 다 쓰는 이유</div>
+            <div class="decision-body">
+                차단은 <strong>즉시 반영되어야 하는 기능</strong>입니다. TTL만 쓰면 최대 30분간 차단이 안 먹힐 수 있으니,
+                차단/해제 시점에 캐시를 지워 다음 조회가 DB에서 새로 읽게 했습니다.
+                그럼 TTL은 왜 남겼는가 — 무효화 로직에 버그가 있거나 Redis에 잔여 키가 남는 경우를 위한
+                <strong>안전장치</strong>입니다. "일관성은 무효화가 책임지고, TTL은 실패의 상한선을 정한다"로 역할을 나눴습니다.
+            </div>
+        </div>
+
+        <div class="decision">
+            <div class="decision-label">함께 내린 선택 — 채팅 메시지는 왜 MongoDB인가</div>
+            <div class="decision-body">
+                채팅 메시지는 수정 없이 쌓이기만 하고, 조회는 방 단위 시간순뿐이라
+                <strong>RDB의 트랜잭션·조인·정합성 제약을 쓸 일이 없는 데이터</strong>입니다.
+                서비스에서 가장 빠르게 늘어나는 데이터이기도 해서, 스키마 변경과 수평 확장이 쉬운 MongoDB에
+                <code>(roomId, createdAt)</code> 복합 인덱스 하나로 저장했습니다.
+                반대로 정합성이 중요한 회원·주문·재고는 MySQL에 그대로 뒀습니다 —
+                서비스별로 데이터 특성에 맞는 저장소를 고를 수 있다는 것이 MSA에서 체감한 이점이었습니다.
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">결과</span></div>
+        <ul class="result-list">
+            <li>메시지 수신·채팅방 목록·실시간 중계(Pub/Sub) <strong>3개 경로의 차단 검사</strong>가 캐시를 공유합니다</li>
+            <li>차단/해제는 <strong>즉시 반영</strong>되면서, 반복 조회는 DB에 도달하지 않습니다</li>
+            <li>데이터 특성에 따라 <strong>MySQL과 MongoDB를 분리 운용</strong>하는 경험을 얻었습니다</li>
         </ul>
     </div>
 </section>
@@ -412,22 +483,19 @@
             <div class="takeaway">
                 <div class="tk-num">01</div>
                 <div class="tk-body">
-                    <strong>통신 방식은 성격에 따라 나눈다</strong> — 최종 일관성으로 충분하면 Kafka, 즉시성이 필요하면 OpenFeign.
-                    한 방식으로 통일하면 둘 중 하나는 손해를 본다.
+                    <strong>분산 환경의 동시성은 겹쳐서 방어해야 합니다</strong> — 분산 락에도 leaseTime 만료라는 구멍이 있습니다. 돈과 연결된 정합성은 분산 락 + DB 락으로 층을 나눠 지키는 것이 맞다고 판단했습니다.
                 </div>
             </div>
             <div class="takeaway">
                 <div class="tk-num">02</div>
                 <div class="tk-body">
-                    <strong>발행은 DB 커밋에 묶는다</strong> — 외부 발행과 트랜잭션은 원자적으로 묶이지 않으니,
-                    이벤트를 같은 트랜잭션의 outbox 에 적재하고 별도 디스패처로 재시도·중복 방지하며 내보낸다.
+                    <strong>통신 방식은 취향이 아니라 기준의 문제입니다</strong> — "이 응답이 없으면 다음 줄을 실행할 수 없는가"라는 질문 하나로 동기/비동기가 갈렸고, 장애 격리는 그 선택을 따라왔습니다.
                 </div>
             </div>
             <div class="takeaway">
                 <div class="tk-num">03</div>
                 <div class="tk-body">
-                    <strong>캐시는 "즉시 무효화 + TTL" 이중 안전장치</strong> — 하나만으로는 UX 실패 또는 장애 전파.
-                    두 축을 함께 둘 때 비로소 안정적 캐시다.
+                    <strong>MSA의 비용을 몸으로 배웠습니다</strong> — 학습을 위해 선택한 아키텍처였고, 서비스 간 호출·정합성·운영 복잡도라는 비용을 정면으로 치렀습니다. 이 경험이 다음 프로젝트에서 모듈러 모놀리스를 선택한 직접적인 근거가 됐습니다.
                 </div>
             </div>
         </div>
@@ -438,11 +506,11 @@
     <div class="wrap">
         <a href="01_comatching3.html" class="next-link prev">
             <div class="next-kicker">← Prev 01</div>
-            <div class="next-title">Comatching · 운영 종료</div>
+            <div class="next-title">코매칭 · 대학 축제 1:1 매칭</div>
         </a>
         <a href="03_harucut.html" class="next-link">
             <div class="next-kicker">Next 03 →</div>
-            <div class="next-title">Harucut · 온라인 네컷사진</div>
+            <div class="next-title">하루컷 · 온라인 네컷사진</div>
         </a>
     </div>
 </section>

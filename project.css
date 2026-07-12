@@ -4,20 +4,21 @@
    ========================================================= */
 
 :root {
-    --bg: #0a0c10;
-    --bg2: #111419;
-    --bg3: #181c23;
-    --border: rgba(255, 255, 255, 0.07);
-    --border-bright: rgba(255, 255, 255, 0.14);
-    --text: #e8eaf0;
-    --muted: #7a8090;
-    --accent: #4f9eff;
-    --green: #3ecf8e;
-    --amber: #f5a623;
-    --red: #ff5252;
-    --purple: #b794f4;
-    --pink: #ff6ec7;
-    --indigo: #6366f1;
+    --bg: #f8f9fb;
+    --bg2: #ffffff;
+    --bg3: #f1f3f7;
+    --border: #e6e9ef;
+    --border-bright: #d5dae3;
+    --text: #1c2130;
+    --muted: #64708a;
+    --accent: #00c471;
+    --green: #0e9f6e;
+    --teal: #0d9488;
+    --amber: #d97706;
+    --red: #dc2626;
+    --purple: #7c3aed;
+    --pink: #db2777;
+    --indigo: #4f46e5;
     --mono: 'JetBrains Mono', monospace;
     --display: 'Pretendard', sans-serif;
     --body: 'Pretendard', sans-serif;
@@ -28,6 +29,7 @@
 
 /* 페이지별 액센트 스위치 */
 body[data-accent="green"]  { --page-accent: var(--green);  }
+body[data-accent="teal"]   { --page-accent: var(--teal);   }
 body[data-accent="blue"]   { --page-accent: var(--accent); }
 body[data-accent="accent"] { --page-accent: var(--accent); }
 body[data-accent="purple"] { --page-accent: var(--purple); }
@@ -53,8 +55,8 @@ body::before {
     position: fixed;
     inset: 0;
     background-image:
-        linear-gradient(rgba(79, 158, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(79, 158, 255, 0.025) 1px, transparent 1px);
+        linear-gradient(rgba(0, 196, 113, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 196, 113, 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
     z-index: 0;
@@ -65,7 +67,7 @@ body::after {
     position: fixed;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    opacity: .4;
+    opacity: .25;
     pointer-events: none;
     z-index: 0;
 }
@@ -84,7 +86,7 @@ nav {
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
-    background: rgba(10, 12, 16, 0.92);
+    background: rgba(248, 249, 251, 0.88);
     backdrop-filter: blur(12px);
     z-index: 100;
 }
@@ -98,7 +100,7 @@ nav {
 .nav-logo {
     font-family: var(--mono);
     font-size: 13px;
-    color: #fff;
+    color: var(--text);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -123,7 +125,7 @@ nav {
     transition: color .2s;
 }
 
-.nav-links a:hover { color: #fff; }
+.nav-links a:hover { color: var(--page-accent); }
 
 .nav-links a.active {
     color: var(--page-accent);
@@ -173,7 +175,7 @@ h1 {
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: -.03em;
-    color: #fff;
+    color: var(--text);
     margin-bottom: 28px;
 }
 
@@ -224,7 +226,7 @@ h1 .line2 { color: var(--page-accent); }
     font-family: var(--display);
     font-size: 14px;
     font-weight: 600;
-    color: #fff;
+    color: var(--text);
 }
 
 /* stack (기술 칩 줄) */
@@ -246,7 +248,7 @@ h1 .line2 { color: var(--page-accent); }
 }
 
 .chip:hover {
-    color: #fff;
+    color: var(--text);
     border-color: var(--page-accent);
 }
 
@@ -356,7 +358,7 @@ h1 .line2 { color: var(--page-accent); }
     font-family: var(--display);
     font-size: 15px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text);
     margin-bottom: 4px;
     letter-spacing: -.01em;
 }
@@ -513,7 +515,7 @@ h1 .line2 { color: var(--page-accent); }
     font-family: var(--display);
     font-size: 30px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text);
     letter-spacing: -.02em;
     line-height: 1.25;
     margin-bottom: 10px;
@@ -555,7 +557,7 @@ h1 .line2 { color: var(--page-accent); }
 }
 
 .prose strong {
-    color: #fff;
+    color: var(--text);
     font-weight: 600;
 }
 
@@ -578,7 +580,7 @@ h1 .line2 { color: var(--page-accent); }
     font-family: var(--display);
     font-size: 17px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text);
     margin: 36px 0 14px;
     line-height: 1.5;
     letter-spacing: -.01em;
@@ -691,7 +693,7 @@ code {
 }
 
 .decision-body strong {
-    color: #fff;
+    color: var(--text);
     font-weight: 600;
 }
 
@@ -725,7 +727,7 @@ code {
 }
 
 .result-list strong {
-    color: #fff;
+    color: var(--text);
     font-weight: 600;
 }
 
@@ -775,7 +777,7 @@ code {
 }
 
 .tk-body strong {
-    color: #fff;
+    color: var(--text);
     font-weight: 600;
 }
 
@@ -822,7 +824,7 @@ code {
     font-family: var(--display);
     font-size: 16px;
     font-weight: 600;
-    color: #fff;
+    color: var(--text);
     letter-spacing: -.01em;
 }
 
@@ -859,7 +861,7 @@ footer {
     transition: color .2s;
 }
 
-.foot-links a:hover { color: #fff; }
+.foot-links a:hover { color: var(--page-accent); }
 
 /* ============ ANIMATIONS ============ */
 @keyframes fadeUp {
@@ -965,19 +967,19 @@ footer {
 }
 
 .status-done {
-    background: rgba(62, 207, 142, .12);
+    background: rgba(14, 159, 110, .1);
     color: var(--green);
-    border: 1px solid rgba(62, 207, 142, .2);
+    border: 1px solid rgba(14, 159, 110, .25);
 }
 
 .status-wip {
-    background: rgba(245, 166, 35, .1);
+    background: rgba(217, 119, 6, .1);
     color: var(--amber);
-    border: 1px solid rgba(245, 166, 35, .2);
+    border: 1px solid rgba(217, 119, 6, .25);
 }
 
 .status-plan {
-    background: rgba(122, 128, 144, .1);
+    background: rgba(100, 112, 138, .1);
     color: var(--muted);
     border: 1px solid var(--border);
 }
@@ -986,7 +988,7 @@ footer {
     font-family: var(--display);
     font-size: 22px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text);
     margin-bottom: 10px;
     letter-spacing: -.01em;
 }
@@ -1125,7 +1127,7 @@ footer {
 
 .deepdive-card.soon {
     cursor: default;
-    background: linear-gradient(180deg, var(--bg2), rgba(17, 20, 25, .55));
+    background: linear-gradient(180deg, var(--bg2), rgba(241, 243, 247, .7));
 }
 
 .deepdive-card.soon:hover {
@@ -1159,7 +1161,7 @@ footer {
     font-family: var(--display);
     font-size: 22px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text);
     margin-bottom: 10px;
     letter-spacing: -.01em;
 }
@@ -1278,11 +1280,11 @@ footer {
     z-index: 1;
 }
 
-.ver-dot.v1 { border-color: rgba(255,82,82,.55);  color: var(--red);    background: rgba(255,82,82,.08); }
-.ver-dot.v2 { border-color: rgba(245,166,35,.55); color: var(--amber);  background: rgba(245,166,35,.08); }
-.ver-dot.v3 { border-color: rgba(79,158,255,.55); color: var(--accent); background: rgba(79,158,255,.08); }
-.ver-dot.v4 { border-color: rgba(62,207,142,.55); color: var(--green);  background: rgba(62,207,142,.08); }
-.ver-dot.v5 { border-color: rgba(183,148,244,.55);color: var(--purple); background: rgba(183,148,244,.08); }
+.ver-dot.v1 { border-color: rgba(220,38,38,.45);  color: var(--red);    background: rgba(220,38,38,.07); }
+.ver-dot.v2 { border-color: rgba(217,119,6,.45); color: var(--amber);  background: rgba(217,119,6,.07); }
+.ver-dot.v3 { border-color: rgba(0,196,113,.45); color: var(--accent); background: rgba(0,196,113,.07); }
+.ver-dot.v4 { border-color: rgba(14,159,110,.45); color: var(--green);  background: rgba(14,159,110,.07); }
+.ver-dot.v5 { border-color: rgba(124,58,237,.45);color: var(--purple); background: rgba(124,58,237,.07); }
 
 .ver-line {
     flex: 1;
@@ -1316,7 +1318,7 @@ footer {
     font-family: var(--display);
     font-size: 19px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text);
     margin-bottom: 14px;
     letter-spacing: -.01em;
     line-height: 1.35;
@@ -1335,11 +1337,11 @@ footer {
     line-height: 1.75;
 }
 
-.thought.t1 { border-left-color: rgba(255,82,82,.6);  }
-.thought.t2 { border-left-color: rgba(245,166,35,.6); }
-.thought.t3 { border-left-color: rgba(79,158,255,.6); }
-.thought.t4 { border-left-color: rgba(62,207,142,.5); }
-.thought.t5 { border-left-color: rgba(183,148,244,.5);}
+.thought.t1 { border-left-color: rgba(220,38,38,.5);  }
+.thought.t2 { border-left-color: rgba(217,119,6,.5); }
+.thought.t3 { border-left-color: rgba(0,196,113,.5); }
+.thought.t4 { border-left-color: rgba(14,159,110,.45); }
+.thought.t5 { border-left-color: rgba(124,58,237,.45);}
 
 .thought strong {
     color: var(--text);
@@ -1372,7 +1374,7 @@ footer {
     color: var(--text);
 }
 
-.dbox strong { color: #fff; font-weight: 600; }
+.dbox strong { color: var(--text); font-weight: 600; }
 
 /* 메트릭 칩 그룹 */
 .metric-row {
@@ -1392,7 +1394,7 @@ footer {
 }
 
 .metric .mv {
-    color: #fff;
+    color: var(--text);
     font-weight: 500;
     font-size: 14px;
     line-height: 1.2;
@@ -1412,7 +1414,7 @@ footer {
     margin: 10px 0;
 }
 
-.ver-body .prose strong { color: #fff; font-weight: 600; }
+.ver-body .prose strong { color: var(--text); font-weight: 600; }
 
 /* =========================================================
    DEEP DIVE 상세 — Performance Table
@@ -1449,7 +1451,7 @@ footer {
 }
 
 .perf-table tr:last-child td { border-bottom: none; }
-.perf-table tr:hover td { background: rgba(255, 255, 255, .02); }
+.perf-table tr:hover td { background: rgba(0, 0, 0, .02); }
 
 .bar-wrap {
     display: flex;
@@ -1498,7 +1500,7 @@ footer {
 }
 
 .perf-summary strong {
-    color: #fff;
+    color: var(--text);
     font-family: var(--mono);
     font-weight: 500;
 }
@@ -1521,8 +1523,8 @@ footer {
 }
 
 .prob-card.hot {
-    border-color: rgba(255,82,82,.28);
-    background: rgba(255,82,82,.03);
+    border-color: rgba(220,38,38,.3);
+    background: rgba(220,38,38,.03);
 }
 
 .badge {
@@ -1537,15 +1539,15 @@ footer {
     font-weight: 600;
 }
 
-.badge.red   { background: rgba(255,82,82,.15);  color: var(--red); }
-.badge.green { background: rgba(62,207,142,.15); color: var(--green); }
-.badge.amber { background: rgba(245,166,35,.12); color: var(--amber); }
+.badge.red   { background: rgba(220,38,38,.1);  color: var(--red); }
+.badge.green { background: rgba(14,159,110,.1); color: var(--green); }
+.badge.amber { background: rgba(217,119,6,.1); color: var(--amber); }
 
 .prob-card h3 {
     font-family: var(--display);
     font-size: 15px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text);
     margin-bottom: 10px;
     line-height: 1.4;
 }

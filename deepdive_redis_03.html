@@ -8,31 +8,31 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg:#0a0c10;--bg2:#111419;--bg3:#181c23;
-            --border:rgba(255,255,255,0.07);--border-bright:rgba(255,255,255,0.14);
-            --text:#e8eaf0;--muted:#7a8090;
-            --accent:#4f9eff;--green:#3ecf8e;--amber:#f5a623;--red:#ff5252;--purple:#b794f4;
+            --bg:#f8f9fb;--bg2: #ffffff;--bg3:#f1f3f7;
+            --border:rgba(15, 23, 42, 0.07);--border-bright:rgba(15, 23, 42, 0.14);
+            --text:#1c2130;--muted:#64708a;
+            --accent:#2563eb;--green:#0e9f6e;--amber:#d97706;--red:#dc2626;--purple:#7c3aed;
             --mono:'JetBrains Mono',monospace;--display:'Pretendard',sans-serif;--body:'Pretendard',sans-serif;
         }
         *{margin:0;padding:0;box-sizing:border-box;}
         body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.7;overflow-x:hidden;}
-        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(183,148,244,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(183,148,244,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124, 58, 237, 0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(124, 58, 237, 0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
 
-        nav{padding:20px 0;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,12,16,0.92);backdrop-filter:blur(12px);z-index:100;}
+        nav{padding:20px 0;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(248, 249, 251, 0.92);backdrop-filter:blur(12px);z-index:100;}
         .nav-inner{display:flex;align-items:center;justify-content:space-between;}
         .nav-logo{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;}
-        .nav-logo:hover{color:#fff;}
+        .nav-logo:hover{color:#1c2130;}
         .nav-logo::before{content:'←';font-size:12px;}
         .nav-links{display:flex;gap:20px;}
         .nav-links a{font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
-        .nav-links a:hover{color:#fff;}
+        .nav-links a:hover{color:#1c2130;}
         .nav-links a.active{color:var(--purple);}
 
         .wrap{max-width:900px;margin:0 auto;padding:0 32px;position:relative;z-index:1;}
         header{padding:72px 0 56px;border-bottom:1px solid var(--border);}
         .eyebrow{font-family:var(--mono);font-size:11px;color:var(--purple);letter-spacing:.2em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
         .eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--purple);}
-        h1{font-family:var(--display);font-size:clamp(28px,5vw,46px);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:20px;color:#fff;}
+        h1{font-family:var(--display);font-size:clamp(28px,5vw,46px);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:20px;color:#1c2130;}
         h1 span{color:var(--purple);}
         .desc{color:var(--muted);max-width:600px;margin-bottom:28px;}
         .tags{display:flex;flex-wrap:wrap;gap:8px;}
@@ -42,8 +42,8 @@
         section:last-of-type{border-bottom:none;}
         .sec-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:32px;display:flex;align-items:center;gap:10px;}
         .sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
-        h2{font-family:var(--display);font-size:22px;font-weight:700;color:#fff;margin-bottom:14px;letter-spacing:-.01em;}
-        h3{font-family:var(--display);font-size:16px;font-weight:700;color:#fff;margin-bottom:10px;}
+        h2{font-family:var(--display);font-size:22px;font-weight:700;color:#1c2130;margin-bottom:14px;letter-spacing:-.01em;}
+        h3{font-family:var(--display);font-size:16px;font-weight:700;color:#1c2130;margin-bottom:10px;}
         p{color:var(--muted);line-height:1.8;}
 
         .arch-box{background:var(--bg2);border:1px solid var(--border-bright);border-radius:12px;padding:36px;margin-top:24px;}
@@ -52,16 +52,16 @@
         .compare-table th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);font-weight:500;}
         .compare-table td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:middle;}
         .compare-table tr:last-child td{border-bottom:none;}
-        .compare-table tr:hover td{background:rgba(255,255,255,.02);}
+        .compare-table tr:hover td{background:rgba(15, 23, 42, .02);}
 
         .flow{display:flex;flex-direction:column;margin-top:8px;}
         .fi{display:grid;grid-template-columns:100px 1fr;gap:0 28px;}
         .fl{display:flex;flex-direction:column;align-items:center;padding-top:22px;}
         .dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border-bright);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--muted);flex-shrink:0;}
-        .dot.d1{border-color:rgba(183,148,244,.4);color:var(--purple);}
-        .dot.d2{border-color:rgba(245,166,35,.5);color:var(--amber);}
-        .dot.d3{border-color:rgba(62,207,142,.4);color:var(--green);}
-        .dot.d4{border-color:rgba(79,158,255,.5);color:var(--accent);}
+        .dot.d1{border-color:rgba(124, 58, 237, .4);color:var(--purple);}
+        .dot.d2{border-color:rgba(217, 119, 6, .5);color:var(--amber);}
+        .dot.d3{border-color:rgba(14, 159, 110, .4);color:var(--green);}
+        .dot.d4{border-color:rgba(37, 99, 235, .5);color:var(--accent);}
         .fl-line{flex:1;width:1px;background:var(--border);margin:4px 0;min-height:20px;}
         .fr{padding:18px 0 36px;}
         .fv{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
@@ -69,18 +69,18 @@
         .fv.v2{color:var(--amber);}
         .fv.v3{color:var(--green);}
         .fv.v4{color:var(--accent);}
-        .ft{font-family:var(--display);font-size:17px;font-weight:700;color:#fff;margin-bottom:10px;}
+        .ft{font-family:var(--display);font-size:17px;font-weight:700;color:#1c2130;margin-bottom:10px;}
         .fb{color:var(--muted);font-size:14px;line-height:1.8;}
         .thought{background:var(--bg2);border-left:3px solid var(--border-bright);border-radius:0 8px 8px 0;padding:14px 18px;margin:12px 0;font-size:14px;color:var(--muted);font-style:italic;}
-        .thought.t1{border-left-color:rgba(183,148,244,.5);}
-        .thought.t2{border-left-color:rgba(245,166,35,.5);}
-        .thought.t3{border-left-color:rgba(62,207,142,.4);}
-        .thought.t4{border-left-color:rgba(79,158,255,.5);}
+        .thought.t1{border-left-color:rgba(124, 58, 237, .5);}
+        .thought.t2{border-left-color:rgba(217, 119, 6, .5);}
+        .thought.t3{border-left-color:rgba(14, 159, 110, .4);}
+        .thought.t4{border-left-color:rgba(37, 99, 235, .5);}
         .dbox{background:var(--bg3);border:1px solid var(--border-bright);border-radius:8px;padding:14px 18px;margin:12px 0;}
         .dlabel{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
         .mrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
         .m{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-family:var(--mono);font-size:12px;}
-        .mv{color:#fff;font-weight:500;}
+        .mv{color:#1c2130;font-weight:500;}
         .ml{color:var(--muted);font-size:10px;margin-top:1px;}
 
         .log-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:14px;font-family:var(--mono);font-size:12px;line-height:1.9;color:var(--muted);}
@@ -142,77 +142,77 @@
             <svg width="100%" viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
                 <defs>
                     <marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                        <path d="M2 1L8 5L2 9" fill="none" stroke="#b794f4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </marker>
                     <marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                        <path d="M2 1L8 5L2 9" fill="none" stroke="#3ecf8e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#0e9f6e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </marker>
                     <marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                        <path d="M2 1L8 5L2 9" fill="none" stroke="#4f9eff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </marker>
                     <marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                        <path d="M2 1L8 5L2 9" fill="none" stroke="#f5a623" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 1L8 5L2 9" fill="none" stroke="#d97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </marker>
                 </defs>
 
                 <!-- Producer -->
-                <rect x="10" y="44" width="110" height="36" rx="6" fill="#181c23" stroke="rgba(183,148,244,0.3)" stroke-width="1"/>
-                <text x="65" y="67" text-anchor="middle" fill="#b794f4" font-size="11">Producer (API)</text>
-                <line x1="120" y1="62" x2="165" y2="62" stroke="#b794f4" stroke-width="1" marker-end="url(#a1)"/>
-                <text x="142" y="56" text-anchor="middle" fill="#b794f4" font-size="9">XADD</text>
+                <rect x="10" y="44" width="110" height="36" rx="6" fill="#f1f3f7" stroke="rgba(124, 58, 237, 0.3)" stroke-width="1"/>
+                <text x="65" y="67" text-anchor="middle" fill="#7c3aed" font-size="11">Producer (API)</text>
+                <line x1="120" y1="62" x2="165" y2="62" stroke="#7c3aed" stroke-width="1" marker-end="url(#a1)"/>
+                <text x="142" y="56" text-anchor="middle" fill="#7c3aed" font-size="9">XADD</text>
 
                 <!-- Stream -->
-                <rect x="165" y="44" width="160" height="36" rx="6" fill="#181c23" stroke="rgba(183,148,244,0.25)" stroke-width="1"/>
-                <text x="245" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">notification:stream</text>
-                <text x="245" y="73" text-anchor="middle" fill="#7a8090" font-size="9">Redis Stream (append-only)</text>
-                <line x1="325" y1="62" x2="370" y2="62" stroke="#b794f4" stroke-width="1" marker-end="url(#a1)"/>
-                <text x="347" y="56" text-anchor="middle" fill="#b794f4" font-size="9">XREADGROUP</text>
+                <rect x="165" y="44" width="160" height="36" rx="6" fill="#f1f3f7" stroke="rgba(124, 58, 237, 0.25)" stroke-width="1"/>
+                <text x="245" y="60" text-anchor="middle" fill="#1c2130" font-size="11" font-weight="500">notification:stream</text>
+                <text x="245" y="73" text-anchor="middle" fill="#64708a" font-size="9">Redis Stream (append-only)</text>
+                <line x1="325" y1="62" x2="370" y2="62" stroke="#7c3aed" stroke-width="1" marker-end="url(#a1)"/>
+                <text x="347" y="56" text-anchor="middle" fill="#7c3aed" font-size="9">XREADGROUP</text>
 
                 <!-- Consumer -->
-                <rect x="370" y="26" width="140" height="72" rx="8" fill="#181c23" stroke="rgba(183,148,244,0.3)" stroke-width="1"/>
-                <text x="440" y="52" text-anchor="middle" fill="#fff" font-size="12" font-weight="500">Consumer</text>
-                <text x="440" y="68" text-anchor="middle" fill="#7a8090" font-size="10">@Scheduled</text>
-                <text x="440" y="84" text-anchor="middle" fill="#b794f4" font-size="9">XACK on success</text>
+                <rect x="370" y="26" width="140" height="72" rx="8" fill="#f1f3f7" stroke="rgba(124, 58, 237, 0.3)" stroke-width="1"/>
+                <text x="440" y="52" text-anchor="middle" fill="#1c2130" font-size="12" font-weight="500">Consumer</text>
+                <text x="440" y="68" text-anchor="middle" fill="#64708a" font-size="10">@Scheduled</text>
+                <text x="440" y="84" text-anchor="middle" fill="#7c3aed" font-size="9">XACK on success</text>
 
                 <!-- Consumer → DB -->
-                <line x1="440" y1="98" x2="440" y2="200" stroke="#3ecf8e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#a2)"/>
-                <text x="452" y="155" fill="#3ecf8e" font-size="9">@Async</text>
-                <rect x="370" y="200" width="140" height="50" rx="8" fill="#181c23" stroke="rgba(62,207,142,0.25)" stroke-width="1"/>
-                <text x="440" y="222" text-anchor="middle" fill="#fff" font-size="12" font-weight="500">MySQL 8.0</text>
-                <text x="440" y="238" text-anchor="middle" fill="#7a8090" font-size="9">status: DELIVERED</text>
+                <line x1="440" y1="98" x2="440" y2="200" stroke="#0e9f6e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#a2)"/>
+                <text x="452" y="155" fill="#0e9f6e" font-size="9">@Async</text>
+                <rect x="370" y="200" width="140" height="50" rx="8" fill="#f1f3f7" stroke="rgba(14, 159, 110, 0.25)" stroke-width="1"/>
+                <text x="440" y="222" text-anchor="middle" fill="#1c2130" font-size="12" font-weight="500">MySQL 8.0</text>
+                <text x="440" y="238" text-anchor="middle" fill="#64708a" font-size="9">status: DELIVERED</text>
 
                 <!-- Consumer → Pub/Sub -->
-                <line x1="510" y1="62" x2="560" y2="62" stroke="#4f9eff" stroke-width="1" marker-end="url(#a3)"/>
-                <text x="535" y="56" text-anchor="middle" fill="#4f9eff" font-size="9">PUBLISH</text>
-                <rect x="560" y="44" width="140" height="36" rx="6" fill="#181c23" stroke="rgba(79,158,255,0.25)" stroke-width="1"/>
-                <text x="630" y="60" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">Pub/Sub Channel</text>
-                <text x="630" y="73" text-anchor="middle" fill="#7a8090" font-size="9">notification:pubsub:{userId}</text>
+                <line x1="510" y1="62" x2="560" y2="62" stroke="#2563eb" stroke-width="1" marker-end="url(#a3)"/>
+                <text x="535" y="56" text-anchor="middle" fill="#2563eb" font-size="9">PUBLISH</text>
+                <rect x="560" y="44" width="140" height="36" rx="6" fill="#f1f3f7" stroke="rgba(37, 99, 235, 0.25)" stroke-width="1"/>
+                <text x="630" y="60" text-anchor="middle" fill="#1c2130" font-size="11" font-weight="500">Pub/Sub Channel</text>
+                <text x="630" y="73" text-anchor="middle" fill="#64708a" font-size="9">notification:pubsub:{userId}</text>
 
                 <!-- Pub/Sub → WebSocket -->
-                <line x1="630" y1="80" x2="630" y2="130" stroke="#4f9eff" stroke-width="1" marker-end="url(#a3)"/>
-                <text x="645" y="110" fill="#4f9eff" font-size="9">onMessage()</text>
-                <rect x="560" y="130" width="140" height="36" rx="6" fill="#181c23" stroke="rgba(79,158,255,0.2)" stroke-width="1"/>
-                <text x="630" y="147" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">WebSocket</text>
-                <text x="630" y="160" text-anchor="middle" fill="#7a8090" font-size="9">/topic/notifications/{userId}</text>
+                <line x1="630" y1="80" x2="630" y2="130" stroke="#2563eb" stroke-width="1" marker-end="url(#a3)"/>
+                <text x="645" y="110" fill="#2563eb" font-size="9">onMessage()</text>
+                <rect x="560" y="130" width="140" height="36" rx="6" fill="#f1f3f7" stroke="rgba(37, 99, 235, 0.2)" stroke-width="1"/>
+                <text x="630" y="147" text-anchor="middle" fill="#1c2130" font-size="11" font-weight="500">WebSocket</text>
+                <text x="630" y="160" text-anchor="middle" fill="#64708a" font-size="9">/topic/notifications/{userId}</text>
 
                 <!-- WebSocket → Browser -->
-                <line x1="700" y1="148" x2="750" y2="148" stroke="#4f9eff" stroke-width="1" marker-end="url(#a3)"/>
-                <rect x="750" y="130" width="60" height="36" rx="6" fill="#181c23" stroke="rgba(79,158,255,0.2)" stroke-width="1"/>
-                <text x="780" y="152" text-anchor="middle" fill="#4f9eff" font-size="10">Browser</text>
+                <line x1="700" y1="148" x2="750" y2="148" stroke="#2563eb" stroke-width="1" marker-end="url(#a3)"/>
+                <rect x="750" y="130" width="60" height="36" rx="6" fill="#f1f3f7" stroke="rgba(37, 99, 235, 0.2)" stroke-width="1"/>
+                <text x="780" y="152" text-anchor="middle" fill="#2563eb" font-size="10">Browser</text>
 
                 <!-- PEL -->
-                <rect x="165" y="200" width="160" height="50" rx="6" fill="#181c23" stroke="rgba(245,166,35,0.25)" stroke-width="1" stroke-dasharray="4 3"/>
-                <text x="245" y="222" text-anchor="middle" fill="#f5a623" font-size="11" font-weight="500">PEL</text>
-                <text x="245" y="238" text-anchor="middle" fill="#7a8090" font-size="9">미처리 메시지 추적</text>
-                <path d="M245 170 L245 200" fill="none" stroke="#f5a623" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#a4)"/>
-                <text x="258" y="188" fill="#f5a623" font-size="9">XACK 미수신</text>
-                <text x="245" y="172" text-anchor="middle" fill="#7a8090" font-size="9">Consumer 장애 시</text>
+                <rect x="165" y="200" width="160" height="50" rx="6" fill="#f1f3f7" stroke="rgba(217, 119, 6, 0.25)" stroke-width="1" stroke-dasharray="4 3"/>
+                <text x="245" y="222" text-anchor="middle" fill="#d97706" font-size="11" font-weight="500">PEL</text>
+                <text x="245" y="238" text-anchor="middle" fill="#64708a" font-size="9">미처리 메시지 추적</text>
+                <path d="M245 170 L245 200" fill="none" stroke="#d97706" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#a4)"/>
+                <text x="258" y="188" fill="#d97706" font-size="9">XACK 미수신</text>
+                <text x="245" y="172" text-anchor="middle" fill="#64708a" font-size="9">Consumer 장애 시</text>
 
                 <!-- PEL Processor -->
-                <rect x="10" y="200" width="140" height="50" rx="6" fill="#181c23" stroke="rgba(245,166,35,0.2)" stroke-width="1"/>
-                <text x="80" y="222" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">PEL Processor</text>
-                <text x="80" y="238" text-anchor="middle" fill="#7a8090" font-size="9">XCLAIM → 재처리 (30s)</text>
-                <line x1="165" y1="225" x2="150" y2="225" stroke="#f5a623" stroke-width="1" marker-end="url(#a4)"/>
+                <rect x="10" y="200" width="140" height="50" rx="6" fill="#f1f3f7" stroke="rgba(217, 119, 6, 0.2)" stroke-width="1"/>
+                <text x="80" y="222" text-anchor="middle" fill="#1c2130" font-size="11" font-weight="500">PEL Processor</text>
+                <text x="80" y="238" text-anchor="middle" fill="#64708a" font-size="9">XCLAIM → 재처리 (30s)</text>
+                <line x1="165" y1="225" x2="150" y2="225" stroke="#d97706" stroke-width="1" marker-end="url(#a4)"/>
             </svg>
         </div>
     </div>
@@ -269,7 +269,7 @@
                     <div class="thought t2">"Consumer Group을 쓰면 Redis가 '누가 어떤 메시지를 가져갔는지'를 PEL에 기록합니다. XACK를 보내면 처리 완료. 안 보내면 PEL에 남습니다. 이게 재처리의 기반이 됩니다."</div>
                     <div class="dbox">
                         <div class="dlabel">V2 핵심</div>
-                        <p class="fb" style="font-size:13px;"><code style="font-family:var(--mono);font-size:12px;color:var(--amber)">XREADGROUP ... &gt;</code>의 <span style="color:#fff;">"&gt;"</span>는 아직 아무도 가져가지 않은 새 메시지만 읽겠다는 의미입니다. 같은 그룹 내에서 메시지가 겹치지 않습니다.</p>
+                        <p class="fb" style="font-size:13px;"><code style="font-family:var(--mono);font-size:12px;color:var(--amber)">XREADGROUP ... &gt;</code>의 <span style="color:#1c2130;">"&gt;"</span>는 아직 아무도 가져가지 않은 새 메시지만 읽겠다는 의미입니다. 같은 그룹 내에서 메시지가 겹치지 않습니다.</p>
                     </div>
                     <div class="mrow">
                         <div class="m"><div class="mv" style="color:var(--green)">DELIVERED</div><div class="ml">DB status</div></div>
@@ -369,10 +369,10 @@
                 </a>
             </div>
             <a href="deepdive_redis.html" style="font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;transition:color .2s;"
-               onmouseover="this.style.color='#fff'"
+               onmouseover="this.style.color='#1c2130'"
                onmouseout="this.style.color='var(--muted)'">← 목록으로</a>
             <a href="index.html" style="font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;transition:color .2s;"
-               onmouseover="this.style.color='#fff'"
+               onmouseover="this.style.color='#1c2130'"
                onmouseout="this.style.color='var(--muted)'">← 포트폴리오</a>
         </div>
     </div>

@@ -8,18 +8,18 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0c10;
-            --bg2: #111419;
-            --bg3: #181c23;
-            --border: rgba(255, 255, 255, 0.07);
-            --border-bright: rgba(255, 255, 255, 0.14);
-            --text: #e8eaf0;
-            --muted: #7a8090;
-            --accent: #4f9eff;
-            --green: #3ecf8e;
-            --amber: #f5a623;
-            --red: #ff5252;
-            --purple: #b794f4;
+            --bg: #f8f9fb;
+            --bg2: #ffffff;
+            --bg3: #f1f3f7;
+            --border: rgba(15, 23, 42, 0.07);
+            --border-bright: rgba(15, 23, 42, 0.14);
+            --text: #1c2130;
+            --muted: #64708a;
+            --accent: #2563eb;
+            --green: #0e9f6e;
+            --amber: #d97706;
+            --red: #dc2626;
+            --purple: #7c3aed;
             --mono: 'JetBrains Mono', monospace;
             --display: 'Pretendard', sans-serif;
             --body: 'Pretendard', sans-serif;
@@ -49,7 +49,7 @@
             content: '';
             position: fixed;
             inset: 0;
-            background-image: linear-gradient(rgba(79, 158, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(79, 158, 255, 0.025) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(0, 196, 113, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 196, 113, 0.05) 1px, transparent 1px);
             background-size: 40px 40px;
             pointer-events: none;
             z-index: 0;
@@ -80,7 +80,7 @@
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
-            background: rgba(10, 12, 16, 0.92);
+            background: rgba(248, 249, 251, 0.92);
             backdrop-filter: blur(12px);
             z-index: 100;
         }
@@ -103,7 +103,7 @@
         }
 
         .nav-logo:hover {
-            color: #fff;
+            color: #1c2130;
         }
 
         .nav-links {
@@ -122,7 +122,7 @@
         }
 
         .nav-links a:hover {
-            color: #fff;
+            color: #1c2130;
         }
 
         /* HERO */
@@ -157,7 +157,7 @@
             font-weight: 800;
             line-height: 1.08;
             letter-spacing: -.03em;
-            color: #fff;
+            color: #1c2130;
             margin-bottom: 28px;
         }
 
@@ -220,7 +220,7 @@
             font-family: var(--display);
             font-size: 26px;
             font-weight: 800;
-            color: #fff;
+            color: #1c2130;
             line-height: 1;
         }
 
@@ -320,19 +320,19 @@
         }
 
         .status-done {
-            background: rgba(62, 207, 142, .12);
+            background: rgba(14, 159, 110, .12);
             color: var(--green);
-            border: 1px solid rgba(62, 207, 142, .2);
+            border: 1px solid rgba(14, 159, 110, .2);
         }
 
         .status-wip {
-            background: rgba(245, 166, 35, .1);
+            background: rgba(217, 119, 6, .1);
             color: var(--amber);
-            border: 1px solid rgba(245, 166, 35, .2);
+            border: 1px solid rgba(217, 119, 6, .2);
         }
 
         .status-plan {
-            background: rgba(122, 128, 144, .1);
+            background: rgba(100, 112, 138, .1);
             color: var(--muted);
             border: 1px solid var(--border);
         }
@@ -341,7 +341,7 @@
             font-family: var(--display);
             font-size: 22px;
             font-weight: 700;
-            color: #fff;
+            color: #1c2130;
             margin-bottom: 10px;
             letter-spacing: -.01em;
         }
@@ -382,7 +382,7 @@
         }
 
         .cm-val {
-            color: #fff;
+            color: #1c2130;
             font-family: var(--mono);
             font-size: 13px;
             font-weight: 500;
@@ -410,7 +410,7 @@
 
         .project-card:hover .card-arrow {
             border-color: var(--card-accent, var(--accent));
-            background: rgba(79, 158, 255, .08);
+            background: rgba(37, 99, 235, .08);
         }
 
         .card-arrow svg {
@@ -432,7 +432,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(10, 12, 16, .7);
+            background: rgba(248, 249, 251, .7);
             backdrop-filter: blur(2px);
             border-radius: 14px;
             gap: 10px;
@@ -576,24 +576,6 @@
             <span class="chip">JMeter 5.6.3</span>
             <span class="chip">Docker Compose</span>
         </div>
-        <div class="stats fu fu4">
-            <div class="stat">
-                <div class="stat-val" style="color:var(--green)">3 / 3</div>
-                <div class="stat-lbl">완료</div>
-            </div>
-            <div class="stat">
-                <div class="stat-val" style="color:var(--accent)">5+</div>
-                <div class="stat-lbl">Redis 자료구조</div>
-            </div>
-            <div class="stat">
-                <div class="stat-val" style="color:var(--green)">3.6×</div>
-                <div class="stat-lbl">TPS 개선 (P1)</div>
-            </div>
-            <div class="stat">
-                <div class="stat-val" style="color:var(--amber)">70%</div>
-                <div class="stat-lbl">응답시간 단축 (P1)</div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -606,8 +588,7 @@
         <a href="deepdive_redis_01.html" class="project-card done fu" style="--card-accent:var(--accent);">
             <div class="card-top">
                 <span class="card-num">PROJECT 01</span>
-                <span class="card-status status-done">완료</span>
-            </div>
+                            </div>
             <div class="card-title">선착순 이벤트 처리 시스템</div>
             <p class="card-sub">
                 1만 명이 동시에 쿠폰을 요청했을 때 재고 정합성을 어떻게 지킬 수 있는가.
@@ -649,8 +630,7 @@
         <a href="deepdive_redis_02.html" class="project-card done fu fu1" style="--card-accent:var(--amber);">
             <div class="card-top">
                 <span class="card-num">PROJECT 02</span>
-                <span class="card-status status-done">완료</span>
-            </div>
+                            </div>
             <div class="card-title">실시간 게임 랭킹 시스템</div>
             <p class="card-sub">
                 수백만 사용자의 점수를 실시간으로 집계하고 순위를 조회합니다.
@@ -687,8 +667,7 @@
         <a href="deepdive_redis_03.html" class="project-card done fu fu2" style="--card-accent:var(--purple);">
             <div class="card-top">
                 <span class="card-num">PROJECT 03</span>
-                <span class="card-status status-done">완료</span>
-            </div>
+                            </div>
             <div class="card-title">실시간 알림 · 이벤트 파이프라인</div>
             <p class="card-sub">
                 Redis Stream과 Consumer Group으로 Kafka 없이 이벤트 파이프라인을 구축합니다.
@@ -731,8 +710,8 @@
         <div class="foot-inner">
             <span class="foot-note">Redis 완전정복 — Java 21 · Spring Boot 4.x · Redis 8.0</span>
             <div style="display:flex;gap:24px;align-items:center;">
-                <a href="index.html" class="foot-note" style="color:var(--muted);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">← 포트폴리오</a>
-                <span class="foot-note" style="color:rgba(122,128,144,.5);">Portfolio</span>
+                <a href="index.html" class="foot-note" style="color:var(--muted);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#1c2130'" onmouseout="this.style.color='var(--muted)'">← 포트폴리오</a>
+                <span class="foot-note" style="color:rgba(100, 112, 138, .5);">Portfolio</span>
             </div>
         </div>
     </div>

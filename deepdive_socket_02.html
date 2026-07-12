@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 통신 — 자바 소켓 딥다이브 02 · 천승환</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="project.css">
+</head>
+<body data-accent="purple">
+
+<nav>
+    <div class="wrap">
+        <div class="nav-inner">
+            <a href="deepdive_socket.html" class="nav-logo">← 자바 소켓 딥다이브</a>
+            <div class="nav-links">
+                <a href="deepdive_socket_01.html">01</a>
+                <a href="deepdive_socket_02.html" class="active">02</a>
+                <a href="deepdive_socket_03.html">03</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="hero project-hero">
+    <div class="wrap">
+        <div class="eyebrow fu">Chapter 02</div>
+        <h1 class="fu fu1">
+            실시간 통신<br>
+            <span class="line2">WebSocket, STOMP, SockJS</span>
+        </h1>
+        <p class="hero-desc fu fu2">
+            요청-응답으로 끝나지 않고 <strong>연결을 유지하는 통신</strong>은 어떻게 동작할까요.
+            핸드셰이크 헤더부터 STOMP 프레임의 NULL 문자까지 직접 조립해 보내고,
+            방화벽에 막힌 WebSocket이 HTTP로 변장하는 폴백까지 실험한 기록입니다.
+        </p>
+        <div class="stack-row fu fu3">
+            <span class="chip">WebSocket</span>
+            <span class="chip">WebSocket.Listener</span>
+            <span class="chip">STOMP</span>
+            <span class="chip">SockJS</span>
+            <span class="chip">CountDownLatch</span>
+        </div>
+    </div>
+</div>
+
+<!-- STORY 1 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">01</div>
+            <div>
+                <div class="story-kicker">WebSocket Handshake</div>
+                <h2 class="story-title">WebSocket은 HTTP로 시작해서 HTTP를 벗어난다</h2>
+                <div class="story-tag">"Upgrade: websocket — 연결을 끊지 않겠다는 선언"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">원리</span></div>
+        <p class="prose">
+            웹소켓은 처음부터 별도 프로토콜로 시작하지 않습니다. <strong>HTTP 요청으로 시작해서, 이 연결을 웹소켓으로
+            업그레이드해 달라고 요청</strong>하는 것이 핸드셰이크입니다. 승인되면 그 TCP 연결은 끊기지 않고 유지되며,
+            그 위로 양방향 프레임이 오갑니다.
+        </p>
+
+        <pre class="code"><code><span class="cmt">// 업그레이드 요청도 결국 HTTP 헤더 — 직접 조립해 봤습니다</span>
+String httpRequest =
+        <span class="str">"GET /websocket/v1 HTTP/1.1\r\n"</span> +
+        <span class="str">"Host: "</span> + host + <span class="str">"\r\n"</span> +
+        <span class="str">"Upgrade: websocket\r\n"</span> +
+        <span class="str">"Connection: Upgrade\r\n"</span> +
+        <span class="str">"Sec-WebSocket-Key: MVFgPcpkprANq9wwvCFhuA==\r\n"</span> +   <span class="cmt">// Base64 인코딩된 16바이트</span>
+        <span class="str">"Sec-WebSocket-Version: 13\r\n"</span> +
+        <span class="str">"\r\n"</span>;</code></pre>
+
+        <h3 class="h3">표준 API로는 Listener를 등록한다</h3>
+        <pre class="code"><code><span class="cmt">// WebSocket.Listener 구현 — 연결·수신·종료 시점의 동작을 정의</span>
+HttpClient.newHttpClient().newWebSocketBuilder()
+        .buildAsync(URI.create(<span class="str">"wss://api.upbit.com/websocket/v1"</span>), listener)
+        .join();</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">여기서 확인한 것</div>
+            <div class="decision-body">
+                REST와 실시간 통신은 완전히 다른 것이 아니라, <strong>같은 TCP 연결 위에서 "끊느냐, 유지하느냐"의 차이</strong>였습니다.
+                Chapter 01의 소켓 코드와 첫 줄부터 같은 모양인 것이 그 증거입니다 —
+                다른 점은 <code>Connection: close</code>가 <code>Connection: Upgrade</code>로 바뀐 것뿐입니다.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STORY 2 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">02</div>
+            <div>
+                <div class="story-kicker">STOMP Protocol</div>
+                <h2 class="story-title">STOMP 프레임을 NULL 문자까지 직접 조립하기</h2>
+                <div class="story-tag">"파이프 위에 규격을 얹으면 생산성이 생기고, 비용도 생긴다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">원리</span></div>
+        <p class="prose">
+            웹소켓 자체는 바이트나 텍스트를 양방향으로 쏘는 <strong>파이프라인일 뿐</strong>입니다.
+            STOMP는 그 위에 얹는 텍스트 규격으로, HTTP처럼 <strong>COMMAND · 헤더 · 바디 · 끝을 알리는 NULL 문자</strong>로 구성됩니다.
+            통로가 열렸다고 끝이 아니라, CONNECT 프레임을 보내 서버의 CONNECTED를 받고, 그다음에야 SUBSCRIBE를 보낼 수 있습니다.
+        </p>
+
+        <pre class="code"><code><span class="cmt">// 프레임을 손으로 조립 — 마지막 \u0000이 빠지면 서버는 메시지의 끝을 모른다</span>
+String connectFrame = <span class="str">"CONNECT\n"</span> +
+        <span class="str">"accept-version:1.2\n"</span> +
+        <span class="str">"host:"</span> + host + <span class="str">"\n"</span> +
+        <span class="str">"\n"</span> +
+        <span class="str">"\u0000"</span>;
+
+String subscribeFrame = <span class="str">"SUBSCRIBE\n"</span> +
+        <span class="str">"id:sub-0\n"</span> +
+        <span class="str">"destination:/topic/ticker\n"</span> +
+        <span class="str">"\n"</span> +
+        <span class="str">"\u0000"</span>;
+
+<span class="cmt">// 순서가 중요하다: 통로 개설 → CONNECT → CONNECTED 확인 → SUBSCRIBE</span>
+<span class="kw">public</span> CompletionStage&lt;?&gt; onText(WebSocket webSocket, CharSequence data, <span class="kw">boolean</span> last) {
+    String msg = data.toString();
+
+    <span class="kw">if</span> (msg.startsWith(<span class="str">"CONNECTED"</span>)) {
+        webSocket.sendText(subscribeFrame, <span class="kw">true</span>);   <span class="cmt">// 연결 승인 후에야 구독</span>
+    }
+
+    webSocket.request(<span class="num">1</span>);   <span class="cmt">// 다음 프레임 1개만 요청 — 수동 펌프</span>
+    <span class="kw">return</span> WebSocket.Listener.<span class="kw">super</span>.onText(webSocket, data, last);
+}</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">놓치기 쉬운 포인트 — request(1)은 백프레셔다</div>
+            <div class="decision-body">
+                서버가 초당 10,000개를 쏟아내는데 내 쪽이 초당 100개만 처리할 수 있다면, 수신 버퍼가 차올라 메모리가 터집니다.
+                <code>webSocket.request(1)</code>은 <strong>"처리할 준비가 된 만큼만 꺼내오는"</strong> 수동 펌프입니다 —
+                프레임 하나를 처리한 뒤(onText 끝) 다시 request(1)을 호출해 다음 것을 가져옵니다.
+                리액티브 스트림의 백프레셔 개념을 가장 원시적인 형태로 체험한 부분이었습니다.
+                함께 쓴 <code>CountDownLatch</code>는 메인 스레드가 리스너 스레드의 결과를 기다리게 하는 차단기 역할입니다.
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">트레이드오프 분석 — 업비트는 왜 STOMP를 쓰지 않는가</span></div>
+        <p class="prose">
+            STOMP를 쓰면 메시지 맨 위의 destination만 보고 <strong>내용을 열지 않고도 배달</strong>할 수 있어 생산성이 크게 오릅니다.
+            그런데 실험 대상이었던 업비트는 STOMP를 쓰지 않습니다. 프레임을 직접 조립해 보니 이유가 보였습니다 —
+            메시지마다 <code>destination</code>, <code>subscription</code> 같은 <strong>텍스트 헤더가 주렁주렁 붙습니다</strong>.
+            수백만 사용자에게 초당 수십 번씩 시세를 쏘는 입장에서는 이 헤더 전부가 네트워크 비용이고 서버 메모리입니다.
+            업비트의 응답이 바이너리 프레임인 것도 같은 이유일 것입니다 — 전용 프로토콜과 파싱 로직을 직접 유지하는 비용을 내는 대신,
+            전송 효율을 극대화하는 선택. <strong>규격의 편리함과 전송 효율 사이의 트레이드오프</strong>를 남의 설계에서 읽어낸 경험이었습니다.
+        </p>
+    </div>
+</section>
+
+<!-- STORY 3 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">03</div>
+            <div>
+                <div class="story-kicker">SockJS Fallback</div>
+                <h2 class="story-title">방화벽 에뮬레이터로 SockJS 폴백 검증하기</h2>
+                <div class="story-tag">"웹소켓이 안 되면, HTTP로 변장해서 실시간인 척한다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 원인</span></div>
+        <p class="prose">
+            웹소켓(ws://, wss://)은 현실에서 생각보다 자주 차단됩니다.
+            보안 시스템이 HTTP(80)·HTTPS(443)만 열어두고 웹소켓 핸드셰이크를 위험으로 판단해 끊거나,
+            구형 프록시가 Upgrade 헤더를 이해하지 못해 연결이 터집니다.
+            SockJS는 이때를 위한 도구입니다 — <strong>웹소켓을 시도하고, 차단되면 HTTP Streaming으로,
+            그것도 안 되면 Long Polling으로</strong> 단계적으로 변장합니다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">직접 실험</span></div>
+
+        <h3 class="h3">웹소켓 연결이 "항상 실패하는" 가짜 클라이언트를 만들어 폴백을 강제</h3>
+        <pre class="code"><code><span class="cmt">// 방화벽 에뮬레이터 — 웹소켓 연결 시도가 무조건 예외로 끝나는 클라이언트</span>
+StandardWebSocketClient brokenClient = <span class="kw">new</span> StandardWebSocketClient() {
+    <span class="kw">@Override</span>
+    <span class="kw">protected</span> CompletableFuture&lt;WebSocketSession&gt; executeInternal(...) {
+        CompletableFuture&lt;WebSocketSession&gt; future = <span class="kw">new</span> CompletableFuture&lt;&gt;();
+        future.completeExceptionally(
+            <span class="kw">new</span> IllegalStateException(<span class="str">"[방화벽 에뮬레이터] 웹소켓 연결이 차단되었습니다!"</span>));
+        <span class="kw">return</span> future;
+    }
+};
+
+<span class="cmt">// 대안 목록에 웹소켓(차단됨)과 XHR 전송을 함께 등록</span>
+List&lt;Transport&gt; transports = <span class="kw">new</span> ArrayList&lt;&gt;();
+transports.add(<span class="kw">new</span> WebSocketTransport(brokenClient));
+transports.add(<span class="kw">new</span> RestTemplateXhrTransport());
+
+<span class="kw">new</span> SockJsClient(transports).execute(clientHandler, <span class="str">"http://localhost:8080/ws-stomp"</span>);</code></pre>
+
+        <pre class="code"><code><span class="cmt">// 실행 결과 — 차단을 감지하고 자동으로 HTTP 전송으로 전환된다</span>
+[시작] SockJS 서버에 연결을 시도합니다...
+[방화벽 에뮬레이터] 웹소켓 연결이 차단되었습니다!
+[클라이언트] 연결 성공! 적용된 세션 타입: XhrClientSockJsSession
+[클라이언트 수신]: 서버에 오신 것을 환영합니다! (SockJS 통로)</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">여기서 확인한 것</div>
+            <div class="decision-body">
+                세션 타입이 <code>XhrClientSockJsSession</code>으로 찍힌 것이 증거입니다 —
+                웹소켓이 차단되자 SockJS가 등록된 다음 대안(XHR)으로 <strong>같은 핸들러를 그대로 유지한 채</strong> 갈아탔습니다.
+                핸드셰이크도 <code>ws://</code>가 아니라 <code>http://</code>로 시작합니다.
+                "실시간 기능은 웹소켓이 안 되는 환경까지 고려해야 완성"이라는 것을,
+                장애 상황을 코드로 재현해서 확인했습니다.
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="takeaways">
+    <div class="wrap">
+        <div class="sec-label">Chapter Takeaways</div>
+        <div class="takeaway-list">
+            <div class="takeaway">
+                <div class="tk-num">01</div>
+                <div class="tk-body">
+                    <strong>프로토콜은 계약이고, 계약은 문자 하나에 깨집니다</strong> — NULL 문자 하나가 빠지면 STOMP 서버는 메시지의 끝을 모릅니다. 규격을 손으로 조립해 보면 라이브러리가 지켜주던 계약이 보입니다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">02</div>
+                <div class="tk-body">
+                    <strong>편리한 규격에는 전송 비용이 붙습니다</strong> — STOMP의 텍스트 헤더는 생산성의 대가입니다. 업비트처럼 전송량이 극단적인 서비스가 전용 바이너리를 선택한 이유를 트레이드오프로 읽을 수 있었습니다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">03</div>
+                <div class="tk-body">
+                    <strong>실패 상황은 재현해서 검증합니다</strong> — "방화벽에 막히면 폴백된다"를 믿는 것과, 차단을 에뮬레이션해서 XHR 세션으로 전환되는 로그를 확인하는 것은 다른 일입니다.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nav-next">
+    <div class="wrap">
+        <a href="deepdive_socket_01.html" class="next-link prev">
+            <div class="next-kicker">← Prev 01</div>
+            <div class="next-title">HTTP 클라이언트 계층</div>
+        </a>
+        <a href="deepdive_socket_03.html" class="next-link">
+            <div class="next-kicker">Next 03 →</div>
+            <div class="next-title">서버의 관점 — Tomcat vs Netty vs WebFlux</div>
+        </a>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap">
+        <div class="foot-inner">
+            <div class="foot-note">© 2026 천승환 · popeye0618@gmail.com</div>
+            <div class="foot-links">
+                <a href="index.html">Home</a>
+                <a href="mailto:popeye0618@gmail.com">Email</a>
+                <a href="https://github.com/popeye0618" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

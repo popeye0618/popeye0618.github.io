@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP 클라이언트 계층 — 자바 소켓 딥다이브 01 · 천승환</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="project.css">
+</head>
+<body data-accent="purple">
+
+<nav>
+    <div class="wrap">
+        <div class="nav-inner">
+            <a href="deepdive_socket.html" class="nav-logo">← 자바 소켓 딥다이브</a>
+            <div class="nav-links">
+                <a href="deepdive_socket_01.html" class="active">01</a>
+                <a href="deepdive_socket_02.html">02</a>
+                <a href="deepdive_socket_03.html">03</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="hero project-hero">
+    <div class="wrap">
+        <div class="eyebrow fu">Chapter 01</div>
+        <h1 class="fu fu1">
+            HTTP 클라이언트 계층<br>
+            <span class="line2">Socket부터 WebClient까지</span>
+        </h1>
+        <p class="hero-desc fu fu2">
+            같은 API(업비트 마켓 조회)를 <strong>다섯 가지 계층의 도구로 반복 구현</strong>했습니다.
+            가장 아래에서 문자열로 HTTP를 조립해 보면, 위 계층의 라이브러리들이
+            각각 무엇을 대신해 주는 도구인지가 선명해집니다.
+        </p>
+        <div class="stack-row fu fu3">
+            <span class="chip">SSLSocket</span>
+            <span class="chip">HttpClient</span>
+            <span class="chip">OkHttp</span>
+            <span class="chip">Retrofit2</span>
+            <span class="chip">WebClient</span>
+        </div>
+    </div>
+</div>
+
+<!-- STORY 1 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">01</div>
+            <div>
+                <div class="story-kicker">Raw Socket</div>
+                <h2 class="story-title">소켓으로 HTTP 요청을 직접 조립하기</h2>
+                <div class="story-tag">"HTTP는 결국 규격에 맞춘 문자열이다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">소켓의 아래에서 벌어지는 일</span></div>
+        <p class="prose">
+            자바에서 <code>Socket</code>으로 텍스트를 전송하면, 요청은 <strong>native 메서드</strong>를 통해 JVM으로 넘어갑니다.
+            native란 자바에는 선언(껍데기)만 있고 실제 구현은 C 파일에 있는 메서드입니다 —
+            OS 커널과 직접 대화할 수 있는 언어가 C이기 때문입니다.
+            JVM이 C 함수를 실행하면 OS 커널의 <strong>TCP/IP 스택</strong>이 데이터 앞뒤에 TCP 헤더와 IP 헤더를 붙여 패킷을 만들고,
+            커널이 랜카드(NIC)를 통해 인터넷 망으로 내보냅니다. 우리가 쓰는 모든 HTTP 라이브러리는 이 경로 위의 포장지입니다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">직접 구현</span></div>
+
+        <h3 class="h3">요청은 문자열 조립, 응답은 빈 줄로 헤더/바디 분리</h3>
+        <pre class="code"><code><span class="cmt">// HTTP 요청을 규격 그대로 문자열로 조립한다</span>
+String httpRequest =
+        <span class="str">"GET /v1/market/all HTTP/1.1\r\n"</span> +
+        <span class="str">"Host: "</span> + host + <span class="str">"\r\n"</span> +
+        <span class="str">"accept: application/json\r\n"</span> +
+        <span class="str">"Connection: close\r\n"</span> +
+        <span class="str">"\r\n"</span>;                              <span class="cmt">// 빈 줄 = 헤더의 끝</span>
+
+SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+<span class="kw">try</span> (SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+     PrintWriter out = <span class="kw">new</span> PrintWriter(socket.getOutputStream(), <span class="kw">true</span>);
+     BufferedReader in = <span class="kw">new</span> BufferedReader(<span class="kw">new</span> InputStreamReader(socket.getInputStream()))) {
+
+    out.print(httpRequest);
+    out.flush();
+
+    String line;
+    <span class="kw">boolean</span> isBody = <span class="kw">false</span>;
+    StringBuilder body = <span class="kw">new</span> StringBuilder();
+
+    <span class="kw">while</span> ((line = in.readLine()) != <span class="kw">null</span>) {
+        <span class="kw">if</span> (line.isEmpty()) { isBody = <span class="kw">true</span>; <span class="kw">continue</span>; }  <span class="cmt">// 빈 줄 이후가 바디</span>
+        <span class="kw">if</span> (isBody) body.append(line);
+        <span class="kw">else</span> System.out.println(<span class="str">"[Header] "</span> + line);
+    }
+}</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">여기서 확인한 것</div>
+            <div class="decision-body">
+                HTTP는 <strong>"빈 줄(\r\n)로 헤더와 바디를 구분하는 텍스트 규격"</strong>일 뿐입니다.
+                헤더 한 줄의 오타, 마지막 빈 줄 누락 — 어느 하나만 틀려도 서버는 응답하지 않습니다.
+                평소 라이브러리가 던져주던 "잘 파싱된 응답 객체"가, 사실은 이 원시 스트림을
+                누군가 대신 읽고 잘라준 결과라는 걸 처음으로 체감했습니다.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STORY 2 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">02</div>
+            <div>
+                <div class="story-kicker">HttpClient · OkHttp · Retrofit</div>
+                <h2 class="story-title">한 겹씩 올라가며 — 각 계층이 대신해 주는 것</h2>
+                <div class="story-tag">"라이브러리 선택은 '무엇을 자동화받을 것인가'의 선택이다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">① HttpClient — 소켓을 감싼 표준 인터페이스 (Java 11+)</span></div>
+        <pre class="code"><code>HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create(<span class="str">"https://api.upbit.com/v1/market/all"</span>))
+        .header(<span class="str">"accept"</span>, <span class="str">"application/json"</span>)
+        .GET()
+        .build();
+
+HttpResponse&lt;String&gt; response = HttpClient.newHttpClient()
+        .send(request, HttpResponse.BodyHandlers.ofString());</code></pre>
+        <p class="prose note">
+            주소의 <code>https://</code>를 보고 <strong>보안 소켓(TLS) 처리를 자동으로</strong> 해주고,
+            소켓에서 직접 하던 <strong>헤더/바디 분리를 대신</strong> 해주며, 빌더 패턴으로 요청 조립의 실수를 막아줍니다.
+            제가 Story 01에서 손으로 했던 일들이 정확히 이 도구의 기능 목록입니다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">② OkHttp — 같은 역할, 더 정교한 운영 기능</span></div>
+        <p class="prose">
+            OkHttp도 순수 소켓을 숨기고 헤더와 URL을 다루기 쉽게 만든 상위 레벨 클라이언트라는 점은 HttpClient와 같습니다.
+            차이는 연식과 완성도입니다 — HttpClient는 Java 11에서 나왔지만 OkHttp는 그전부터 발전해 왔고,
+            <strong>불안정한 네트워크에서의 자동 재시도, 캐싱, 그리고 연결을 끊지 않고 재사용하는 Connection Pool</strong>이
+            훨씬 정교하게 구현되어 있습니다. "표준이냐, 검증된 운영 기능이냐"가 선택 기준이 됩니다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">③ Retrofit2 — 보일러플레이트를 인터페이스 선언으로</span></div>
+        <pre class="code"><code><span class="cmt">// 요청 명세를 자바 인터페이스로 선언하면 끝</span>
+<span class="kw">public interface</span> <span class="cls">UpbitApiService</span> {
+    <span class="kw">@GET</span>(<span class="str">"/v1/market/all"</span>)
+    Call&lt;List&lt;UpbitMarket&gt;&gt; getAllMarkets(<span class="kw">@Header</span>(<span class="str">"accept"</span>) String accept);
+}
+
+Retrofit retrofit = <span class="kw">new</span> Retrofit.Builder()
+        .baseUrl(<span class="str">"https://"</span> + host)
+        .client(<span class="kw">new</span> OkHttpClient())
+        .addConverterFactory(GsonConverterFactory.create())   <span class="cmt">// JSON → 자바 객체 자동 변환</span>
+        .build();
+
+List&lt;UpbitMarket&gt; markets = retrofit.create(UpbitApiService.class)
+        .getAllMarkets(<span class="str">"application/json"</span>).execute().body();  <span class="cmt">// 이미 객체로 변환되어 도착</span></code></pre>
+
+        <div class="decision">
+            <div class="decision-label">핵심 원리 — 다이내믹 프록시</div>
+            <div class="decision-body">
+                인터페이스만 선언했는데 어떻게 동작할까요? Retrofit은 <strong>실행 시점에 임시 구현 클래스를 만들어</strong>
+                네트워크 코드를 채워 넣습니다(다이내믹 프록시). 즉
+                <strong>소켓 생성 → 헤더 문자열 조립 → 스트림 전송 → 응답 수신 → 헤더/바디 분리 → UTF-8 변환 → JSON 파싱</strong>이라는,
+                제가 아래 계층에서 직접 했던 전 과정을 어노테이션 몇 개로 자동화하는 것입니다.
+                Spring Data JPA가 리포지토리 인터페이스로 하는 일과 같은 원리라는 점도 흥미로웠습니다.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STORY 3 -->
+<section class="story">
+    <div class="wrap">
+        <div class="story-head">
+            <div class="story-num">03</div>
+            <div>
+                <div class="story-kicker">WebClient · Non-Blocking</div>
+                <h2 class="story-title">블로킹과 논블로킹 — 스레드 로그로 관찰하기</h2>
+                <div class="story-tag">"요청을 던진 스레드와 응답을 받은 스레드가 다르다"</div>
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">문제 의식</span></div>
+        <p class="prose">
+            지금까지의 <code>Socket</code>, <code>HttpClient</code>, <code>OkHttp</code>, <code>Retrofit</code>은 모두 <strong>블로킹 방식</strong>입니다 —
+            요청을 보낸 스레드가 응답이 올 때까지 기다립니다. 사용자가 몰려 동시에 외부 API를 호출하면
+            서버의 스레드 전부가 "기다리는 일"에 묶여 메모리와 CPU를 낭비하고, 시스템이 불안정해집니다.
+            논블로킹은 요청을 던져놓고 스레드가 다른 일을 하러 가는 방식이라,
+            <strong>몇 개의 스레드로도 수만 건의 동시 요청</strong>을 처리할 수 있습니다.
+        </p>
+
+        <div class="sub-head"><span class="sub-num">직접 관찰</span></div>
+
+        <h3 class="h3">실행 순서가 1 → 2 → 3, 그리고 스레드가 바뀐다</h3>
+        <pre class="code"><code>System.out.println(<span class="str">"[1] 요청을 조립하고 서버로 던집니다. (스레드: "</span> + Thread.currentThread().getName() + <span class="str">")"</span>);
+
+Mono&lt;List&lt;UpbitMarket&gt;&gt; responseMono = webClient.get()
+        .uri(<span class="str">"/v1/market/all"</span>)
+        .retrieve()
+        .bodyToMono(<span class="kw">new</span> ParameterizedTypeReference&lt;&gt;() {});
+
+responseMono.subscribe(markets -&gt; {
+    System.out.println(<span class="str">"[3] 데이터 응답 완료! (스레드: "</span> + Thread.currentThread().getName() + <span class="str">")"</span>);
+    latch.countDown();
+});
+
+System.out.println(<span class="str">"[2] 기다리지 않고 바로 다음 줄로 내려왔습니다. (스레드: "</span> + Thread.currentThread().getName() + <span class="str">")"</span>);
+latch.await();</code></pre>
+
+        <pre class="code"><code><span class="cmt">// 실행 결과</span>
+[1] 요청을 조립하고 서버로 던집니다.        (스레드: Test worker)
+[2] 기다리지 않고 바로 다음 줄로 내려왔습니다. (스레드: Test worker)
+[3] 데이터 응답 완료!                      (스레드: reactor-http-nio-2)</code></pre>
+
+        <div class="decision">
+            <div class="decision-label">직접 구현해보고 바로잡은 오해</div>
+            <div class="decision-body">
+                처음에는 <code>webClient.get()</code>이 요청을 보내는 줄 알았습니다. 실제로는
+                <strong>get()~bodyToMono()는 설계도만 만들고, subscribe()가 호출되는 순간 실제 요청이 나갑니다</strong>.
+                이걸 알고 나니 구조가 보였습니다 — 원래 스레드(Test worker)는 위임만 하고 지나가고,
+                전혀 다른 스레드(reactor-http-nio)가 미래의 어느 시점에 응답을 받아 처리합니다.
+                또 하나 — <strong>Mono와 Flux의 구분 기준은 데이터 개수가 아니라 "받는 횟수"</strong>였습니다.
+                여러 건을 List로 한 번에 받으면 Mono입니다. 지속적으로 여러 번 받는 Flux는 WebSocket과 닮아 있었고,
+                이 관찰이 다음 챕터(실시간 통신)로 이어졌습니다.
+            </div>
+        </div>
+
+        <div class="sub-head"><span class="sub-num">응답은 어떻게 감지되는가 — 이벤트 루프와 epoll</span></div>
+        <p class="prose">
+            로우레벨 소켓에서는 <code>read()</code>에서 스레드가 멈춰 응답을 기다렸습니다. 스레드가 멈추지 않는데 도착을 어떻게 알까요?
+            WebClient 아래의 Netty 엔진은 자바 NIO를 사용해 <strong>OS 커널에 "데이터가 도착하면 이벤트를 달라"고 등록</strong>해 둡니다.
+            이 커널 기능이 리눅스의 <strong>epoll</strong>(macOS는 kqueue)입니다.
+            내부에는 <strong>이벤트 루프</strong>라는 전용 스레드 몇 개만 살아서 무한 루프를 돌며 대기하는데, 계속 일하는 게 아니라
+            OS가 신호를 줄 때만 일합니다. 서버가 보낸 패킷이 랜카드에 도착하면 커널이 소켓 버퍼를 채우고 이벤트 루프를 깨우고,
+            이벤트 루프가 버퍼에서 데이터를 꺼내 <code>subscribe()</code>에 등록된 가공 파이프라인으로 넘깁니다.
+        </p>
+    </div>
+</section>
+
+<section class="takeaways">
+    <div class="wrap">
+        <div class="sec-label">Chapter Takeaways</div>
+        <div class="takeaway-list">
+            <div class="takeaway">
+                <div class="tk-num">01</div>
+                <div class="tk-body">
+                    <strong>모든 HTTP 라이브러리는 같은 원시 경로 위의 포장지입니다</strong> — 소켓으로 한 번 조립해 보니, 계층별 도구의 기능 목록이 "내가 손으로 했던 일들"과 정확히 일치했습니다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">02</div>
+                <div class="tk-body">
+                    <strong>논블로킹의 실체는 "OS에 등록하고 신호를 기다리는 것"입니다</strong> — 마법이 아니라 epoll과 이벤트 루프라는 구체적인 메커니즘이었고, 스레드 로그로 직접 확인했습니다.
+                </div>
+            </div>
+            <div class="takeaway">
+                <div class="tk-num">03</div>
+                <div class="tk-body">
+                    <strong>선언과 실행의 분리를 이해하면 리액티브가 읽힙니다</strong> — "설계도 작성(Mono 조립)"과 "실행(subscribe)"이 분리되어 있다는 것을 모르면 리액티브 코드는 계속 마법처럼 보입니다.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nav-next">
+    <div class="wrap">
+        <a href="deepdive_socket.html" class="next-link prev">
+            <div class="next-kicker">← Hub</div>
+            <div class="next-title">자바 소켓 딥다이브</div>
+        </a>
+        <a href="deepdive_socket_02.html" class="next-link">
+            <div class="next-kicker">Next 02 →</div>
+            <div class="next-title">실시간 통신 — WebSocket, STOMP, SockJS</div>
+        </a>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap">
+        <div class="foot-inner">
+            <div class="foot-note">© 2026 천승환 · popeye0618@gmail.com</div>
+            <div class="foot-links">
+                <a href="index.html">Home</a>
+                <a href="mailto:popeye0618@gmail.com">Email</a>
+                <a href="https://github.com/popeye0618" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

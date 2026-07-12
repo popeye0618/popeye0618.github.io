@@ -9,20 +9,22 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0c10;
-            --bg2: #111419;
-            --bg3: #181c23;
-            --border: rgba(255, 255, 255, 0.07);
-            --border-bright: rgba(255, 255, 255, 0.14);
-            --text: #e8eaf0;
-            --muted: #7a8090;
-            --accent: #4f9eff;
-            --green: #3ecf8e;
-            --amber: #f5a623;
-            --red: #ff5252;
-            --purple: #b794f4;
-            --pink: #ff6ec7;
-            --indigo: #6366f1;
+            --bg: #f8f9fb;
+            --bg2: #ffffff;
+            --bg3: #f1f3f7;
+            --border: #e6e9ef;
+            --border-bright: #d5dae3;
+            --text: #1c2130;
+            --muted: #64708a;
+            --accent: #00c471;
+            --accent-deep: #00a35e;
+            --green: #0e9f6e;
+            --teal: #0d9488;
+            --amber: #d97706;
+            --red: #dc2626;
+            --purple: #7c3aed;
+            --pink: #db2777;
+            --indigo: #4f46e5;
             --mono: 'JetBrains Mono', monospace;
             --display: 'Pretendard', sans-serif;
             --body: 'Pretendard', sans-serif;
@@ -45,18 +47,8 @@
             content: '';
             position: fixed;
             inset: 0;
-            background-image: linear-gradient(rgba(79, 158, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(79, 158, 255, 0.025) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(0, 196, 113, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 196, 113, 0.05) 1px, transparent 1px);
             background-size: 40px 40px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-            opacity: .4;
             pointer-events: none;
             z-index: 0;
         }
@@ -71,11 +63,11 @@
 
         /* NAV */
         nav {
-            padding: 24px 0;
+            padding: 22px 0;
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
-            background: rgba(10, 12, 16, 0.92);
+            background: rgba(248, 249, 251, 0.88);
             backdrop-filter: blur(12px);
             z-index: 100;
         }
@@ -89,12 +81,12 @@
         .nav-logo {
             font-family: var(--mono);
             font-size: 13px;
-            color: #fff;
+            color: var(--text);
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .nav-logo::before {
@@ -104,7 +96,7 @@
             height: 8px;
             border-radius: 50%;
             background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 196, 113, 0.18);
         }
 
         .nav-links {
@@ -119,24 +111,23 @@
             text-decoration: none;
             letter-spacing: .08em;
             text-transform: uppercase;
-            transition: color .2s;
+            transition: color .15s;
         }
 
-        .nav-links a:hover { color: #fff; }
+        .nav-links a:hover { color: var(--accent); }
 
         /* HERO */
         .hero {
-            padding: 100px 0 80px;
-            border-bottom: 1px solid var(--border);
+            padding: 96px 0 72px;
         }
 
         .eyebrow {
             font-family: var(--mono);
-            font-size: 11px;
-            color: var(--accent);
-            letter-spacing: .2em;
+            font-size: 12px;
+            letter-spacing: .12em;
             text-transform: uppercase;
-            margin-bottom: 24px;
+            color: var(--accent);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -150,108 +141,64 @@
             background: var(--accent);
         }
 
-        h1 {
+        .hero h1 {
             font-family: var(--display);
-            font-size: clamp(36px, 7vw, 60px);
+            font-size: clamp(36px, 6vw, 56px);
             font-weight: 800;
-            line-height: 1.08;
-            letter-spacing: -.03em;
-            color: #fff;
-            margin-bottom: 28px;
+            line-height: 1.18;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
         }
 
-        h1 .line2 { color: var(--accent); }
+        .hero h1 .line2 { color: var(--accent); }
 
         .hero-desc {
+            font-size: 16.5px;
             color: var(--muted);
             max-width: 620px;
-            font-size: 16px;
-            line-height: 1.8;
-            margin-bottom: 36px;
+            margin-bottom: 32px;
         }
 
         .hero-desc strong {
             color: var(--text);
-            font-weight: 500;
+            font-weight: 600;
+            background: linear-gradient(transparent 62%, rgba(0, 196, 113, 0.18) 62%);
         }
 
         .contact-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 44px;
+            gap: 10px;
         }
 
         .contact-chip {
             font-family: var(--mono);
-            font-size: 11px;
-            padding: 6px 14px;
-            border-radius: 100px;
+            font-size: 12px;
+            padding: 8px 14px;
             border: 1px solid var(--border-bright);
+            border-radius: 999px;
             color: var(--muted);
-            background: var(--bg2);
             text-decoration: none;
-            transition: all .2s;
+            background: var(--bg2);
+            transition: all .15s;
         }
 
-        .contact-chip:hover {
-            color: #fff;
+        a.contact-chip:hover {
+            color: var(--accent);
             border-color: var(--accent);
         }
 
-        /* STATS */
-        .stats {
-            display: flex;
-            gap: 0;
-            margin-top: 40px;
-        }
-
-        .stat {
-            flex: 1;
-            padding: 22px 24px;
-            border: 1px solid var(--border);
-            border-right: none;
-            background: var(--bg2);
-        }
-
-        .stat:first-child { border-radius: 8px 0 0 8px; }
-        .stat:last-child {
-            border-right: 1px solid var(--border);
-            border-radius: 0 8px 8px 0;
-        }
-
-        .stat-val {
-            font-family: var(--display);
-            font-size: 26px;
-            font-weight: 800;
-            color: #fff;
-            line-height: 1;
-        }
-
-        .stat-lbl {
-            font-family: var(--mono);
-            font-size: 10px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: .1em;
-            margin-top: 6px;
-        }
-
-        /* PROJECTS */
-        .projects {
-            padding: 72px 0 48px;
-        }
-
+        /* SECTION LABEL */
         .sec-label {
             font-family: var(--mono);
-            font-size: 11px;
-            color: var(--muted);
-            letter-spacing: .15em;
+            font-size: 12px;
+            letter-spacing: .14em;
             text-transform: uppercase;
-            margin-bottom: 40px;
+            color: var(--muted);
+            margin-bottom: 28px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .sec-label::after {
@@ -261,433 +208,332 @@
             background: var(--border);
         }
 
+        /* PROJECTS */
+        .projects { padding: 40px 0 24px; }
+
         .project-card {
+            --card-accent: var(--accent);
             display: block;
-            text-decoration: none;
             background: var(--bg2);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 36px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: var(--text);
             position: relative;
             overflow: hidden;
-            transition: border-color .25s, transform .2s;
-            cursor: pointer;
-        }
-
-        .project-card:hover {
-            border-color: var(--card-accent, var(--border-bright));
-            transform: translateY(-2px);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
         }
 
         .project-card::before {
             content: '';
             position: absolute;
-            top: 0;
             left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--card-accent, transparent);
-            opacity: 0;
-            transition: opacity .25s;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--card-accent);
+            opacity: .8;
         }
 
-        .project-card:hover::before { opacity: 1; }
+        .project-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--card-accent);
+            box-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
+        }
 
         .card-top {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 16px;
+            margin-bottom: 14px;
         }
 
         .card-num {
             font-family: var(--mono);
             font-size: 11px;
+            letter-spacing: .1em;
             color: var(--muted);
-            letter-spacing: .15em;
         }
 
-        .card-status {
+        .card-badge {
             font-family: var(--mono);
-            font-size: 10px;
-            padding: 4px 10px;
-            border-radius: 100px;
+            font-size: 10.5px;
             letter-spacing: .06em;
-            white-space: nowrap;
-        }
-
-        .status-done {
-            background: rgba(62, 207, 142, .12);
-            color: var(--green);
-            border: 1px solid rgba(62, 207, 142, .2);
-        }
-
-        .status-wip {
-            background: rgba(245, 166, 35, .1);
-            color: var(--amber);
-            border: 1px solid rgba(245, 166, 35, .2);
-        }
-
-        .status-plan {
-            background: rgba(122, 128, 144, .1);
-            color: var(--muted);
-            border: 1px solid var(--border);
+            color: var(--card-accent);
+            border: 1px solid color-mix(in srgb, var(--card-accent) 35%, transparent);
+            background: color-mix(in srgb, var(--card-accent) 7%, transparent);
+            padding: 3px 10px;
+            border-radius: 999px;
         }
 
         .card-title {
-            font-family: var(--display);
-            font-size: 22px;
-            font-weight: 700;
-            color: #fff;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
             margin-bottom: 10px;
-            letter-spacing: -.01em;
         }
 
         .card-sub {
+            font-size: 14.5px;
             color: var(--muted);
-            font-size: 14px;
-            margin-bottom: 24px;
-            line-height: 1.7;
+            max-width: 640px;
+            margin-bottom: 20px;
         }
 
         .card-techs {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
 
         .ct {
             font-family: var(--mono);
-            font-size: 10px;
-            padding: 3px 9px;
-            border-radius: 4px;
+            font-size: 11px;
+            color: var(--muted);
             background: var(--bg3);
             border: 1px solid var(--border);
-            color: var(--muted);
+            padding: 4px 10px;
+            border-radius: 6px;
         }
 
         .card-stories {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
             margin-bottom: 24px;
         }
 
         .card-story {
-            font-family: var(--mono);
-            font-size: 12px;
+            font-size: 13.5px;
             color: var(--muted);
-            line-height: 1.6;
-            display: flex;
-            gap: 10px;
+            padding-left: 18px;
+            position: relative;
         }
 
         .card-story::before {
-            content: '';
-            color: var(--card-accent, var(--accent));
-            font-weight: 600;
-            min-width: 14px;
+            content: '›';
+            position: absolute;
+            left: 2px;
+            color: var(--card-accent);
+            font-weight: 700;
         }
-
-        .card-story:nth-child(1)::before { content: '01'; }
-        .card-story:nth-child(2)::before { content: '02'; }
-        .card-story:nth-child(3)::before { content: '03'; }
 
         .card-story strong {
             color: var(--text);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .card-cta {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            color: var(--muted);
+            gap: 6px;
             font-family: var(--mono);
             font-size: 12px;
-            transition: color .25s;
+            color: var(--card-accent);
+            font-weight: 500;
         }
 
-        .project-card:hover .card-cta {
-            color: var(--card-accent, var(--accent));
-        }
-
-        .card-cta-arrow {
-            transition: transform .25s;
-        }
-
-        .project-card:hover .card-cta-arrow {
-            transform: translateX(4px);
-        }
+        .card-cta-arrow { transition: transform .2s; }
+        .project-card:hover .card-cta-arrow { transform: translateX(4px); }
 
         /* DEEP DIVE */
-        .deepdive {
-            padding: 64px 0 72px;
-            border-top: 1px solid var(--border);
-        }
+        .deepdive { padding: 48px 0 24px; }
 
         .deepdive-intro {
-            max-width: 700px;
             font-size: 15px;
             color: var(--muted);
-            line-height: 1.85;
-            margin-bottom: 32px;
+            max-width: 620px;
+            margin: -8px 0 28px;
         }
 
         .deepdive-intro strong {
             color: var(--text);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .deepdive-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 20px;
         }
 
         .deepdive-card {
-            display: flex;
-            flex-direction: column;
-            text-decoration: none;
+            --card-accent: var(--accent);
+            display: block;
             background: var(--bg2);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 32px;
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            color: var(--text);
             position: relative;
             overflow: hidden;
-            transition: border-color .25s, transform .2s;
-            min-height: 100%;
-        }
-
-        .deepdive-card:hover {
-            border-color: var(--card-accent, var(--border-bright));
-            transform: translateY(-2px);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
         }
 
         .deepdive-card::before {
             content: '';
             position: absolute;
-            inset: 0 0 auto 0;
-            height: 2px;
-            background: var(--card-accent, transparent);
-            opacity: 0;
-            transition: opacity .25s;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 3px;
+            background: var(--card-accent);
+            opacity: .8;
         }
 
-        .deepdive-card:hover::before { opacity: 1; }
-
-        .deepdive-card.soon {
-            cursor: default;
-            background: linear-gradient(180deg, var(--bg2), rgba(17, 20, 25, .55));
+        .deepdive-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--card-accent);
+            box-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
         }
-
-        .deepdive-card.soon:hover {
-            transform: none;
-            border-color: var(--border);
-        }
-
-        .deepdive-card.soon::before { display: none; }
-
-        .deepdive-card.soon .dd-title,
-        .deepdive-card.soon .dd-sub { opacity: .5; }
 
         .dd-top {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            gap: 12px;
+            justify-content: space-between;
+            margin-bottom: 14px;
         }
 
         .dd-badge {
             font-family: var(--mono);
-            font-size: 10px;
-            color: var(--card-accent, var(--muted));
-            letter-spacing: .15em;
-            font-weight: 600;
-            text-transform: uppercase;
+            font-size: 10.5px;
+            letter-spacing: .1em;
+            color: var(--card-accent);
         }
 
         .dd-title {
-            font-family: var(--display);
-            font-size: 22px;
-            font-weight: 700;
-            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
             margin-bottom: 10px;
-            letter-spacing: -.01em;
         }
 
         .dd-sub {
+            font-size: 13.5px;
             color: var(--muted);
-            font-size: 14px;
-            line-height: 1.7;
             margin-bottom: 18px;
         }
 
-        .dd-sub strong { color: var(--text); font-weight: 500; }
+        .dd-sub strong { color: var(--text); font-weight: 600; }
 
         .dd-topics {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 18px;
-            padding: 14px 0;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
+            gap: 7px;
+            margin-bottom: 20px;
         }
 
         .dd-topic {
             font-family: var(--mono);
-            font-size: 12px;
+            font-size: 11.5px;
             color: var(--muted);
-            line-height: 1.6;
-            padding-left: 18px;
-            position: relative;
-        }
-
-        .dd-topic::before {
-            content: '▸';
-            position: absolute;
-            left: 0;
-            color: var(--card-accent, var(--muted));
-            opacity: .7;
-        }
-
-        .dd-topic.done { color: var(--text); }
-        .dd-topic.done::before {
-            content: '●';
-            color: var(--card-accent);
-            opacity: 1;
         }
 
         .dd-metrics {
             display: flex;
-            gap: 18px;
-            margin-top: auto;
-            padding-top: 4px;
-            flex-wrap: wrap;
+            gap: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
         }
 
         .dd-metric {
-            font-family: var(--mono);
-            font-size: 11px;
+            font-size: 12px;
             color: var(--muted);
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
         }
 
         .dd-metric strong {
+            display: block;
+            font-family: var(--mono);
+            font-size: 15px;
             color: var(--card-accent);
             font-weight: 600;
-            font-size: 15px;
         }
 
-        .dd-coming-body {
-            padding: 50px 0 10px;
-            text-align: center;
-            color: var(--muted);
-            font-family: var(--mono);
-            font-size: 11px;
-            letter-spacing: .25em;
-            opacity: .6;
-        }
-
-        /* ABOUT / PHILOSOPHY */
-        .philosophy {
-            padding: 64px 0 80px;
-            border-top: 1px solid var(--border);
-        }
+        /* PHILOSOPHY */
+        .philosophy { padding: 48px 0 56px; }
 
         .philo-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 16px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
         }
 
         .philo-card {
             background: var(--bg2);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 28px;
+            border-radius: 16px;
+            padding: 26px;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
         }
 
         .philo-head {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .philo-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: var(--accent);
+            flex-shrink: 0;
         }
 
         .philo-title {
-            font-family: var(--mono);
-            font-size: 11px;
-            color: var(--muted);
-            letter-spacing: .1em;
-            text-transform: uppercase;
+            font-size: 15px;
+            font-weight: 700;
         }
 
         .philo-body {
-            font-size: 14px;
-            color: var(--text);
-            line-height: 1.75;
+            font-size: 13.5px;
+            color: var(--muted);
         }
 
         .philo-body span {
-            color: var(--accent);
-            font-weight: 500;
+            color: var(--text);
+            font-weight: 600;
         }
 
         /* FOOTER */
         footer {
-            padding: 40px 0 60px;
             border-top: 1px solid var(--border);
+            padding: 28px 0;
+            background: var(--bg2);
         }
 
         .foot-inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 20px;
         }
 
         .foot-note {
             font-family: var(--mono);
-            font-size: 11px;
+            font-size: 12px;
             color: var(--muted);
         }
 
-        .foot-links {
-            display: flex;
-            gap: 24px;
-        }
+        .foot-links { display: flex; gap: 18px; }
 
         .foot-links a {
             font-family: var(--mono);
-            font-size: 11px;
+            font-size: 12px;
             color: var(--muted);
             text-decoration: none;
-            transition: color .2s;
+            transition: color .15s;
         }
 
-        .foot-links a:hover { color: #fff; }
+        .foot-links a:hover { color: var(--accent); }
 
-        /* ANIMATIONS */
+        /* ANIMATION */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(14px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -700,9 +546,6 @@
         @media (max-width: 720px) {
             .philo-grid { grid-template-columns: 1fr; }
             .deepdive-grid { grid-template-columns: 1fr; }
-            .stats { flex-wrap: wrap; }
-            .stat { flex: 1 0 45%; border-right: 1px solid var(--border); }
-            .stat:nth-child(odd) { border-radius: 0; }
             .nav-links { display: none; }
             .hero { padding: 72px 0 56px; }
             .project-card { padding: 28px; }
@@ -728,20 +571,21 @@
 
 <div class="hero">
     <div class="wrap">
-        <div class="eyebrow fu">Backend Engineer · Java · Kotlin / Spring</div>
+        <div class="eyebrow fu">Backend Engineer · Java / Spring</div>
         <h1 class="fu fu1">
             백엔드 엔지니어<br>
-            <span class="line2">천승환</span>
+            <span class="line2">천승환</span>입니다
         </h1>
         <p class="hero-desc fu fu2">
-            Java·Spring 기반으로 실서비스를 직접 운영하며 누적 사용자 3,000명을 만든 백엔드 개발자입니다. 
-            <strong>기능이 동작하는 것과 실제 환경에서 안정적으로 동작하는 것은 다른</strong> 문제임을 운영으로 배웠고, 트레이드오프를 직면하고 그 판단을 설명할 수 있는 개발자가 되려 합니다.
+            Java·Spring 기반으로 실서비스를 직접 운영하며 누적 사용자 3,000명을 만났습니다.
+            <strong>기능이 동작하는 것과 실제 환경에서 안정적으로 동작하는 것은 다른 문제</strong>라는 것을
+            운영에서 배웠고, 매 선택의 트레이드오프를 설명할 수 있는 개발자가 되려 합니다.
         </p>
         <div class="contact-row fu fu3">
             <a href="mailto:popeye0618@gmail.com" class="contact-chip">popeye0618@gmail.com</a>
             <a href="https://github.com/popeye0618" class="contact-chip" target="_blank" rel="noopener">GitHub</a>
-            <span class="contact-chip">Java · Kotlin · Spring Boot 3/4</span>
-            <span class="contact-chip">Redis · Kafka · AWS</span>
+            <span class="contact-chip">Java · Spring Boot · JPA</span>
+            <span class="contact-chip">MySQL · Redis · Docker</span>
         </div>
     </div>
 </div>
@@ -754,25 +598,25 @@
         <a href="01_comatching3.html" class="project-card" style="--card-accent: var(--pink);">
             <div class="card-top">
                 <span class="card-num">01 / 04</span>
-                <span class="card-status status-done">● 운영 종료</span>
+                <span class="card-badge">실서비스 운영</span>
             </div>
-            <div class="card-title">Comatching</div>
+            <div class="card-title">코매칭</div>
             <div class="card-sub">
-                대학 축제에서 실제 사용자가 결제·매칭에 사용한 1:1 매칭 서비스. 결제 멱등성과 매칭 동시성을 다뤘다.
+                대학 축제에서 실제 사용자가 결제하고 매칭받은 1:1 매칭 서비스입니다.
+                운영 중 만난 성능·정합성 문제와 인증 방식의 전환 과정을 기록했습니다.
             </div>
             <div class="card-techs">
-                <span class="ct">Java 17</span>
-                <span class="ct">Spring Boot 3</span>
+                <span class="ct">Java</span>
+                <span class="ct">Spring Boot</span>
+                <span class="ct">JPA</span>
                 <span class="ct">MySQL</span>
                 <span class="ct">Redis</span>
-                <span class="ct">Toss Payments</span>
-                <span class="ct">JPA + QueryDSL</span>
-                <span class="ct">AOP</span>
+                <span class="ct">OAuth2</span>
             </div>
             <div class="card-stories">
-                <div class="card-story">Redis 멱등성 <strong>3중 방어선</strong> — AOP + PayRedisService + Toss Idempotency-Key + 실패 시 auto-rollback</div>
-                <div class="card-story">중요·일반 옵션 <strong>다단계 필터링</strong> — 중요 옵션은 minSize=1 실패 시 자동 환불, 일반 옵션은 minSize=3 으로 완화</div>
-                <div class="card-story">낙관적 락 재시도 <strong>+ 비관적 락 병행</strong> — 동시성 전략을 유형별로 분리 적용</div>
+                <div class="card-story">채팅방 목록 조회의 <strong>N+1 문제를 Fetch Join으로 해결</strong> — 목록 1회 조회에 발생하던 추가 쿼리를 제거했습니다</div>
+                <div class="card-story"><strong>PG 도입을 대비한 결제 멱등성 설계</strong> — Redis SETNX 기반 멱등키 검사로 중복 승인·취소 요청을 차단했습니다</div>
+                <div class="card-story"><strong>JWT에서 세션으로의 전환</strong> — 토큰 탈취 시 서버가 무효화할 수 없는 문제를 겪고, 무효화 권한을 서버가 갖는 구조를 선택했습니다</div>
             </div>
             <div class="card-cta">
                 자세히 보기
@@ -782,29 +626,31 @@
             </div>
         </a>
 
-        <!-- Project 2: Comatching5 -->
+        <!-- Project 2: Comatching v5 -->
         <a href="02_comatching5.html" class="project-card" style="--card-accent: var(--accent);">
             <div class="card-top">
                 <span class="card-num">02 / 04</span>
-                <span class="card-status status-done">● 완료</span>
+                <span class="card-badge">MSA 재설계</span>
             </div>
-            <div class="card-title">Comatching5 · MSA 기반 재구성</div>
+            <div class="card-title">코매칭 v5</div>
             <div class="card-sub">
-                Comatching을 Spring Cloud Gateway·Kafka·OpenFeign 기반 MSA로 재구성한 버전. 서비스 간 통신 방식 선택과 이벤트 발행 신뢰성, 분산 락을 다뤘다.
+                코매칭을 MSA로 재설계한 프로젝트입니다. 분산 환경에서의 동시성 제어,
+                서비스 간 통신 방식의 선택 기준, 인증 구조의 재설계를 다뤘습니다.
             </div>
             <div class="card-techs">
-                <span class="ct">Java 21</span>
-                <span class="ct">Spring Boot 3</span>
+                <span class="ct">Java</span>
+                <span class="ct">Spring Boot</span>
                 <span class="ct">Spring Cloud Gateway</span>
                 <span class="ct">Kafka</span>
                 <span class="ct">OpenFeign</span>
+                <span class="ct">MySQL</span>
+                <span class="ct">MongoDB</span>
                 <span class="ct">Redis</span>
-                <span class="ct">Redisson</span>
             </div>
             <div class="card-stories">
-                <div class="card-story">Kafka + OpenFeign <strong>하이브리드 통신</strong> — 최종 일관성/즉시 일관성 기준으로 통신 방식을 분리</div>
-                <div class="card-story"><strong>Transactional Outbox</strong> — 이벤트를 비즈니스 트랜잭션과 같은 트랜잭션에 적재, 폴링 디스패처로 재시도·중복 방지 발행</div>
-                <div class="card-story">Redis Look-Aside 캐싱 <strong>9배 성능 개선</strong> — JUnit 으로 수치 검증, Set→List 직렬화 이슈 해결</div>
+                <div class="card-story"><strong>Redisson 분산 락 + 비관적 락</strong> — v3 운영에서 겪은 정합성 문제를, 유저 단위 분산 락과 재고 비관적 락의 이중 방어로 재설계했습니다</div>
+                <div class="card-story"><strong>동기·비동기 통신의 선택 기준</strong> — 즉시 응답이 필요한 조회는 OpenFeign, 결과 전달이면 충분한 알림·동기화는 Kafka로 분리했습니다</div>
+                <div class="card-story"><strong>Refresh Token Rotation + 게이트웨이 Denylist</strong> — 재사용 감지 시 강제 로그아웃으로, JWT의 무효화 불가 약점을 보완했습니다</div>
             </div>
             <div class="card-cta">
                 자세히 보기
@@ -815,28 +661,29 @@
         </a>
 
         <!-- Project 3: Harucut -->
-        <a href="03_harucut.html" class="project-card" style="--card-accent: var(--green);">
+        <a href="03_harucut.html" class="project-card" style="--card-accent: var(--teal);">
             <div class="card-top">
                 <span class="card-num">03 / 04</span>
-                <span class="card-status status-wip">▲ IN PROGRESS</span>
+                <span class="card-badge">실서비스 운영</span>
             </div>
-            <div class="card-title">Harucut</div>
+            <div class="card-title">하루컷</div>
             <div class="card-sub">
-                브라우저에서 촬영한 영상을 서버에서 비동기 변환·합성하는 온라인 네컷사진 플랫폼. AWS MediaConvert·S3 파이프라인과 공통 관심사 분리를 다뤘다.
+                온라인 네컷사진 플랫폼입니다. 대용량 미디어 업로드의 보안과 성능,
+                외부 인프라 장애 시의 정책 결정, 회원 탈퇴의 트랜잭션 설계를 다뤘습니다.
             </div>
             <div class="card-techs">
-                <span class="ct">Java 21</span>
-                <span class="ct">Spring Boot 3</span>
-                <span class="ct">AWS S3</span>
-                <span class="ct">MediaConvert</span>
+                <span class="ct">Java</span>
+                <span class="ct">Spring Boot</span>
+                <span class="ct">JPA</span>
+                <span class="ct">MySQL</span>
                 <span class="ct">Redis</span>
-                <span class="ct">AOP</span>
+                <span class="ct">AWS S3</span>
                 <span class="ct">OAuth2</span>
             </div>
             <div class="card-stories">
-                <div class="card-story"><strong>MediaConvert 비동기 파이프라인</strong> — taskId↔jobId 분리 설계, Redis TTL 상태 모델, SNS Webhook 일관성 처리</div>
-                <div class="card-story"><strong>S3 Strategy + Presigned URL</strong> — 업로드 경로 6종을 Strategy 패턴으로 분리, DI 자동 조립</div>
-                <div class="card-story"><strong>중복 요청 차단 AOP</strong> — FAIL_OPEN/FAIL_CLOSE enum 으로 Redis 장애 시 정책을 선언적으로 선택</div>
+                <div class="card-story"><strong>S3 Presigned URL + Strategy 패턴</strong> — 버킷을 비공개로 유지하면서 서버를 거치지 않는 업로드 구조를 만들었습니다</div>
+                <div class="card-story"><strong>중복 요청 차단 AOP — FAIL_OPEN / FAIL_CLOSE</strong> — Redis 장애 시 기능을 열지 막을지를 엔드포인트별로 선언하게 했습니다</div>
+                <div class="card-story"><strong>회원 탈퇴 유예 + 배치 삭제</strong> — 7일 유예 후 자정 배치로 삭제하되, 유저별 트랜잭션 분리로 한 명의 실패가 전체를 막지 않게 했습니다</div>
             </div>
             <div class="card-cta">
                 자세히 보기
@@ -846,29 +693,30 @@
             </div>
         </a>
 
-        <!-- Project 4: UniTT -->
+        <!-- Project 4: UniT -->
         <a href="04_unitt.html" class="project-card" style="--card-accent: var(--indigo);">
             <div class="card-top">
                 <span class="card-num">04 / 04</span>
-                <span class="card-status status-wip">▲ IN PROGRESS</span>
+                <span class="card-badge">개발 진행 중</span>
             </div>
-            <div class="card-title">UniTT</div>
+            <div class="card-title">유니트</div>
             <div class="card-sub">
-                대학생 전용 중고거래 플랫폼. Spring Modulith 기반 모듈러 모놀리스로 시작해, 모듈 경계·개인정보 보안·인증 토큰 설계를 ADR로 남기며 진행 중.
+                대학생 전용 중고거래 플랫폼입니다. 이전 프로젝트에서 배운 것들 —
+                MSA의 비용과 테스트의 가치 — 를 근거로 아키텍처를 선택하고, 결정의 이유를 문서로 남기며 개발하고 있습니다.
             </div>
             <div class="card-techs">
-                <span class="ct">Kotlin 2.2</span>
-                <span class="ct">Spring Boot 4</span>
+                <span class="ct">Kotlin</span>
+                <span class="ct">Spring Boot</span>
                 <span class="ct">Spring Modulith</span>
-                <span class="ct">Flyway</span>
+                <span class="ct">JPA</span>
                 <span class="ct">MySQL</span>
-                <span class="ct">OAuth2 / JWT</span>
-                <span class="ct">Prometheus</span>
+                <span class="ct">Flyway</span>
+                <span class="ct">REST Docs</span>
             </div>
             <div class="card-stories">
-                <div class="card-story"><strong>모듈러 모놀리스</strong> — MSA 대신 Spring Modulith 로 모듈 경계를 코드로 강제, 모듈 간 ID 참조 + 의존성 역전</div>
-                <div class="card-story"><strong>개인정보·토큰 보안</strong> — 식별정보 해시/암호화 컬럼 분리, Refresh Token 해시·rotation, 활성 회원 generated column unique</div>
-                <div class="card-story"><strong>실패도 도메인 상태</strong> — 실패·만료 기록을 트랜잭션 롤백과 분리 (noRollbackFor / REQUIRES_NEW)</div>
+                <div class="card-story"><strong>Spring Modulith 모듈러 모놀리스</strong> — MSA의 오버엔지니어링을 겪은 뒤, 모놀리식으로 시작하되 모듈 경계를 테스트로 강제하는 구조를 선택했습니다</div>
+                <div class="card-story"><strong>로그인을 시큐리티 필터가 아닌 서비스 API로</strong> — 공통 응답 구조와 토큰 발급 정책을 하나의 명시적 흐름으로 관리합니다</div>
+                <div class="card-story"><strong>테스트가 통과해야 문서가 생성되는 구조</strong> — REST Docs로 API 계약을 테스트에 묶고, 아키텍처 경계까지 테스트로 검증합니다</div>
             </div>
             <div class="card-cta">
                 자세히 보기
@@ -885,8 +733,8 @@
         <div class="sec-label">Deep Dive</div>
         <p class="deepdive-intro">
             특정 기술을 <strong>주제 단위로 끝까지 파본 기록</strong>입니다.
-            "쓸 줄 안다" 와 "왜 그렇게 동작하는지 이해한다" 의 간극을
-            여러 버전의 구현 · 벤치마크 수치 · 근거 문서로 메워나가는 시도.
+            "쓸 줄 안다"와 "왜 그렇게 동작하는지 이해한다"의 간극을
+            여러 버전의 구현과 실측 수치로 메워가고 있습니다.
         </p>
         <div class="deepdive-grid">
 
@@ -894,18 +742,17 @@
             <a href="deepdive_redis.html" class="deepdive-card" style="--card-accent: var(--amber);">
                 <div class="dd-top">
                     <span class="dd-badge">DEEP DIVE 01</span>
-                    <span class="card-status status-done">● 3 / 3 완료</span>
                 </div>
                 <div class="dd-title">Redis 완전정복</div>
                 <div class="dd-sub">
-                    단순 캐시가 아닌 <strong>자료구조 서버로서의 Redis</strong>.
-                    동시성 제어 · 실시간 랭킹 · 이벤트 파이프라인 3개 문제를 풀며
-                    <strong>TPS 3.6× / 응답시간 70% 단축</strong>을 수치로 증명했다.
+                    단순 캐시가 아닌 <strong>자료구조 서버로서의 Redis</strong>를 이해하기 위해,
+                    동시성 제어 · 실시간 랭킹 · 이벤트 파이프라인 세 가지 문제를 직접 구현하고
+                    JMeter로 실측했습니다.
                 </div>
                 <div class="dd-topics">
-                    <span class="dd-topic done">01 · 선착순 이벤트 처리 (완료)</span>
-                    <span class="dd-topic done">02 · 실시간 게임 랭킹 (완료)</span>
-                    <span class="dd-topic done">03 · 이벤트 파이프라인 (완료)</span>
+                    <span class="dd-topic">01 · 선착순 이벤트 처리 — Race Condition부터 Lua Script까지</span>
+                    <span class="dd-topic">02 · 실시간 게임 랭킹 — Sorted Set과 Rate Limiting</span>
+                    <span class="dd-topic">03 · 이벤트 파이프라인 — Stream, Consumer Group, PEL</span>
                 </div>
                 <div class="dd-metrics">
                     <div class="dd-metric"><strong>3.6×</strong> TPS 향상</div>
@@ -914,21 +761,28 @@
                 </div>
             </a>
 
-            <!-- Kafka Deep Dive - Coming Soon -->
-            <div class="deepdive-card soon" style="--card-accent: var(--red);">
+            <!-- Java Socket Deep Dive -->
+            <a href="deepdive_socket.html" class="deepdive-card" style="--card-accent: var(--purple);">
                 <div class="dd-top">
                     <span class="dd-badge">DEEP DIVE 02</span>
-                    <span class="card-status status-plan">PLANNED</span>
                 </div>
-                <div class="dd-title">Kafka 완전정복</div>
+                <div class="dd-title">자바 소켓과 네트워크</div>
                 <div class="dd-sub">
-                    MSA 환경에서 <strong>Kafka 의 이벤트 보장 모델 · 파티션 전략 · Consumer Group 설계</strong>.
-                    주제 선정과 벤치마크 시나리오 설계 중.
+                    평소에 쓰던 HTTP 클라이언트와 WebSocket 라이브러리를
+                    <strong>순수 Socket부터 한 겹씩 다시 쌓아 올린 기록</strong>입니다.
+                    추상화가 감추고 있던 것들을 직접 확인했습니다.
                 </div>
-                <div class="dd-coming-body">
-                    · COMING SOON ·
+                <div class="dd-topics">
+                    <span class="dd-topic">01 · HTTP 클라이언트 계층 — Socket부터 WebClient까지</span>
+                    <span class="dd-topic">02 · 실시간 통신 — WebSocket, STOMP, SockJS</span>
+                    <span class="dd-topic">03 · 서버의 관점 — Tomcat vs Netty vs WebFlux</span>
                 </div>
-            </div>
+                <div class="dd-metrics">
+                    <div class="dd-metric"><strong>Raw Socket</strong> HTTP 직접 조립</div>
+                    <div class="dd-metric"><strong>epoll</strong> 이벤트 루프</div>
+                    <div class="dd-metric"><strong>Backpressure</strong> 수동 제어</div>
+                </div>
+            </a>
 
         </div>
     </div>
@@ -940,20 +794,24 @@
         <div class="philo-grid">
             <div class="philo-card">
                 <div class="philo-head">
-                    <span class="philo-dot" style="background: var(--green);"></span>
+                    <span class="philo-dot" style="background: var(--accent);"></span>
                     <span class="philo-title">기본기를 중요하게 생각합니다</span>
                 </div>
                 <div class="philo-body">
-                    AI가 아무리 발전해도 <span>기본이 없으면 그 위에 쌓는 것은 의미가 없다</span>고 생각합니다. 언어와 프레임워크를 블랙박스로 두지 않고 동작 원리까지 이해하려 합니다.
+                    라이브러리를 블랙박스로 두지 않습니다. HTTP 요청이 소켓에서 어떻게 조립되는지 확인하기 위해
+                    <span>Socket부터 WebClient까지 직접 구현</span>해봤고, Redis를 쓸 때는
+                    자료구조별 특성을 실험으로 확인한 뒤 선택했습니다.
                 </div>
             </div>
             <div class="philo-card">
                 <div class="philo-head">
-                    <span class="philo-dot" style="background: var(--accent);"></span>
+                    <span class="philo-dot" style="background: var(--indigo);"></span>
                     <span class="philo-title">트레이드오프를 항상 따져봅니다</span>
                 </div>
                 <div class="philo-body">
-                    정답인 기술은 없고 <span>모든 선택에는 트레이드오프</span>가 있다고 생각합니다. Kafka냐 OpenFeign이냐, MSA냐 모놀리스냐 — 무엇을 얻고 무엇을 포기하는지 비교한 뒤 고릅니다.
+                    정답인 기술은 없다고 생각합니다. Redis 장애 시 기능을 열지 막을지,
+                    토큰을 클라이언트와 서버 중 누가 가질지, MSA와 모놀리스 —
+                    <span>무엇을 얻고 무엇을 포기하는지</span>를 비교한 뒤 선택하고, 그 이유를 설명할 수 있게 기록합니다.
                 </div>
             </div>
             <div class="philo-card">
@@ -962,7 +820,9 @@
                     <span class="philo-title">테스트로 배포의 불안을 줄입니다</span>
                 </div>
                 <div class="philo-body">
-                    테스트가 약하면 배포할 때의 불안이 사라지지 않는다는 걸 직접 겪었습니다. 그래서 UniTT에서는 <span>커버리지 100%</span>를 유지하고 있습니다. 비효율을 감수한 의도적인 챌린지입니다.
+                    빈약한 테스트로 배포가 불안했던 경험 이후 테스트를 우선순위에 뒀습니다.
+                    유니트에서는 <span>아키텍처 경계까지 테스트로 검증</span>하고,
+                    API 문서를 테스트가 통과해야만 생성되는 구조로 만들었습니다.
                 </div>
             </div>
         </div>

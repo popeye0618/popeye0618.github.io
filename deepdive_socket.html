@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자바 소켓과 네트워크 — 딥다이브 · 천승환</title>
+    <meta name="description" content="HTTP 클라이언트와 실시간 통신을 순수 Socket부터 한 겹씩 다시 쌓아 올린 기록">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="project.css">
+    <style>
+        .ch-list { display: flex; flex-direction: column; gap: 20px; padding: 8px 0 64px; }
+        .ch-card {
+            display: block;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 36px;
+            text-decoration: none;
+            color: var(--text);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+        .ch-card::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: var(--page-accent); opacity: .8;
+        }
+        .ch-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--page-accent);
+            box-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
+        }
+        .ch-num {
+            font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+            color: var(--page-accent); margin-bottom: 10px;
+        }
+        .ch-title { font-size: 21px; font-weight: 800; margin-bottom: 8px; letter-spacing: -.01em; }
+        .ch-sub { font-size: 14px; color: var(--muted); max-width: 640px; margin-bottom: 16px; }
+        .ch-topics { display: flex; flex-wrap: wrap; gap: 8px; }
+        .ch-topic {
+            font-family: var(--mono); font-size: 11px; color: var(--muted);
+            background: var(--bg3); border: 1px solid var(--border);
+            padding: 4px 10px; border-radius: 6px;
+        }
+        .dd-intro { padding: 8px 0 40px; }
+        .dd-intro .prose { max-width: 720px; }
+    </style>
+</head>
+<body data-accent="purple">
+
+<nav>
+    <div class="wrap">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">← 천승환 / Backend</a>
+            <div class="nav-links">
+                <a href="deepdive_socket_01.html">01</a>
+                <a href="deepdive_socket_02.html">02</a>
+                <a href="deepdive_socket_03.html">03</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="hero project-hero">
+    <div class="wrap">
+        <div class="eyebrow fu">Deep Dive 02 · Java Network</div>
+        <h1 class="fu fu1">
+            자바 소켓과 네트워크<br>
+            <span class="line2">추상화를 한 겹씩 벗겨보기</span>
+        </h1>
+        <p class="hero-desc fu fu2">
+            평소에 쓰던 HTTP 클라이언트와 WebSocket 라이브러리는 편리하지만, 그만큼 많은 것을 감추고 있습니다.
+            <strong>순수 Socket으로 HTTP 요청을 직접 조립하는 것에서 시작해</strong>,
+            HttpClient → OkHttp → Retrofit → WebClient, 그리고 WebSocket → STOMP → SockJS → Netty → WebFlux까지 —
+            각 계층이 <strong>무엇을 대신해 주고 있었는지</strong>를 직접 구현하며 확인한 기록입니다.
+        </p>
+        <div class="meta-row fu fu3">
+            <div class="meta-item">
+                <div class="meta-lbl">Type</div>
+                <div class="meta-val">학습 딥다이브 · 직접 구현</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">실험 대상</div>
+                <div class="meta-val">업비트 OpenAPI · 로컬 서버</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-lbl">구성</div>
+                <div class="meta-val">3개 챕터</div>
+            </div>
+        </div>
+        <div class="stack-row fu fu4">
+            <span class="chip">Java Socket</span>
+            <span class="chip">HttpClient</span>
+            <span class="chip">OkHttp · Retrofit</span>
+            <span class="chip">WebClient</span>
+            <span class="chip">WebSocket · STOMP · SockJS</span>
+            <span class="chip">Netty</span>
+            <span class="chip">Spring WebFlux</span>
+        </div>
+    </div>
+</div>
+
+<section class="dd-intro">
+    <div class="wrap">
+        <div class="sec-label">Why This Deep Dive</div>
+        <p class="prose">
+            시작은 단순한 질문이었습니다. <strong>"RestTemplate이나 WebClient를 호출하면, 그 아래에서는 실제로 무슨 일이 벌어지는가?"</strong>
+            답을 찾기 위해 업비트 OpenAPI라는 실제 대상을 두고, 가장 낮은 계층부터 같은 요청을 반복해서 구현했습니다.
+            소켓으로 HTTP 헤더를 문자열로 조립해 보면, 그 위의 모든 라이브러리가 "무엇을 자동화해 주는 도구"인지가 선명해집니다.
+            같은 방식으로 실시간 통신(WebSocket)과 서버 쪽 구현(Tomcat·Netty·WebFlux)까지 내려가 봤습니다.
+        </p>
+    </div>
+</section>
+
+<section class="projects" style="padding-top: 0;">
+    <div class="wrap">
+        <div class="sec-label">Chapters</div>
+        <div class="ch-list">
+
+            <a href="deepdive_socket_01.html" class="ch-card">
+                <div class="ch-num">CHAPTER 01</div>
+                <div class="ch-title">HTTP 클라이언트 계층 — Socket부터 WebClient까지</div>
+                <div class="ch-sub">
+                    SSLSocket으로 HTTP 요청을 직접 조립하는 것에서 시작해, HttpClient·OkHttp·Retrofit이
+                    각각 무엇을 추상화하는지 확인합니다. 마지막으로 WebClient에서 블로킹과 논블로킹이
+                    실제로 어떻게 다른지를 스레드 로그로 관찰합니다.
+                </div>
+                <div class="ch-topics">
+                    <span class="ch-topic">Raw Socket으로 HTTP 조립</span>
+                    <span class="ch-topic">native와 OS 커널</span>
+                    <span class="ch-topic">다이내믹 프록시</span>
+                    <span class="ch-topic">이벤트 루프 · epoll</span>
+                </div>
+            </a>
+
+            <a href="deepdive_socket_02.html" class="ch-card">
+                <div class="ch-num">CHAPTER 02</div>
+                <div class="ch-title">실시간 통신 — WebSocket, STOMP, SockJS</div>
+                <div class="ch-sub">
+                    HTTP 연결을 업그레이드하는 핸드셰이크부터, STOMP 프레임을 NULL 문자까지 직접 조립해 보내는
+                    실험, 그리고 방화벽에 막힌 WebSocket이 HTTP로 변장하는 SockJS 폴백까지.
+                    업비트가 STOMP를 쓰지 않는 이유를 트레이드오프로 분석합니다.
+                </div>
+                <div class="ch-topics">
+                    <span class="ch-topic">Upgrade 핸드셰이크</span>
+                    <span class="ch-topic">STOMP 프레임 직접 조립</span>
+                    <span class="ch-topic">Backpressure — request(1)</span>
+                    <span class="ch-topic">SockJS 폴백 실험</span>
+                </div>
+            </a>
+
+            <a href="deepdive_socket_03.html" class="ch-card">
+                <div class="ch-num">CHAPTER 03</div>
+                <div class="ch-title">서버의 관점 — Tomcat vs Netty vs WebFlux</div>
+                <div class="ch-sub">
+                    연결 하나당 스레드 하나를 쓰는 톰캣, 이벤트 루프로 수만 연결을 감당하는 Netty,
+                    그리고 스트림 파이프라인으로 추상화한 WebFlux까지 — 같은 웹소켓 서버를 세 방식으로 만들어
+                    비교합니다. MVC와 WebFlux가 공존하기 어려운 이유도 여기서 확인했습니다.
+                </div>
+                <div class="ch-topics">
+                    <span class="ch-topic">Thread-per-Connection의 한계</span>
+                    <span class="ch-topic">EventLoopGroup · ChannelPipeline</span>
+                    <span class="ch-topic">Flux 스트림 푸시</span>
+                    <span class="ch-topic">MVC vs WebFlux 공존 문제</span>
+                </div>
+            </a>
+
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap">
+        <div class="foot-inner">
+            <div class="foot-note">© 2026 천승환 · popeye0618@gmail.com</div>
+            <div class="foot-links">
+                <a href="index.html">Home</a>
+                <a href="mailto:popeye0618@gmail.com">Email</a>
+                <a href="https://github.com/popeye0618" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
