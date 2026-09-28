@@ -1,0 +1,20 @@
+<section class="card search-box" aria-label="블로그 검색">
+  <label for="blog-search">개발 기록 검색</label>
+  <input
+    id="blog-search"
+    type="search"
+    placeholder="캐시, Spring, 작업 복구…"
+    autocomplete="off"
+  />
+  <p id="search-status" class="search-status" role="status" aria-live="polite">
+    제목과 본문에서 찾아보세요.
+  </p>
+  <div id="search-results" class="search-results"></div>
+  <noscript>
+    <p>
+      검색은 JavaScript가 필요합니다. 아래 목록과 분류로 글을 탐색할 수
+      있습니다.
+    </p>
+  </noscript>
+</section>
+<script is:inline type="module" src="/search.js"></script>

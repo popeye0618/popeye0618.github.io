@@ -1,0 +1,28 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ProjectArt from './ProjectArt.astro';
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const {
+  project: { data: p },
+} = Astro.props;
+---
+
+<a class="card project-card" href={`/projects/${p.slug}/`}>
+  <ProjectArt theme={p.theme} />
+  <div class="project-card-body">
+    <div class="eyebrow">
+      {p.kind}
+      <span aria-hidden="true">↗</span>
+    </div>
+    <h3>{p.title}</h3>
+    <p>{p.summary}</p>
+    <div class="project-result">{p.highlight}</div>
+    <div class="tags">
+      {p.technologies.slice(0, 3).map((t) => (
+        <span>{t}</span>
+      ))}
+    </div>
+  </div>
+</a>

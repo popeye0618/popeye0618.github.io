@@ -1,0 +1,160 @@
+---
+import Base from '../../layouts/Base.astro';
+import Post from '../../layouts/Post.astro';
+import PostList from '../../components/PostList.astro';
+import Search from '../../components/Search.astro';
+import { publicPosts } from '../../lib/content';
+import type { CollectionEntry } from 'astro:content';
+interface Props {
+  post?: CollectionEntry<'posts'>;
+  posts?: CollectionEntry<'posts'>[];
+  title?: string;
+  description?: string;
+  page?: number;
+  pages?: number;
+  base?: string;
+  category?: string;
+}
+export async function getStaticPaths() {
+  const all = await publicPosts();
+  const routes: { params: { path: string | undefined }; props: Props }[] =
+    all.map((post) => ({ params: { path: post.data.slug }, props: { post } }));
+  function listing(
+    posts: CollectionEntry<'posts'>[],
+    base: string,
+    title: string,
+    description: string,
+    category?: string,
+  ) {
+    const pages = Math.max(1, Math.ceil(posts.length / 10));
+    for (let page = 1; page <= pages; page++)
+      routes.push({
+        params: {
+          path:
+            base + (page === 1 ? '' : `${base ? '/' : ''}page/${page}`) ||
+            undefined,
+        },
+        props: {
+          posts: posts.slice((page - 1) * 10, page * 10),
+          title,
+          description,
+          page,
+          pages,
+          base,
+          category,
+        },
+      });
+  }
+  listing(
+    all,
+    '',
+    '블로그',
+    '문제를 마주하고, 선택하고, 검증한 과정을 기록합니다.',
+  );
+  for (const category of new Set(all.map((p) => p.data.category)))
+    listing(
+      all.filter((p) => p.data.category === category),
+      `categories/${category.toLowerCase()}`,
+      category,
+      '주제별로 모아 보는 개발 기록',
+      category,
+    );
+  for (const tag of new Set(
+    all.flatMap((p) => p.data.tags.map((t) => t.toLowerCase())),
+  ))
+    listing(
+      all.filter((p) => p.data.tags.some((t) => t.toLowerCase() === tag)),
+      `tags/${tag}`,
+      `#${tag}`,
+      '같은 키워드로 이어지는 개발 기록',
+    );
+  for (const id of new Set(
+    all.map((p) => p.data.series).filter((s): s is string => Boolean(s)),
+  )) {
+    const members = all
+      .filter((p) => p.data.series === id)
+      .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
+    listing(
+      members,
+      `series/${id}`,
+      members[0].data.seriesTitle ?? id,
+      '순서대로 읽는 개발 기록',
+    );
+  }
+  return routes;
+}
+const {
+  post,
+  posts = [],
+  title = '',
+  description = '',
+  page = 1,
+  pages = 1,
+  base = '',
+  category,
+} = Astro.props;
+const all = await publicPosts();
+const categories = [...new Set(all.map((p) => p.data.category))];
+const series = [
+  ...new Map(
+    all
+      .filter((p) => p.data.series)
+      .map((p) => [p.data.series, p.data.seriesTitle]),
+  ).entries(),
+];
+const pageUrl = (n: number) =>
+  `/blog/${base ? base + '/' : ''}${n === 1 ? '' : `page/${n}/`}`;
+---
+
+{post ? (
+  <Post post={post} />
+) : (
+  <Base
+    title={page > 1 ? `${title} · ${page}페이지` : title}
+    description={description}
+  >
+    <div class="blog-top">
+      <header class="page-heading">
+        <div class="eyebrow">DEV LOG</div>
+        <h1>{title === '블로그' ? '경험을 지식으로 남기는 곳' : title}</h1>
+        <p>{description}</p>
+      </header>
+      <Search />
+    </div>
+    <nav class="filter-bar" aria-label="블로그 카테고리">
+      <a href="/blog/" aria-current={!base ? 'page' : undefined}>
+        전체 글 {all.length}
+      </a>
+      {categories.map((c) => (
+        <a
+          href={`/blog/categories/${encodeURIComponent(c.toLowerCase())}/`}
+          aria-current={category === c ? 'page' : undefined}
+        >
+          {c}
+        </a>
+      ))}
+    </nav>
+    <div class="card blog-list-card">
+      <PostList posts={posts} />
+    </div>
+    {pages > 1 && (
+      <nav class="pagination" aria-label="글 목록 페이지">
+        {page > 1 && <a href={pageUrl(page - 1)}>← 이전</a>}
+        <span>
+          {page} / {pages}
+        </span>
+        {page < pages && <a href={pageUrl(page + 1)}>다음 →</a>}
+      </nav>
+    )}
+    {series.length > 0 && (
+      <section class="card pad" style="margin-top:24px">
+        <h2 style="font-size:20px;margin-bottom:16px">시리즈로 읽기</h2>
+        <div class="filter-bar" style="margin-bottom:0">
+          {series.map(([id, name]) => (
+            <a href={`/blog/series/${id}/`}>{name} →</a>
+          ))}
+        </div>
+      </section>
+    )}
+  </Base>
+)}

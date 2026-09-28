@@ -1,0 +1,109 @@
+---
+const { theme } = Astro.props;
+---
+
+<div class:list={['project-art', theme]} aria-hidden="true">
+  {theme === 'matching' ? (
+    <svg viewBox="0 0 320 160">
+      <path class="connector" d="M85 70 C120 10 200 150 237 80" />
+      <rect
+        class="art-paper"
+        x="59"
+        y="34"
+        width="88"
+        height="104"
+        rx="19"
+        transform="rotate(-12 103 86)"
+      />
+      <rect
+        class="art-paper"
+        x="179"
+        y="22"
+        width="88"
+        height="104"
+        rx="19"
+        transform="rotate(10 223 74)"
+      />
+      <circle fill="#8b9fff" cx="102" cy="69" r="15" />
+      <path fill="#8b9fff" d="M78 107c0-28 48-28 48 0Z" />
+      <circle fill="#b99afa" cx="222" cy="58" r="15" />
+      <path fill="#b99afa" d="M198 96c0-28 48-28 48 0Z" />
+      <circle fill="#4778f5" cx="164" cy="87" r="23" />
+      <path
+        fill="white"
+        d="M153 83c0-7 9-10 11-3 5-7 14-3 11 4-3 6-11 12-11 12s-11-7-11-13Z"
+      />
+    </svg>
+  ) : theme === 'football' ? (
+    <svg viewBox="0 0 320 160">
+      <rect x="54" y="22" width="213" height="119" rx="20" fill="#bce9da" />
+      <rect
+        x="66"
+        y="34"
+        width="189"
+        height="95"
+        rx="10"
+        fill="none"
+        stroke="#fff"
+        stroke-width="2"
+      />
+      <path
+        d="M160 34v95M66 58h23v48H66m189-48h-23v48h23"
+        fill="none"
+        stroke="white"
+        stroke-width="2"
+      />
+      <circle
+        cx="160"
+        cy="82"
+        r="25"
+        fill="none"
+        stroke="white"
+        stroke-width="2"
+      />
+      <circle cx="162" cy="80" r="33" fill="white" />
+      <path d="m162 62 17 12-7 20h-21l-6-20Z" fill="#348a77" />
+      <path
+        d="m139 57 6 17m40-15-6 15m6 31-13-11m-27 12 6-12"
+        stroke="#348a77"
+        stroke-width="5"
+      />
+      <circle cx="252" cy="37" r="19" fill="#20a485" />
+      <path d="m245 37 5 5 9-10" fill="none" stroke="white" stroke-width="3" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 320 160">
+      <rect
+        x="64"
+        y="26"
+        width="125"
+        height="106"
+        rx="16"
+        fill="#edc899"
+        transform="rotate(-10 126 79)"
+      />
+      <rect
+        class="art-paper"
+        x="119"
+        y="24"
+        width="130"
+        height="116"
+        rx="17"
+        transform="rotate(8 184 82)"
+      />
+      <rect x="135" y="42" width="98" height="67" rx="9" fill="#f9e2bd" />
+      <circle cx="205" cy="59" r="10" fill="#f0af54" />
+      <path d="m139 103 27-35 24 26 14-17 26 26Z" fill="#d8a264" />
+      <path
+        d="m92 42 4 10 11 4-11 4-4 11-4-11-11-4 11-4Zm159 71 3 8 9 3-9 3-3 9-3-9-9-3 9-3Z"
+        fill="#b98543"
+      />
+      <path
+        d="M155 123h50"
+        stroke="#c7b299"
+        stroke-width="4"
+        stroke-linecap="round"
+      />
+    </svg>
+  )}
+</div>

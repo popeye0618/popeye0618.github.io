@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import { legacy } from '../data/legacy';
+export function getStaticPaths() {
+  return legacy.map((item) => ({
+    params: { legacy: item.slug },
+    props: { item },
+  }));
+}
+const { item } = Astro.props;
+const original = `https://github.com/popeye0618/popeye0618.github.io/blob/517283217b82abfca2227be2f7ae0fd9c2d9edcc/${item.slug}.html`;
+---
+
+<Base title={item.title} noindex canonical={item.target?.split('#')[0]}>
+  <section class="card pad archive">
+    <div class="eyebrow">기존 페이지 안내</div>
+    <h1 style="margin-top:16px">{item.title}</h1>
+    {item.target ? (
+      <>
+        <p>이 프로젝트의 최신 내용은 새 상세 페이지에서 볼 수 있습니다.</p>
+        <a class="button" href={item.target}>
+          새 페이지로 이동 →
+        </a>
+      </>
+    ) : (
+      <>
+        <p>
+          기존 내용을 보관하고 있습니다. 설명과 측정 근거를 검토한 뒤 새
+          사이트로 옮길 예정입니다.
+        </p>
+        <div class="actions">
+          <a class="button" href="/blog/">
+            공개된 개발 기록 보기 →
+          </a>
+          <a class="button secondary" href={original}>
+            기존 원문 보기 ↗
+          </a>
+        </div>
+      </>
+    )}
+  </section>
+</Base>

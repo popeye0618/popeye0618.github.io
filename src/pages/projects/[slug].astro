@@ -1,0 +1,84 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProjectArt from '../../components/ProjectArt.astro';
+import Toc from '../../components/Toc.astro';
+import { projects, publicPosts } from '../../lib/content';
+export async function getStaticPaths() {
+  return (await projects()).map((project) => ({
+    params: { slug: project.data.slug },
+    props: { project },
+  }));
+}
+const { project } = Astro.props;
+const p = project.data;
+const { Content, headings } = await render(project);
+const posts = (await publicPosts()).filter((post) =>
+  post.data.relatedProjects.includes(p.slug),
+);
+---
+
+<Base title={p.title} description={p.summary}>
+  <div class="breadcrumb">
+    <a href="/projects/">프로젝트</a>
+    <span>/</span>
+    <span>{p.title}</span>
+  </div>
+  <header class="card detail-hero">
+    <div>
+      <span class="tiny-badge">{p.kind}</span>
+      <h1>{p.title}</h1>
+      <p>{p.summary}</p>
+      <div class="tags">
+        {p.technologies.map((t) => (
+          <span>{t}</span>
+        ))}
+      </div>
+      <div class="detail-meta">
+        <div>
+          담당 역할<strong>{p.role}</strong>
+        </div>
+        {p.team && (
+          <div>
+            팀 구성<strong>{p.team}</strong>
+          </div>
+        )}
+        <div>
+          <a class="text-link" href={p.repository}>
+            GitHub에서 코드 보기 ↗
+          </a>
+        </div>
+      </div>
+    </div>
+    <ProjectArt theme={p.theme} />
+  </header>
+  <div class="metrics-grid">
+    {p.metrics
+      .filter((m) => m.key !== 'runs')
+      .slice(0, 3)
+      .map((m) => (
+        <section class="card metric-card">
+          <p>{m.label}</p>
+          <strong>{m.value}</strong>
+          <p>{m.context}</p>
+          <small>{m.source}</small>
+        </section>
+      ))}
+  </div>
+  <div class="article-grid">
+    <article class="card article-card">
+      <div class="prose">
+        <Content />
+      </div>
+      {posts.length > 0 && (
+        <section class="related">
+          <h2>관련 개발 기록</h2>
+          {posts.map((post) => (
+            <a href={`/blog/${post.data.slug}/`}>{post.data.title} →</a>
+          ))}
+        </section>
+      )}
+    </article>
+    <Toc headings={headings} />
+  </div>
+</Base>
