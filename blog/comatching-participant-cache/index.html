@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>참가자 수 조회, 캐시로 줄인 반복 작업 · 천승환</title><meta name="description" content="Comatching5의 Caffeine 캐시 적용과 처리량 실험을 조건과 함께 읽어봅니다."><link rel="canonical" href="https://popeye0618.github.io/blog/comatching-participant-cache/"><meta property="og:type" content="article"><meta property="og:title" content="참가자 수 조회, 캐시로 줄인 반복 작업"><meta property="og:description" content="Comatching5의 Caffeine 캐시 적용과 처리량 실험을 조건과 함께 읽어봅니다."><meta property="og:url" content="https://popeye0618.github.io/blog/comatching-participant-cache/"><meta property="og:locale" content="ko_KR"><meta property="og:image" content="https://popeye0618.github.io/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="천승환 블로그" href="/rss.xml"><script>
+      try {
+        const theme = localStorage.getItem('theme');
+        document.documentElement.dataset.theme =
+          theme === 'light' || theme === 'dark'
+            ? theme
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+      } catch {
+        document.documentElement.dataset.theme = matchMedia(
+          '(prefers-color-scheme: dark)',
+        ).matches
+          ? 'dark'
+          : 'light';
+      }
+    </script><link rel="stylesheet" href="/_astro/Base.CGInwih8.css"></head><body><a class="skip" href="#main">본문으로 바로가기</a><header class="site-header"><div class="header-inner"><a class="brand" href="/" aria-label="천승환 홈"><span class="brand-mark" aria-hidden="true">s.</span>천승환<span class="brand-sub">개발 기록</span></a><nav aria-label="주 메뉴"><a href="/">홈</a><a href="/projects/">프로젝트</a><a href="/resume/">이력</a><a href="/blog/" aria-current="page">블로그</a></nav><button id="theme-toggle" class="icon-button" aria-label="어두운 테마로 전환" title="테마 전환"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.7 13.2A9 9 0 0 1 10.8 3.3 9 9 0 1 0 20.7 13.2Z"></path></svg></button></div></header><main id="main" class="container"><div class="breadcrumb"><a href="/blog/">블로그</a><span>/</span><a href="/blog/categories/%EC%9A%B4%EC%98%81%C2%B7%EC%84%B1%EB%8A%A5/">운영·성능</a></div><div data-pagefind-body><header class="post-header"><div class="post-meta"><span>운영·성능</span><time datetime="2026-09-28">2026.09.28</time><span>2분 읽기</span></div><h1 data-pagefind-meta="title">참가자 수 조회, 캐시로 줄인 반복 작업</h1><p>Comatching5의 Caffeine 캐시 적용과 처리량 실험을 조건과 함께 읽어봅니다.</p><div class="tags"><a href="/blog/tags/spring/">#Spring</a><a href="/blog/tags/cache/">#Cache</a><a href="/blog/tags/performance/">#Performance</a></div></header><div class="article-grid"><article class="card article-card"><div class="prose"><h2 id="반복-조회에-캐시를-적용하기">반복 조회에 캐시를 적용하기</h2>
+<p>Comatching5의 참가자 수 조회에는 동일한 집계 결과를 반복해서 읽는 비용이 있었습니다. 이 조회에 Caffeine 캐시를 적용했고, 단일 인스턴스 환경에서 TTL을 10초로 설정했습니다.</p>
+<p>캐시는 조회 비용을 줄이는 대신 최신성에 영향을 줍니다. 여기서는 매번 즉시 갱신된 값을 읽는 대신 캐시 유효기간 동안 이전 값을 제공하는 선택을 했습니다.</p>
+<h2 id="처리량과-지연-시간을-함께-보기">처리량과 지연 시간을 함께 보기</h2>
+<p>같은 EC2·RDS 환경, 별도 Windows JMeter 부하 발생기와 사용자 10만 건 시드 조건에서 처리량 한계는 약 60 RPS에서 약 330 RPS로 높아졌습니다.</p>
+<p>목표 200 RPS 조건에서 p95는 개선 전 2,057ms, 개선 후 37ms였습니다. 다만 개선 전 실제 처리량은 약 60 RPS, 개선 후는 약 200 RPS였습니다. 동일하게 달성한 요청량에서 지연 시간만 비교한 실험은 아닙니다.</p>
+<blockquote>
+<p>목표 부하와 실제 처리량을 함께 기록해야 합니다. 목표 요청을 모두 처리하지 못한 결과를 같은 부하의 지연 시간 비교로 해석하면 개선 효과를 잘못 설명할 수 있습니다.</p>
+</blockquote>
+<h2 id="운영-용량으로-바로-바꾸지-않기">운영 용량으로 바로 바꾸지 않기</h2>
+<p>약 330 RPS는 실험에서 관측한 처리량 한계입니다. 목표 400 RPS 실험에서는 실제 약 331 RPS, p95 592ms가 기록됐습니다. 이 수치를 그대로 응답 시간 목표가 보장되는 운영 용량이라고 표현하지 않습니다.</p>
+<p>또한 참가자 수 조회의 캐시 적용 결과를 매칭 API 전체의 성능으로 확대해서는 안 됩니다. API마다 하는 일과 병목이 다르기 때문입니다.</p>
+<h2 id="근거와-측정-범위">근거와 측정 범위</h2>
+<ul>
+<li><a href="https://github.com/COMAtching/Comatching5_BE/pull/82">캐시 구현 PR #82</a></li>
+<li><a href="https://github.com/COMAtching/Comatching5_BE/pull/84">부하 실험 PR #84</a></li>
+<li><a href="https://github.com/COMAtching/Comatching5_BE/blob/main/docs/perf-log.md">실험 조건과 성능 기록</a></li>
+</ul>
+<p>이 글은 저장소의 구현과 실험 기록을 정리한 글입니다. 축제 실사용 트래픽을 재현한 수치나 모든 배포 환경에서의 보장값은 아닙니다.</p>
+</div><div data-pagefind-ignore><div class="series-box"><a href="/blog/series/comatching-performance/">Comatching5 성능 개선 기록 · 1번째 글 →</a></div><nav class="series-nav" aria-label="시리즈 글 이동"><a href="/blog/comatching-candidate-query/"><span>다음 글 →</span>SQL 601회를 2회로 줄이고 확인한 것</a></nav><section class="related"><h2>이 글의 프로젝트</h2><a href="/projects/comatching/">Comatching →</a></section></div></article><aside class="toc" data-pagefind-ignore><details open><summary>이 페이지에서</summary><nav aria-label="본문 목차"><a href="#반복-조회에-캐시를-적용하기">반복 조회에 캐시를 적용하기</a><a href="#처리량과-지연-시간을-함께-보기">처리량과 지연 시간을 함께 보기</a><a href="#운영-용량으로-바로-바꾸지-않기">운영 용량으로 바로 바꾸지 않기</a><a href="#근거와-측정-범위">근거와 측정 범위</a></nav></details></aside></div></div></main><footer class="site-footer container"><div><strong>천승환</strong><p>만들고, 운영하고, 배운 것을 기록합니다.</p></div><div class="footer-links"><a href="https://github.com/popeye0618">GitHub ↗</a><a href="mailto:popeye0618@gmail.com">이메일 ↗</a><a href="/rss.xml">RSS ↗</a></div><small>© 2026 Seunghwan Cheon</small></footer><script type="module">var e=document.querySelector(`#theme-toggle`),t=()=>e?.setAttribute(`aria-label`,document.documentElement.dataset.theme===`dark`?`밝은 테마로 전환`:`어두운 테마로 전환`);t(),e?.addEventListener(`click`,()=>{let e=document.documentElement.dataset.theme===`dark`?`light`:`dark`;document.documentElement.dataset.theme=e;try{localStorage.setItem(`theme`,e)}catch{}t()}),matchMedia(`(prefers-color-scheme: dark)`).addEventListener(`change`,e=>{let n;try{n=localStorage.getItem(`theme`)}catch{}n||(document.documentElement.dataset.theme=e.matches?`dark`:`light`,t())}),document.querySelectorAll(`.prose pre`).forEach(e=>{let t=document.createElement(`button`);t.className=`copy-code`,t.textContent=`복사`,t.setAttribute(`aria-label`,`코드 복사`),t.addEventListener(`click`,async()=>{try{await navigator.clipboard.writeText(e.querySelector(`code`)?.textContent??``),t.textContent=`복사됨`}catch{t.textContent=`직접 선택해 복사`}setTimeout(()=>t.textContent=`복사`,2e3)}),e.append(t)}),document.querySelector(`[data-print]`)?.addEventListener(`click`,()=>window.print());</script></body></html>
