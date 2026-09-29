@@ -50,11 +50,12 @@
     display: none;
   }
   .header-inner nav a {
-    font-size: 13px;
+    font-size: 15px;
     border-radius: 0;
     padding: 8px 0;
     margin: 0 15px;
-    font-weight: 450;
+    font-weight: 600;
+    color: var(--text);
   }
   .header-inner nav a[aria-current='page'] {
     background: transparent;
