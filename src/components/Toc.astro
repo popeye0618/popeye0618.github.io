@@ -22,3 +22,36 @@ const headings = Astro.props.headings.filter(
     </details>
   </aside>
 )}
+<script>
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc a')];
+  const sections = links.map((link) =>
+    document.getElementById(decodeURIComponent(link.hash.slice(1))),
+  );
+  let scheduled = false;
+  const highlight = () => {
+    scheduled = false;
+    let current = 0;
+    const threshold =
+      parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) +
+      24;
+    sections.forEach((section, index) => {
+      if (section && section.getBoundingClientRect().top <= threshold)
+        current = index;
+    });
+    links.forEach((link, index) => {
+      if (index === current) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!scheduled) {
+        scheduled = true;
+        requestAnimationFrame(highlight);
+      }
+    },
+    { passive: true },
+  );
+  highlight();
+</script>

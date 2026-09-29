@@ -1,6 +1,7 @@
 ---
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../styles/global.css';
+import '../styles/gallery.css';
 import { profile } from '../data/profile';
 interface Props {
   title?: string;
@@ -57,23 +58,14 @@ const menus = [
     />
     <script is:inline>
       try {
-        const theme = localStorage.getItem('theme');
         document.documentElement.dataset.theme =
-          theme === 'light' || theme === 'dark'
-            ? theme
-            : matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light';
+          localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
       } catch {
-        document.documentElement.dataset.theme = matchMedia(
-          '(prefers-color-scheme: dark)',
-        ).matches
-          ? 'dark'
-          : 'light';
+        document.documentElement.dataset.theme = 'dark';
       }
     </script>
   </head>
-  <body>
+  <body class:list={{ home: path === '/' }}>
     <a class="skip" href="#main">
       본문으로 바로가기
     </a>
@@ -153,21 +145,6 @@ const menus = [
         } catch {}
         updateLabel();
       });
-      matchMedia('(prefers-color-scheme: dark)').addEventListener(
-        'change',
-        (event) => {
-          let saved;
-          try {
-            saved = localStorage.getItem('theme');
-          } catch {}
-          if (!saved) {
-            document.documentElement.dataset.theme = event.matches
-              ? 'dark'
-              : 'light';
-            updateLabel();
-          }
-        },
-      );
       document.querySelectorAll('.prose pre').forEach((pre) => {
         const copy = document.createElement('button');
         copy.className = 'copy-code';

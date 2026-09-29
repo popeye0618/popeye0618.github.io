@@ -1,7 +1,10 @@
 import { chromium } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 await mkdir('.qa', { recursive: true });
-const browser = await chromium.launch({ ...(process.platform === 'win32' ? { channel: 'msedge' } : {}), headless: true });
+const browser = await chromium.launch({
+  ...(process.platform === 'win32' ? { channel: 'msedge' } : {}),
+  headless: true,
+});
 const report = { screens: [], search: [], errors: [], print: false };
 const context = await browser.newContext({
   baseURL: 'http://127.0.0.1:4321',
@@ -42,14 +45,14 @@ for (const width of [360, 768, 1440]) {
   }
 }
 await page.goto('/');
-await page.getByRole('button', { name: '어두운 테마로 전환' }).click();
-if ((await page.locator('html').getAttribute('data-theme')) !== 'dark')
+await page.getByRole('button', { name: '밝은 테마로 전환' }).click();
+if ((await page.locator('html').getAttribute('data-theme')) !== 'light')
   report.errors.push('theme toggle failed');
 await page.reload();
-if ((await page.locator('html').getAttribute('data-theme')) !== 'dark')
+if ((await page.locator('html').getAttribute('data-theme')) !== 'light')
   report.errors.push('theme persistence failed');
-await page.screenshot({ path: '.qa/home-dark.png', fullPage: true });
-await page.getByRole('button', { name: '밝은 테마로 전환' }).click();
+await page.screenshot({ path: '.qa/home-light.png', fullPage: true });
+await page.getByRole('button', { name: '어두운 테마로 전환' }).click();
 await page.goto('/blog/');
 for (const term of ['캐시', 'Spring', 'SQL', '작업', 'zzzzunlikelynotfound']) {
   await page.getByRole('searchbox').fill(term);

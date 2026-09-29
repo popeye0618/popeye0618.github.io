@@ -1,4 +1,4 @@
-@layer base, components, responsive;
+@layer base, components, responsive, editorial;
 @layer base {
   :root {
     font-family:

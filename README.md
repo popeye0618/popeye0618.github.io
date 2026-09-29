@@ -42,8 +42,17 @@ pnpm new:post my-new-post
 
 ## 배포와 복구
 
-GitHub 저장소 Settings → Pages → Build and deployment에서 **GitHub Actions**를 선택합니다. PR에서 테스트·타입·콘텐츠·빌드를 검사하고 main에 반영하면 같은 검사를 거쳐 Pages에 배포합니다. 실패한 빌드는 배포하지 않습니다.
+GitHub Pages는 **Deploy from a branch → gh-pages → / (root)**로 설정되어 있습니다. 로컬에서 검사·빌드한 `dist`를 `gh-pages`에 게시하며, 별도 유료 호스팅은 사용하지 않습니다. 소스 브랜치의 Actions는 검사만 수행하며 사이트를 덮어쓰지 않습니다.
+
+```sh
+pnpm test
+pnpm check
+pnpm build
+node scripts/publish-pages.mjs
+```
+
+게시 스크립트는 현재 소스가 커밋된 상태인지 확인하고, 기존 `gh-pages` 이력을 이어서 빌드 결과를 push합니다. 소스 변경도 별도로 소스 브랜치에 push해야 합니다. 위 검사를 모두 통과한 뒤 실행하세요. GitHub 계정 상태로 사용자 정의 Actions가 실행되지 않는 경우에도 로컬 검증과 브랜치 기반 Pages 배포를 사용할 수 있습니다.
 
 사이트 주소는 `https://popeye0618.github.io`입니다. 사용자 사이트이므로 저장소 이름을 base 경로로 추가하지 않습니다.
 
-기존 사이트 기준 커밋: `517283217b82abfca2227be2f7ae0fd9c2d9edcc`. 새 사이트 배포 후에는 마지막 정상 workflow 실행을 다시 실행하거나 문제 변경을 revert한 PR을 반영해 복구합니다. 기존 HTML 사이트로 복구할 때는 기준 커밋의 파일과 기존 Pages 배포 설정을 함께 복원해야 합니다.
+기존 사이트 기준 커밋: `517283217b82abfca2227be2f7ae0fd9c2d9edcc`. 복구는 문제 소스 변경을 revert하고 다시 검사·빌드·게시하는 방식으로 수행합니다. `gh-pages`의 이전 커밋에도 게시 산출물이 보존됩니다. 기존 HTML 사이트로 복구할 때는 기준 커밋의 파일과 기존 Pages 배포 설정을 함께 복원해야 합니다.
