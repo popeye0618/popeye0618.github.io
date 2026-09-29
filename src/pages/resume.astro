@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { profile, career } from '../data/profile';
+import { profile, career, certifications } from '../data/profile';
 import { projects } from '../lib/content';
 const list = await projects();
 ---
@@ -26,7 +26,7 @@ const list = await projects();
         <div class="timeline">
           <h3>{career.company}</h3>
           <p>{career.role}</p>
-          <p>금융 SI 업무 환경에서 BXM·WebSquare·Oracle을 사용합니다.</p>
+          <p>BXM·Oracle을 사용하는 코어뱅킹 개발 업무를 담당합니다.</p>
           <div class="tags">
             {career.workStack.map((t) => (
               <span>{t}</span>
@@ -81,6 +81,15 @@ const list = await projects();
             적용했습니다. 구체적인 범위는 프로젝트 상세에 정리했습니다.
           </p>
         </div>
+      </section>
+      <section class="card pad">
+        <h2>자격증</h2>
+        {certifications.map((certificate) => (
+          <div class="certification-row">
+            <h3>{certificate.name}</h3>
+            <time datetime={certificate.date}>{certificate.displayDate}</time>
+          </div>
+        ))}
       </section>
       <section class="card pad">
         <h2>학력</h2>

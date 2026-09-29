@@ -86,11 +86,11 @@ const metrics = selected.find((p) => p.data.slug === 'comatching')!.data
   <section class="operating-record" aria-labelledby="record-title">
     <div class="record-heading">
       <h2 id="record-title">Comatching 운영 기록</h2>
-      <p>가톨릭대학교 축제 · 운영자 제공 수치</p>
+      <p>가톨릭대학교 축제</p>
     </div>
     <div class="record-values">
       {metrics
-        .filter((m) => ['runs', 'users', 'revenue'].includes(m.key))
+        .filter((m) => ['runs', 'users', 'matches'].includes(m.key))
         .map((m) => (
           <div>
             <span>{m.label}</span>
@@ -98,9 +98,7 @@ const metrics = selected.find((p) => p.data.slug === 'comatching')!.data
           </div>
         ))}
     </div>
-    <p class="footnote">
-      이용자·운영 횟수는 추정치이며, 매출은 비용 차감 전 금액입니다.
-    </p>
+    <p class="footnote">매 회차 약 일주일씩 운영했습니다.</p>
   </section>
   <div class="editorial-bottom">
     <section>
@@ -131,25 +129,22 @@ const metrics = selected.find((p) => p.data.slug === 'comatching')!.data
     const panels = [...document.querySelectorAll<HTMLElement>('.work-panel')];
     const counter = document.querySelector('#gallery-position');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-    let active = 0,
+    let active = -1,
       frame = 0;
     function update() {
       if (!reel) return;
-      const center = reel.getBoundingClientRect().left + reel.clientWidth / 2;
+      const center = reel.scrollLeft + reel.clientWidth / 2;
       let closest = Infinity;
+      let nextActive = 0;
       panels.forEach((panel, index) => {
-        const bounds = panel.getBoundingClientRect();
-        const distance =
-          (bounds.left + bounds.width / 2 - center) / reel.clientWidth;
-        panel.style.setProperty(
-          '--turn',
-          `${Math.max(-1, Math.min(1, distance)) * -12}deg`,
-        );
+        const distance = panel.offsetLeft + panel.offsetWidth / 2 - center;
         if (Math.abs(distance) < closest) {
           closest = Math.abs(distance);
-          active = index;
+          nextActive = index;
         }
       });
+      if (nextActive === active) return;
+      active = nextActive;
       panels.forEach((panel, index) =>
         panel.classList.toggle('is-current', index === active),
       );

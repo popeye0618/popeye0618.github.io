@@ -397,8 +397,7 @@
     padding: 48px max(25px, calc((100vw - min(68vw, 940px)) / 2));
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    perspective: 1600px;
-    scroll-padding-inline: 16vw;
+    scroll-padding-inline: 0;
   }
   .work-reel::-webkit-scrollbar {
     display: none;
@@ -411,18 +410,11 @@
     flex: 0 0 min(68vw, 940px);
     aspect-ratio: 1.85;
     scroll-snap-align: center;
-    transform: rotateY(var(--turn, 0deg));
-    transform-style: preserve-3d;
-    transition:
-      transform 0.35s,
-      filter 0.35s;
-    filter: brightness(0.65);
     color: white;
   }
   .work-panel.is-current,
   .work-panel:hover,
   .work-panel:focus-visible {
-    filter: brightness(1);
     color: white;
   }
   .work-panel .project-cover {
@@ -757,6 +749,18 @@
   }
   .resume-grid {
     gap: 80px;
+  }
+  .certification-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .certification-row time {
+    color: var(--muted);
+    font-size: 15px;
+    white-space: nowrap;
   }
   @media (max-width: 900px) {
     .container,
