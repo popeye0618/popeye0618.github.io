@@ -7,7 +7,7 @@ const metric = z.object({
   label: z.string(),
   value: z.string(),
   context: z.string(),
-  source: z.string(),
+  source: z.string().optional(),
 });
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),

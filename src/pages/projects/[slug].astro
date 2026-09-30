@@ -63,7 +63,7 @@ const posts = (await publicPosts()).filter((post) =>
           <p>{m.label}</p>
           <strong>{m.value}</strong>
           <p>{m.context}</p>
-          <small>{m.source}</small>
+          {m.source && <small>{m.source}</small>}
         </section>
       ))}
   </div>

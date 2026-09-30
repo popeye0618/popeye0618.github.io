@@ -51,8 +51,6 @@ Harucut은 사진 네 장과 프레임을 선택해 네 컷 이미지를 만드�
   <figcaption>이미지 파일은 S3, 작업 상태는 MySQL에 저장합니다. SQS 결과는 백엔드가 직접 가져와 처리합니다.</figcaption>
 </figure>
 
-<a href="/diagrams/harucut.drawio" download>편집 가능한 draw.io 원본 다운로드 ↓</a>
-
 ### 업로드부터 결과 확인까지
 
 1. 백엔드가 발급한 Presigned URL로 브라우저에서 S3에 원본을 직접 업로드합니다.

@@ -9,7 +9,7 @@ periods:
     end: '2025-03'
   - label: Comatching5
     start: '2026-01'
-    end: '2026-09-20'
+    end: '2026-09'
 role: 백엔드 개발 · 팀장
 kind: 대학 축제 · 실서비스
 theme: matching
@@ -22,22 +22,18 @@ metrics:
     label: 누적 이용자
     value: 5,000명
     context: 5회 운영의 회차별 합산 · 중복 이용 포함
-    source: 운영자 추정치
   - key: revenue
     label: 누적 수익
     value: 1,200만 원
     context: 비용 차감 전 기준 · 회차당 200~300만 원
-    source: 운영자 제공 수치
   - key: matches
     label: 누적 매칭
     value: 35,000건
     context: 회차당 7,000건 × 5회 운영
-    source: 운영자 추정치
   - key: runs
     label: 축제 시즌 운영
     value: 5회
     context: 매 회차 일주일
-    source: 운영자 추정치
 ---
 
 ## 축제의 만남을 서비스로
@@ -79,8 +75,6 @@ PM, 디자이너, 백엔드, 프론트엔드 각 1명으로 구성된 4인 팀�
   <figcaption>AI 매칭을 사용했던 운영 당시 구성. 그림을 누르면 원본을 볼 수 있습니다.</figcaption>
 </figure>
 
-<a href="/diagrams/comatching.drawio" download>편집 가능한 draw.io 원본 다운로드 ↓</a>
-
 Spring Boot 백엔드가 인증, 포인트, 매칭 요청과 이력, 채팅과 관리자 기능을 담당했습니다. Ubuntu 서버에서 Docker 컨테이너로 서비스를 구성했습니다. Nginx와 Certbot으로 HTTPS 진입점을 구성하고 두 Spring Boot 인스턴스로 요청을 분산했습니다. 운영·테스트 환경의 MySQL과 Redis 컨테이너를 분리하고, React 프론트엔드와 RabbitMQ·AI 처리 영역을 함께 배포했습니다.
 
 AI 매칭 처리와 웹 서비스의 업무 처리를 분리했습니다. 백엔드는 사용자의 조건을 메시지로 구성해 RabbitMQ로 전달하고, 매칭 결과를 받아 상대 정보와 이력을 연결하는 역할을 맡았습니다. 프론트엔드는 백엔드 API를 통해 결과를 확인합니다.
@@ -107,8 +101,6 @@ Comatching5에서는 운영 경험을 바탕으로 성능 문제를 측정하고
   <a href="/diagrams/comatching5.svg" aria-label="Comatching5 아키텍처 원본 보기"><img src="/diagrams/comatching5.svg" alt="Next.js와 Gateway 뒤에 회원 매칭 아이템 채팅 알림 서비스가 배치되고 Kafka가 후속 이벤트를 전달하는 MSA 구조" loading="lazy" width="1500" height="1180" /></a>
   <figcaption>서비스의 책임과 주요 통신 경로. 데이터 저장소는 용도에 따라 MySQL·MongoDB·Redis를 사용합니다.</figcaption>
 </figure>
-
-<a href="/diagrams/comatching5.drawio" download>편집 가능한 draw.io 원본 다운로드 ↓</a>
 
 | 구성         | 담당하는 일                                                           |
 | ------------ | --------------------------------------------------------------------- |
