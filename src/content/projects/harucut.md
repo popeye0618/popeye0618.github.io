@@ -1,6 +1,10 @@
 ---
 slug: harucut
 title: Harucut
+periods:
+  - label: Harucut
+    start: '2025-11'
+    status: ongoing
 summary: 이미지 합성 작업이 실패해도 다시 이어갈 수 있도록
 order: 3
 role: 백엔드 개발 · 작업 처리 구조 개선

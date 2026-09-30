@@ -22,6 +22,16 @@ const projects = defineCollection({
     technologies: z.array(z.string()),
     repository: z.url(),
     team: z.string().optional(),
+    periods: z
+      .array(
+        z.object({
+          label: z.string(),
+          start: z.string(),
+          end: z.string().optional(),
+          status: z.enum(['ongoing', 'unconfirmed']).optional(),
+        }),
+      )
+      .default([]),
     metrics: z.array(metric),
     highlight: z.string(),
   }),

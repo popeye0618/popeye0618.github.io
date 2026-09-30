@@ -1,6 +1,10 @@
 ---
 slug: comatching-fc
 title: COMAtching FC
+periods:
+  - label: COMAtching FC
+    start: '2024-10'
+    end: '2024-12'
 summary: 부천 FC 경기장에서 응원 성향으로 관중을 연결한 외주 서비스
 order: 2
 role: 백엔드 개발

@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import { profile, career, certifications } from '../data/profile';
+import ProjectPeriod from '../components/ProjectPeriod.astro';
+import { profile, career, certifications, languages } from '../data/profile';
 import { projects } from '../lib/content';
 const list = await projects();
 ---
@@ -10,8 +11,7 @@ const list = await projects();
     <header class="page-heading">
       <div class="eyebrow">RESUME</div>
       <h1>
-        천승환{' '}
-        <span style="font-size:20px;color:var(--muted)">백엔드 개발자</span>
+        천승환 <span class="resume-role">백엔드 개발자</span>
       </h1>
       <p>{profile.description}</p>
     </header>
@@ -25,8 +25,15 @@ const list = await projects();
         <h2>경력</h2>
         <div class="timeline">
           <h3>{career.company}</h3>
+          <p class="career-period">
+            <time datetime={career.startedAt}>2026.09.07</time> – 재직 중
+          </p>
           <p>{career.role}</p>
           <p>BXM·Oracle을 사용하는 코어뱅킹 개발 업무를 담당합니다.</p>
+          <div class="career-project">
+            <h4>{career.project.title}</h4>
+            <p>{career.project.status}</p>
+          </div>
           <div class="tags">
             {career.workStack.map((t) => (
               <span>{t}</span>
@@ -42,6 +49,7 @@ const list = await projects();
               <a href={`/projects/${p.data.slug}/`}>{p.data.title} ↗</a>
             </h3>
             <p>{p.data.role}</p>
+            <ProjectPeriod periods={p.data.periods} />
             <p>{p.data.summary}</p>
             <p>
               <strong>{p.data.highlight}</strong>
@@ -88,6 +96,17 @@ const list = await projects();
           <div class="certification-row">
             <h3>{certificate.name}</h3>
             <time datetime={certificate.date}>{certificate.displayDate}</time>
+          </div>
+        ))}
+      </section>
+      <section class="card pad">
+        <h2>어학</h2>
+        {languages.map((language) => (
+          <div class="certification-row">
+            <h3>
+              {language.name} {language.level}
+            </h3>
+            <time datetime={language.date}>{language.displayDate}</time>
           </div>
         ))}
       </section>

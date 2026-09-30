@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ProjectArt from '../../components/ProjectArt.astro';
 import Toc from '../../components/Toc.astro';
+import ProjectPeriod from '../../components/ProjectPeriod.astro';
 import { projects, publicPosts } from '../../lib/content';
 export async function getStaticPaths() {
   return (await projects()).map((project) => ({
@@ -29,6 +30,7 @@ const posts = (await publicPosts()).filter((post) =>
       <span class="tiny-badge">{p.kind}</span>
       <h1>{p.title}</h1>
       <p>{p.summary}</p>
+      <ProjectPeriod periods={p.periods} />
       <div class="tags">
         {p.technologies.map((t) => (
           <span>{t}</span>

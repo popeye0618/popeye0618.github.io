@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import ProjectArt from './ProjectArt.astro';
+import ProjectPeriod from './ProjectPeriod.astro';
 interface Props {
   project: CollectionEntry<'projects'>;
 }
@@ -17,6 +18,7 @@ const {
       <span aria-hidden="true">↗</span>
     </div>
     <h3>{p.title}</h3>
+    <ProjectPeriod periods={p.periods} />
     <p>{p.summary}</p>
     <div class="project-result">{p.highlight}</div>
     <div class="tags">

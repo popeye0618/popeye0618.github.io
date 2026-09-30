@@ -3,6 +3,13 @@ slug: comatching
 title: Comatching
 summary: 대학 축제에서 시작해, 반복 운영으로 이어진 매칭 서비스
 order: 1
+periods:
+  - label: Comatching
+    start: '2024-07'
+    end: '2025-03'
+  - label: Comatching5
+    start: '2026-01'
+    end: '2026-09-20'
 role: 백엔드 개발 · 팀장
 kind: 대학 축제 · 실서비스
 theme: matching

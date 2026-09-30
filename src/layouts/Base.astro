@@ -26,9 +26,10 @@ const menus = [
 ---
 
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
   <head>
     <meta charset="UTF-8" />
+    <base target="_blank" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <title>{title ? `${title} · 천승환` : '천승환 · Backend Developer'}</title>
@@ -59,9 +60,9 @@ const menus = [
     <script is:inline>
       try {
         document.documentElement.dataset.theme =
-          localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
+          localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
       } catch {
-        document.documentElement.dataset.theme = 'dark';
+        document.documentElement.dataset.theme = 'light';
       }
     </script>
   </head>
@@ -122,9 +123,11 @@ const menus = [
       <div class="footer-links">
         <a href={profile.github}>GitHub ↗</a>
         <a href={`mailto:${profile.email}`}>이메일 ↗</a>
-        <a href="/rss.xml">RSS ↗</a>
+        <a href={profile.linkedin} rel="noopener noreferrer">LinkedIn ↗</a>
       </div>
-      <small>© {new Date().getFullYear()} Seunghwan Cheon</small>
+      <small>
+        © {new Date().getFullYear()} {profile.englishName}
+      </small>
     </footer>
     <script>
       const button = document.querySelector<HTMLButtonElement>('#theme-toggle');

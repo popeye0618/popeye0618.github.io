@@ -45,12 +45,15 @@ for (const width of [360, 768, 1440]) {
   }
 }
 await page.goto('/');
-await page.getByRole('button', { name: '밝은 테마로 전환' }).click();
 if ((await page.locator('html').getAttribute('data-theme')) !== 'light')
+  report.errors.push('default theme failed');
+await page.getByRole('button', { name: '어두운 테마로 전환' }).click();
+if ((await page.locator('html').getAttribute('data-theme')) !== 'dark')
   report.errors.push('theme toggle failed');
 await page.reload();
-if ((await page.locator('html').getAttribute('data-theme')) !== 'light')
+if ((await page.locator('html').getAttribute('data-theme')) !== 'dark')
   report.errors.push('theme persistence failed');
+await page.getByRole('button', { name: '밝은 테마로 전환' }).click();
 await page.screenshot({ path: '.qa/home-light.png', fullPage: true });
 await page.getByRole('button', { name: '어두운 테마로 전환' }).click();
 await page.goto('/blog/');

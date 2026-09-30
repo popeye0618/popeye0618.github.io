@@ -1,0 +1,31 @@
+---
+interface Props {
+  periods: {
+    label: string;
+    start: string;
+    end?: string;
+    status?: 'ongoing' | 'unconfirmed';
+  }[];
+}
+const { periods } = Astro.props;
+const label = (date: string) => date.replaceAll('-', '.');
+---
+
+{periods.length > 0 && (
+  <div class="project-periods">
+    {periods.map((period) => (
+      <p>
+        {periods.length > 1 && <span>{period.label} · </span>}
+        <time datetime={period.start}>{label(period.start)}</time>
+        {' – '}
+        {period.end ? (
+          <time datetime={period.end}>{label(period.end)}</time>
+        ) : period.status === 'ongoing' ? (
+          '진행 중'
+        ) : (
+          '종료일 미기재'
+        )}
+      </p>
+    ))}
+  </div>
+)}
