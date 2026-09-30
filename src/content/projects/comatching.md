@@ -12,19 +12,19 @@ repository: https://github.com/COMAtching/COMAtching3_BE
 highlight: 약 5회 운영 · 회차당 약 1,000명 이용
 metrics:
   - key: users
-    label: 회차당 이용자
-    value: 약 1,000명
+    label: 누적 이용자
+    value: 약 5,000명
     context: 약 5회 운영의 회차별 합산 약 5,000명. 중복 제거한 순이용자 수는 아닙니다.
     source: 운영자 추정치
   - key: revenue
-    label: 회차당 매출
-    value: 200~300만 원
-    context: 비용 차감 전 결제 매출. 순이익과 구분합니다.
+    label: 누적 수익
+    value: 1,200만 원
+    context: 비용 차감 전 기준이며 순이익이 아닙니다. 회차당 매출은 200~300만 원입니다.
     source: 운영자 제공 수치
   - key: matches
-    label: 회차당 매칭
-    value: 약 7,000건
-    context: 모교인 가톨릭대학교 축제 시즌마다 약 일주일 운영했습니다.
+    label: 누적 매칭
+    value: 약 35,000건
+    context: 회차당 약 7,000건 × 약 5회 운영의 합산 추정치입니다.
     source: 운영자 추정치
   - key: runs
     label: 축제 시즌 운영
