@@ -1,5 +1,19 @@
 /* Project-led editorial design; all covers are original graphics, not product screenshots. */
 @layer editorial {
+  .education-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .education-heading h3 {
+    margin: 0;
+  }
+  .education-period {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
   .prose .architecture-figure {
     margin: 32px 0;
     min-width: 0;
