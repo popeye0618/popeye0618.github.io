@@ -9,8 +9,6 @@ tags: ["Java","CS","Collections"]
 draft: false
 ---
 
-> 2026.05.01에 작성한 [원문](https://open-blog.pages.dev/posts/java)을 2026.09.30에 이관했습니다. 개인 블로그의 원문 설명·코드·표를 이관했습니다. 개념 설명과 OpenJDK 구현 세부를 구분하고, 시간 복잡도와 키 비교에 관한 조건을 보완했습니다. 예시는 학습용이며 이번 이관에서 Java 코드를 실행한 결과는 아닙니다.
-
 ## Java HashMap 동작 원리 정리: hashCode, equals, 충돌, resize까지
 
 Java에서 `HashMap`은 정말 자주 사용하는 자료구조다.
@@ -756,7 +754,7 @@ HashMap = 배열 + 해시 함수 + 충돌 처리 + equals/hashCode + resize
 
 `HashMap`은 Key의 hashCode로 저장 위치를 빠르게 찾고, 충돌이 발생하면 equals로 실제 Key를 비교하는 자료구조다. 평균적으로 `O(1)`의 성능을 기대할 수 있지만, 충돌과 resize 비용을 이해하고 사용해야 한다.
 
-## 이관 시 보완: 구현 세부와 복잡도의 조건
+## 구현 세부와 복잡도의 조건
 
 OpenJDK 17u 구현은 hashCode의 상위 비트를 섞고, 배열 길이를 이용한 비트 연산으로 버킷을 선택합니다. 본문의 나머지 연산 예시는 개념 설명입니다. 실제 구현에서는 보정된 해시와 키의 동일성 또는 equals 비교를 함께 확인합니다.
 
@@ -766,5 +764,4 @@ OpenJDK 17u 구현은 hashCode의 상위 비트를 섞고, 배열 길이를 이�
 
 ## 참고 자료
 
-- [최초 작성 글](https://open-blog.pages.dev/posts/java)
 - [OpenJDK 17u HashMap 구현](https://github.com/openjdk/jdk17u/blob/master/src/java.base/share/classes/java/util/HashMap.java)

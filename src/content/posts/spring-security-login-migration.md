@@ -9,8 +9,6 @@ tags: ["Spring","Security","Testing"]
 draft: false
 ---
 
-> 2025.11.25에 작성한 [원문](https://velog.io/@popeye0618/Spring-Security-로그인-마이그레이션)을 2026.09.30에 이관했습니다. 원문의 마이그레이션 과정과 테스트 코드를 이관했습니다. 서비스에서 authenticate()를 직접 호출하는 방식과 필터가 SecurityContext를 저장하는 흐름을 구분했습니다. 코드에 등장하는 도메인 타입·빈 구성은 발췌 범위 밖입니다.
-
 오늘은 기존에 직접 구현한 수동 로그인 로직을 Spring Security 기반으로 마이그레이션한 경험을 정리하려 한다.
 
 아직 도메인을 완전히 맞추기 전이라 인증 방식은 JWT 기반으로 구성했다.
@@ -262,13 +260,12 @@ class LocalSecurityAuthServiceImplTest {
 4. SecurityContextHolder로 글로벌 사용자 정보 접근 가능
 5. 테스트 작성이 더 쉬워짐(인증 자체를 Mocking 가능)
 
-## 이관 시 보완: 검증한 것과 남은 것
+## 검증한 것과 남은 것
 
 위 테스트는 AuthenticationManager와 토큰 서비스를 Mock으로 대체합니다. 로그인 서비스가 인증을 위임하고, 반환된 사용자 정보로 토큰 생성을 요청하며, 인증 실패 시 토큰을 만들지 않는 흐름을 확인합니다. 실제 PasswordEncoder·Provider 빈 연결·JWT 검증이나 HTTP 요청 전체를 검증한 테스트는 아닙니다.
 
-직접 authenticate()를 호출해 반환값을 받는 것만으로 SecurityContext 저장이나 다음 요청의 인증이 자동 해결되는 것은 아닙니다. JWT를 발급한 뒤 이어지는 요청에서 토큰을 검증하고 인증 정보를 구성하는 경로는 별도로 구현·검증해야 합니다. 원문 작성 당시의 정확한 의존성 버전은 이 글만으로 확정하지 않습니다.
+직접 authenticate()를 호출해 반환값을 받는 것만으로 SecurityContext 저장이나 다음 요청의 인증이 자동 해결되는 것은 아닙니다. JWT를 발급한 뒤 이어지는 요청에서 토큰을 검증하고 인증 정보를 구성하는 경로는 별도로 구현·검증해야 합니다.
 
 ## 참고 자료
 
-- [최초 작성 글](https://velog.io/@popeye0618/Spring-Security-로그인-마이그레이션)
 - [Spring Security: DaoAuthenticationProvider](https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/dao-authentication-provider.html)

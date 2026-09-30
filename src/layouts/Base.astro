@@ -29,7 +29,6 @@ const menus = [
 <html lang="ko" data-theme="light">
   <head>
     <meta charset="UTF-8" />
-    <base target="_blank" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <title>{title ? `${title} · 천승환` : '천승환 · Backend Developer'}</title>
@@ -130,6 +129,13 @@ const menus = [
       </small>
     </footer>
     <script>
+      document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+        const url = new URL(link.href);
+        if (['http:', 'https:'].includes(url.protocol) && url.origin !== location.origin) {
+          link.target = '_blank';
+          link.relList.add('noopener', 'noreferrer');
+        }
+      });
       const button = document.querySelector<HTMLButtonElement>('#theme-toggle');
       const updateLabel = () =>
         button?.setAttribute(

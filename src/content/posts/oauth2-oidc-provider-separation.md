@@ -9,10 +9,6 @@ tags: ["Spring","Security","OAuth2","OIDC"]
 draft: false
 ---
 
-> 2025.12.08에 작성한 [원문](https://velog.io/@popeye0618/Spring-Boot-카카오는-OIDC로-네이버는-OAuth2로-분리하기-47fc1vhm)을 2026.09.30에 이관했습니다. 원문의 설계와 코드 발췌를 보존하되, 제공자 전체의 표준 준수 여부를 단정한 표현을 당시 설정에서의 관찰로 좁혔습니다. 원문의 Spring Boot 4.0.0 / Spring Security 6 버전 조합은 실제 빌드 파일을 확인하기 전까지 확정하지 않습니다.
-
-원문 환경 표기는 하단의 이관 보완 설명을 참고합니다.
-
 ## 1. 들어가며: 왜 OIDC인가?
 
 기존 프로젝트는 `OAuth 2.0` Authorization Code 방식을 사용하여 소셜 로그인을 구현하고 있었다. 하지만 OAuth 2.0은 본래 인가(Authorization)를 위한 프로토콜이지 인증(Authentication)을 위한 표준은 아니다.
@@ -29,7 +25,7 @@ Spring Security는 `OAuth2User`와 `OidcUser` 인터페이스를 구분한다.
 
 ### 핵심 전략
 
-1. **원문에서 LSP를 의도한 설계:** `CustomOAuth2User`가 `OAuth2User`와 `OidcUser`를 동시에 구현하도록 했다.
+1. **공통 사용자 타입:** `CustomOAuth2User`가 `OAuth2User`와 `OidcUser`를 동시에 구현하도록 했다.
 2. **SRP (단일 책임 원칙):** 회원가입 및 사용자 처리 로직은 `SocialLoginService`로 분리하고 `UserService`들은 단순히 위임만 한다.
 3. **OCP (개방-폐쇄 원칙):** `ProviderUser` 인터페이스와 팩토리 패턴을 사용하여 새로운 소셜 로그인이 추가되어도 기존 로직을 수정하지 않게 설계한다.
 
@@ -121,7 +117,7 @@ public class SocialLoginService {
 
 ### 네이버의 OIDC 호환성 문제
 
-당시 네이버도 OIDC로 연결하려고 시도했다. 사용한 Discovery 설정과 지원 범위는 이관 시 다시 확인하지 못했다.
+당시 네이버도 OIDC로 연결하려고 시도했다. 이때 사용한 Discovery 설정과 제공자의 지원 범위는 추가 확인이 필요하다.
 
 하지만 `user-name-attribute: sub` 설정을 했음에도 `Attribute value cannot be null` 에러가 발생했다.
 
@@ -134,15 +130,14 @@ public class SocialLoginService {
 
 또한 Standard Claims 형식이 정해져있어 OAuth2 공급자에 대한 어댑터를 구현하기도 쉬워졌다.
 
-## 이관 시 보완: 오류 원인과 설계의 검증 범위
+## 오류 원인과 설계의 검증 범위
 
-원문에서 확인되는 것은 당시 구성에서 네이버 로그인 시 Attribute value cannot be null 오류를 겪었고 OAuth2 경로를 유지하기로 했다는 점입니다. 전체 응답·설정·스택 트레이스가 없으므로 중첩 JSON만으로 오류 원인을 확정하거나 제공자 전체가 표준을 따르지 않는다고 일반화하지 않습니다.
+당시 구성에서는 네이버 로그인 시 Attribute value cannot be null 오류를 겪었고 OAuth2 경로를 유지하기로 했습니다. 전체 응답·설정·스택 트레이스가 없으므로 중첩 JSON만으로 오류 원인을 확정하거나 제공자 전체가 표준을 따르지 않는다고 일반화하지 않습니다.
 
-Spring Security는 OAuth2UserService와 OidcUserService를 각각 설정할 수 있습니다. 공통 회원 처리 로직으로 연결하되, OIDC principal은 ID Token과 클레임 계약을 유지해야 합니다. 두 인터페이스를 함께 구현했다는 사실만으로 리스코프 치환 원칙을 만족하는 것은 아닙니다. 원문 예시처럼 일반 OAuth2 사용자에 null ID Token을 허용한다면 호출 측의 계약을 확인하고, 필요하면 principal 타입은 나누고 도메인 매핑만 공유하는 방식을 검토할 수 있습니다.
+Spring Security는 OAuth2UserService와 OidcUserService를 각각 설정할 수 있습니다. 공통 회원 처리 로직으로 연결하되, OIDC principal은 ID Token과 클레임 계약을 유지해야 합니다. 두 인터페이스를 함께 구현했다는 사실만으로 리스코프 치환 원칙을 만족하는 것은 아닙니다. 위 예시처럼 일반 OAuth2 사용자에 null ID Token을 허용한다면 호출 측의 계약을 확인하고, 필요하면 principal 타입은 나누고 도메인 매핑만 공유하는 방식을 검토할 수 있습니다.
 
 제시한 YAML과 서비스 코드는 핵심 부분을 생략한 발췌입니다. 제공자 엔드포인트·클라이언트 인증·리다이렉트 URI 설정과 실제 ID Token 검증 결과를 포함한 완결된 실행 예제로 보지는 않습니다.
 
 ## 참고 자료
 
-- [최초 작성 글](https://velog.io/@popeye0618/Spring-Boot-카카오는-OIDC로-네이버는-OAuth2로-분리하기-47fc1vhm)
 - [Spring Security 6.5: OAuth2 Login 고급 설정](https://docs.spring.io/spring-security/reference/6.5/servlet/oauth2/login/advanced.html)
