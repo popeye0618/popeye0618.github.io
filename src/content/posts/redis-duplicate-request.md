@@ -3,7 +3,7 @@ slug: "redis-duplicate-request"
 title: "AOP와 Redis로 이메일 인증 중복 요청 방지하기"
 description: "인증번호가 덮어써지는 문제를 Redis와 AOP로 제어하고 장애 정책을 나눈 기록입니다."
 publishedAt: "2025-12-17"
-updatedAt: "2026-09-30"
+updatedAt: '2026-09-30'
 category: "트러블슈팅"
 tags: ["Spring","Redis","AOP"]
 draft: false
@@ -244,7 +244,7 @@ public ResponseEntity<Void> sendAuthEmail(@RequestBody EmailRequest request) {
 
 ## 중복 억제의 범위
 
-이 구현은 동일 키가 살아 있는 시간 동안 후속 요청을 막습니다. 최초 요청이 TTL보다 오래 걸리면 키 만료 후 다른 요청이 진입할 수 있습니다. Redis 장애 시 Fail-Open을 선택하면 중복 요청이 통과할 수도 있습니다. 따라서 결제 등에 필요한 멱등성이나 정확히 한 번 실행을 이 코드만으로 보장한다고 말할 수 없습니다.
+이 구현은 동일 키가 살아 있는 시간 동안 후속 요청을 막습니다. 최초 요청이 TTL보다 오래 걸리면 키 만료 후 다른 요청이 진입할 수 있습니다. Redis 장애 시 Fail-Open을 선택하면 중복 요청이 통과할 수도 있습니다. 결제처럼 중복 처리를 막아야 하는 작업에는 요청 키와 처리 결과의 영속 저장, DB 제약 조건 등을 함께 설계해야 합니다.
 
 메일 전송이 실패해도 키는 TTL 동안 남으므로 재시도가 잠시 막힐 수 있습니다. 동시 요청 수·TTL 경계·Redis 장애는 각각 분리해 추가 검증해야 합니다. 키에는 API 구분과 정규화된 사용자 식별 기준을 포함하고, 개인정보 원문을 로그에 남기는 방식도 재검토해야 합니다.
 

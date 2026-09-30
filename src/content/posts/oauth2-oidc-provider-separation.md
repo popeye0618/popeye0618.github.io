@@ -3,7 +3,7 @@ slug: "oauth2-oidc-provider-separation"
 title: "카카오 OIDC와 네이버 OAuth2 로그인 전략 분리하기"
 description: "소셜 로그인 제공자별 처리와 공통 회원 로직을 분리한 설계 경험입니다."
 publishedAt: "2025-12-08"
-updatedAt: "2026-09-30"
+updatedAt: '2026-09-30'
 category: "인증·보안"
 tags: ["Spring","Security","OAuth2","OIDC"]
 draft: false
@@ -130,13 +130,13 @@ public class SocialLoginService {
 
 또한 Standard Claims 형식이 정해져있어 OAuth2 공급자에 대한 어댑터를 구현하기도 쉬워졌다.
 
-## 오류 원인과 설계의 검증 범위
+## 인증 경로를 분리하며 확인한 점
 
-당시 구성에서는 네이버 로그인 시 Attribute value cannot be null 오류를 겪었고 OAuth2 경로를 유지하기로 했습니다. 전체 응답·설정·스택 트레이스가 없으므로 중첩 JSON만으로 오류 원인을 확정하거나 제공자 전체가 표준을 따르지 않는다고 일반화하지 않습니다.
+당시 구성에서는 네이버 로그인 시 `Attribute value cannot be null` 오류를 겪었고 OAuth2 경로를 유지하기로 했습니다. 정확한 발생 지점을 좁히려면 사용자 정보 응답과 속성 매핑, Discovery 설정을 함께 확인해야 했습니다.
 
 Spring Security는 OAuth2UserService와 OidcUserService를 각각 설정할 수 있습니다. 공통 회원 처리 로직으로 연결하되, OIDC principal은 ID Token과 클레임 계약을 유지해야 합니다. 두 인터페이스를 함께 구현했다는 사실만으로 리스코프 치환 원칙을 만족하는 것은 아닙니다. 위 예시처럼 일반 OAuth2 사용자에 null ID Token을 허용한다면 호출 측의 계약을 확인하고, 필요하면 principal 타입은 나누고 도메인 매핑만 공유하는 방식을 검토할 수 있습니다.
 
-제시한 YAML과 서비스 코드는 핵심 부분을 생략한 발췌입니다. 제공자 엔드포인트·클라이언트 인증·리다이렉트 URI 설정과 실제 ID Token 검증 결과를 포함한 완결된 실행 예제로 보지는 않습니다.
+실제 연동에서는 사용자 매핑 코드 외에도 제공자 엔드포인트, 클라이언트 인증 방식, 리다이렉트 URI를 함께 설정해야 합니다. OIDC 경로는 ID Token의 검증과 클레임 전달까지 확인하는 것이 필요합니다.
 
 ## 참고 자료
 
