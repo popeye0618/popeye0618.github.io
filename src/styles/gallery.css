@@ -1,5 +1,47 @@
 /* Project-led editorial design; all covers are original graphics, not product screenshots. */
 @layer editorial {
+  .prose .architecture-figure {
+    margin: 32px 0;
+    min-width: 0;
+  }
+  .architecture-figure > a {
+    display: block;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #f1f5f9;
+  }
+  .prose .architecture-figure img {
+    display: block;
+    width: 100%;
+    min-width: 620px;
+    max-width: none;
+    height: auto;
+    margin: 0;
+  }
+  .architecture-figure figcaption {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  @media (max-width: 680px) {
+    .architecture-figure::before {
+      content: '좌우로 넘겨 보기 · 누르면 원본 보기';
+      display: block;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+  }
+  @media print {
+    .prose .architecture-figure img {
+      min-width: 0;
+    }
+    .architecture-figure {
+      break-inside: avoid;
+    }
+  }
   :root,
   :root[data-theme='dark'] {
     --bg: #090909;
