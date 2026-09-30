@@ -9,12 +9,12 @@
     overflow-x: auto;
     border: 1px solid var(--line);
     border-radius: 16px;
-    background: #f1f5f9;
+    background: #fff;
   }
   .prose .architecture-figure img {
     display: block;
     width: 100%;
-    min-width: 620px;
+    min-width: 0;
     max-width: none;
     height: auto;
     margin: 0;
@@ -26,6 +26,9 @@
     line-height: 1.7;
   }
   @media (max-width: 680px) {
+    .prose .architecture-figure img {
+      min-width: 900px;
+    }
     .architecture-figure::before {
       content: '좌우로 넘겨 보기 · 누르면 원본 보기';
       display: block;

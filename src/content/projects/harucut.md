@@ -47,9 +47,11 @@ Harucut은 사진 네 장과 프레임을 선택해 네 컷 이미지를 만드�
 ## 서비스 아키텍처
 
 <figure class="architecture-figure">
-  <a href="/diagrams/harucut.svg" aria-label="Harucut 아키텍처 원본 보기"><img src="/diagrams/harucut.svg" alt="클라이언트가 S3에 원본을 업로드하고 API가 MySQL에 작업을 저장한 뒤 Lambda를 호출하며 SQS 결과를 소비해 상태를 갱신하고 정체 작업은 스케줄러로 복구하는 구조" loading="lazy" width="760" height="825" /></a>
+  <a href="/diagrams/harucut.svg" aria-label="Harucut 아키텍처 원본 보기"><img src="/diagrams/harucut.svg" alt="클라이언트가 S3에 원본을 업로드하고 API가 MySQL에 작업을 저장한 뒤 Lambda를 호출하며 SQS 결과를 소비해 상태를 갱신하고 정체 작업은 스케줄러로 복구하는 구조" loading="lazy" width="1500" height="1150" /></a>
   <figcaption>이미지 파일은 S3, 작업 상태는 MySQL에 저장합니다. SQS 결과는 백엔드가 직접 가져와 처리합니다.</figcaption>
 </figure>
+
+<a href="/diagrams/harucut.drawio" download>편집 가능한 draw.io 원본 다운로드 ↓</a>
 
 ### 업로드부터 결과 확인까지
 

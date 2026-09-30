@@ -75,13 +75,17 @@ PM, 디자이너, 백엔드, 프론트엔드 각 1명으로 구성된 4인 팀�
 ## Comatching3 아키텍처
 
 <figure class="architecture-figure">
-  <a href="/diagrams/comatching.svg" aria-label="Comatching3 아키텍처 원본 보기"><img src="/diagrams/comatching.svg" alt="React 클라이언트가 EC2의 Spring Boot에 연결하고, 백엔드가 RDS MySQL과 Redis를 사용하며 RabbitMQ로 AI 매칭 서비스에 요청하는 구조" loading="lazy" width="760" height="620" /></a>
+  <a href="/diagrams/comatching.svg" aria-label="Comatching3 아키텍처 원본 보기"><img src="/diagrams/comatching.svg" alt="Nginx가 두 Spring Boot 인스턴스에 요청을 분산하고 운영 및 테스트용 MySQL과 Redis 컨테이너, React, RabbitMQ 및 AI 처리 서비스를 Jenkins로 배포하는 구조" loading="lazy" width="1440" height="1150" /></a>
   <figcaption>AI 매칭을 사용했던 운영 당시 구성. 그림을 누르면 원본을 볼 수 있습니다.</figcaption>
 </figure>
 
-Spring Boot 백엔드가 인증, 포인트, 매칭 요청과 이력, 채팅과 관리자 기능을 담당했습니다. EC2에 백엔드·Redis·RabbitMQ를 두고 회원과 운영 데이터는 RDS의 MySQL에 저장했습니다.
+<a href="/diagrams/comatching.drawio" download>편집 가능한 draw.io 원본 다운로드 ↓</a>
+
+Spring Boot 백엔드가 인증, 포인트, 매칭 요청과 이력, 채팅과 관리자 기능을 담당했습니다. Ubuntu 서버에서 Docker 컨테이너로 서비스를 구성했습니다. Nginx와 Certbot으로 HTTPS 진입점을 구성하고 두 Spring Boot 인스턴스로 요청을 분산했습니다. 운영·테스트 환경의 MySQL과 Redis 컨테이너를 분리하고, React 프론트엔드와 RabbitMQ·AI 처리 영역을 함께 배포했습니다.
 
 AI 매칭 처리와 웹 서비스의 업무 처리를 분리했습니다. 백엔드는 사용자의 조건을 메시지로 구성해 RabbitMQ로 전달하고, 매칭 결과를 받아 상대 정보와 이력을 연결하는 역할을 맡았습니다. 프론트엔드는 백엔드 API를 통해 결과를 확인합니다.
+
+Git 저장소의 webhook으로 Jenkins를 실행해 백엔드, 프론트엔드와 매칭 처리 영역을 배포했습니다. 매칭 영역은 사용자 데이터 처리와 매칭 요청을 각각 RPC 큐로 나누고, FastAPI와 AI 처리 모듈이 CSV 후보 데이터를 활용하는 구조였습니다.
 
 ### 포인트와 운영 데이터 관리
 
@@ -100,9 +104,11 @@ Comatching5에서는 운영 경험을 바탕으로 성능 문제를 측정하고
 축제에서 운영한 Comatching5는 회원, 매칭, 아이템, 채팅, 알림을 서비스로 분리했습니다. API Gateway가 인증을 검증하고 요청을 각 서비스로 전달합니다. 매칭에 필요한 프로필 조회와 아이템 처리는 Feign을 사용한 HTTP 호출로 연결하고, 매칭 성공 이후 채팅방 생성은 Kafka 이벤트로 전달합니다.
 
 <figure class="architecture-figure">
-  <a href="/diagrams/comatching5.svg" aria-label="Comatching5 아키텍처 원본 보기"><img src="/diagrams/comatching5.svg" alt="Next.js와 Gateway 뒤에 회원 매칭 아이템 채팅 알림 서비스가 배치되고 Kafka가 후속 이벤트를 전달하는 MSA 구조" loading="lazy" width="760" height="810" /></a>
+  <a href="/diagrams/comatching5.svg" aria-label="Comatching5 아키텍처 원본 보기"><img src="/diagrams/comatching5.svg" alt="Next.js와 Gateway 뒤에 회원 매칭 아이템 채팅 알림 서비스가 배치되고 Kafka가 후속 이벤트를 전달하는 MSA 구조" loading="lazy" width="1500" height="1180" /></a>
   <figcaption>서비스의 책임과 주요 통신 경로. 데이터 저장소는 용도에 따라 MySQL·MongoDB·Redis를 사용합니다.</figcaption>
 </figure>
+
+<a href="/diagrams/comatching5.drawio" download>편집 가능한 draw.io 원본 다운로드 ↓</a>
 
 | 구성         | 담당하는 일                                                           |
 | ------------ | --------------------------------------------------------------------- |

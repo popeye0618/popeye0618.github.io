@@ -47,9 +47,11 @@ Comatching3의 실제 운영 성과를 바탕으로 부천 FC의 외주를 받�
 ## 서비스 아키텍처
 
 <figure class="architecture-figure">
-  <a href="/diagrams/comatching-fc.svg" aria-label="COMAtching FC 아키텍처 원본 보기"><img src="/diagrams/comatching-fc.svg" alt="React에서 Spring Boot API를 호출하고 MySQL에 정보를 저장하며 Redis로 설문을 캐시하고 RabbitMQ를 통해 예매번호 검증과 매칭 서비스에 연결하는 구조" loading="lazy" width="760" height="610" /></a>
+  <a href="/diagrams/comatching-fc.svg" aria-label="COMAtching FC 아키텍처 원본 보기"><img src="/diagrams/comatching-fc.svg" alt="React에서 Spring Boot API를 호출하고 MySQL에 정보를 저장하며 Redis로 설문을 캐시하고 RabbitMQ를 통해 예매번호 검증과 매칭 서비스에 연결하는 구조" loading="lazy" width="1440" height="890" /></a>
   <figcaption>백엔드 구현 기준의 논리 구성. 예매번호 검증과 매칭 처리는 메시지로 연동합니다.</figcaption>
 </figure>
+
+<a href="/diagrams/comatching-fc.drawio" download>편집 가능한 draw.io 원본 다운로드 ↓</a>
 
 백엔드는 회원·설문·이력을 MySQL에 저장하고 반복 조회되는 설문을 Redis에 캐시합니다. 예매번호 검증과 매칭 처리는 RabbitMQ를 통해 별도 서비스와 연결했습니다. 두 연동 모두 요청을 보내고 응답을 받아 API의 다음 처리를 진행하는 흐름입니다.
 

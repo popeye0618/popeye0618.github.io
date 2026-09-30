@@ -16,7 +16,7 @@
 
 ## 운영 경험 확인
 
-- 사용자 확인: Comatching3는 EC2의 백엔드·Redis·RabbitMQ와 RDS를 사용했다. AI 매칭을 사용했던 운영 시점의 구성을 게시한다. 현재 main의 MatchService는 NoAiMatchingService를 사용하고 AI 요청 부분은 주석 처리되어 있으므로 현재 main 전체를 운영 당시 코드로 간주하지 않는다.
+- 최신 사용자 제공 자료: Comatching3 아키텍처 PNG(2026-09-30). 이 그림을 우선해 Ubuntu·Docker, Nginx/Certbot, 운영 백엔드 두 인스턴스, 운영/테스트별 MySQL·Redis, React, Git webhook·Jenkins, RabbitMQ RPC 큐와 FastAPI·CSV·AI 처리 구성을 반영했다. 앞선 대화에서 확인한 RDS 설명은 이 자료와 달라 본문에서 MySQL 컨테이너로 정정했다. 현재 main의 MatchService는 NoAiMatchingService를 사용하므로 AI 운영 당시 그림과 구분한다. PNG의 Redis 3467·RabbitMQ 관리 포트 15672는 제공 자료의 표기를 유지했다.
 - 사용자 확인: Comatching5도 축제에서 운영했다. 성능 수치는 저장소의 별도 부하 실험 결과로 유지한다.
 - FC는 경기일 서비스다. 배포 서버 배치는 따로 확정하지 않고 API·DB·캐시·메시지 연동의 논리 구성만 그린다.
 - 사용자 확인: Harucut은 운영 준비 중이고 프론트엔드 1명, 백엔드 1명이며 본인이 백엔드를 담당한다.
@@ -46,4 +46,4 @@ docs/measurement-2026-08-23.md와 monitoring/loadtest/results의 before-pool20.j
 
 ## 그림 유지보수
 
-`node scripts/generate-project-diagrams.mjs`로 public/diagrams의 SVG 4개를 생성한다. 그림은 서비스 책임과 대표 통신을 요약하며 모든 API 경로나 네트워크 보안 경계를 표현하지 않는다. 문서의 운영 시점과 현재 소스 구분을 유지한다.
+`node scripts/generate-project-diagrams.mjs`로 public/diagrams의 SVG 4개, draw.io 원본 4개와 4페이지 통합 원본 all-projects.drawio를 생성한다. SVG에도 draw.io 데이터가 내장된다. 기술 타일은 아이콘과 라벨을 포함한 편집 그룹이며 연결선은 개별 편집할 수 있다. 아이콘 출처와 라이선스는 public/diagrams/icons에 보관한다. 그림은 서비스 책임과 대표 통신을 요약하며 모든 API 경로나 네트워크 보안 경계를 표현하지 않는다. 문서의 운영 시점과 현재 소스 구분을 유지한다.
