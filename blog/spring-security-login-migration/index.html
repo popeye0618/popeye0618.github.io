@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="ko" data-theme="light"><head><meta charset="UTF-8"><base target="_blank"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>수동 로그인에서 Spring Security 인증으로 옮기기 · 천승환</title><meta name="description" content="JSON 로그인 API에서 AuthenticationManager를 사용한 이유와 단위 테스트의 범위를 정리합니다."><link rel="canonical" href="https://popeye0618.github.io/blog/spring-security-login-migration/"><meta property="og:type" content="article"><meta property="og:title" content="수동 로그인에서 Spring Security 인증으로 옮기기"><meta property="og:description" content="JSON 로그인 API에서 AuthenticationManager를 사용한 이유와 단위 테스트의 범위를 정리합니다."><meta property="og:url" content="https://popeye0618.github.io/blog/spring-security-login-migration/"><meta property="og:locale" content="ko_KR"><meta property="og:image" content="https://popeye0618.github.io/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="천승환 블로그" href="/rss.xml"><script>
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
+      } catch {
+        document.documentElement.dataset.theme = 'light';
+      }
+    </script><link rel="stylesheet" href="/_astro/Base.CoqXfiNF.css"></head><body><a class="skip" href="#main">본문으로 바로가기</a><header class="site-header"><div class="header-inner"><a class="brand" href="/" aria-label="천승환 홈"><span class="brand-mark" aria-hidden="true">s.</span>천승환<span class="brand-sub">개발 기록</span></a><nav aria-label="주 메뉴"><a href="/">홈</a><a href="/projects/">프로젝트</a><a href="/resume/">이력</a><a href="/blog/" aria-current="page">블로그</a></nav><button id="theme-toggle" class="icon-button" aria-label="어두운 테마로 전환" title="테마 전환"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.7 13.2A9 9 0 0 1 10.8 3.3 9 9 0 1 0 20.7 13.2Z"></path></svg></button></div></header><main id="main" class="container"><div class="breadcrumb"><a href="/blog/">블로그</a><span>/</span><a href="/blog/categories/%EC%9D%B8%EC%A6%9D%C2%B7%EB%B3%B4%EC%95%88/">인증·보안</a></div><div data-pagefind-body><header class="post-header"><div class="post-meta"><span>인증·보안</span><time datetime="2025-11-25">2025.11.25</time><span>13분 읽기</span><span>수정 2026.09.30</span></div><h1 data-pagefind-meta="title">수동 로그인에서 Spring Security 인증으로 옮기기</h1><p>JSON 로그인 API에서 AuthenticationManager를 사용한 이유와 단위 테스트의 범위를 정리합니다.</p><div class="tags"><a href="/blog/tags/spring/">#Spring</a><a href="/blog/tags/security/">#Security</a><a href="/blog/tags/testing/">#Testing</a></div></header><div class="article-grid"><article class="card article-card"><div class="prose"><blockquote>
+<p>2025.11.25에 작성한 <a href="https://velog.io/@popeye0618/Spring-Security-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98">원문</a>을 2026.09.30에 이관했습니다. 원문의 마이그레이션 과정과 테스트 코드를 이관했습니다. 서비스에서 authenticate()를 직접 호출하는 방식과 필터가 SecurityContext를 저장하는 흐름을 구분했습니다. 코드에 등장하는 도메인 타입·빈 구성은 발췌 범위 밖입니다.</p>
+</blockquote>
+<p>오늘은 기존에 직접 구현한 수동 로그인 로직을 Spring Security 기반으로 마이그레이션한 경험을 정리하려 한다.</p>
+<p>아직 도메인을 완전히 맞추기 전이라 인증 방식은 JWT 기반으로 구성했다.</p>
+<h3 id="왜-spring-security로-마이그레이션했는가">왜 Spring Security로 마이그레이션했는가?</h3>
+<p>이메일과 비밀번호를 직접 조회하고 비교하는 방식의 로그인 기능은 개발이 진행될수록 아래와 같은 문제가 생긴다.</p>
+<ul>
+<li>비밀번호 암호화, 검증 로직을 직접 관리해야 함</li>
+<li>계정 잠금/만료, 권한 체크, 비밀번호 정책 같은 기능을 전부 직접 작성해야 함</li>
+<li>OAuth2 연동을 붙이려면 구조를 대폭 수정해야 함</li>
+<li>모든 인증/인가 관련 처리를 서비스 레이어에서 수행하기에 비즈니스 코드가 지저분해짐</li>
+</ul>
+<p>Spring Security는 인증, 권한 관리, 비밀번호 암호화, 사용자 관리 기능을 이미 제공하므로 <strong>기존 로직을 깔끔하게 정리하면서 확장성을 확보하기 위해</strong> 마이그레이션을 결정했다.</p>
+<h2 id="spring-security란">Spring Security란</h2>
+<p>먼저 Spring Security에 대해 알아보면 <strong>인증, 권한 관리 그리고 데이터 보호 기능</strong>을 포함하여 필수적인 사용자 관리 기능을 구현하는데 도움을 주는 Spring의 프레임워크이다.</p>
+<h3 id="spring-security-인증-흐름">Spring Security 인증 흐름</h3>
+<p>Spring Security는 인증 과정을 아래 순서로 처리한다.</p>
+<ol>
+<li>사용자의 요청이 서버로 들어온다</li>
+<li>Authentication Filter가 요청을 가로채고 AuthenticationManager에게 위임</li>
+<li>AuthenticationManager는 등록된 AuthenticationProvider 목록을 확인</li>
+<li>AuthenticationProvider는 UserDetailsService를 통해 사용자 조회</li>
+<li>PasswordEncoder로 비밀번호 검증</li>
+<li>필터 기반 인증에서는 인증 성공 후 필터가 Authentication 객체를 SecurityContextHolder에 저장함</li>
+</ol>
+<p>Spring Security의 핵심은 <strong>AuthenticationManager가 인증을 직접 처리하지 않고 적절한 Provider에게 위임한다는 점</strong>이다.</p>
+<h2 id="마이그레이션을-위해-필요한-구성-요소">마이그레이션을 위해 필요한 구성 요소</h2>
+<p>이번 마이그레이션에서 내가 구현한 핵심 요소는 세 가지다.</p>
+<ol>
+<li><code>UserDetails</code> 를 구현한 <code>CustomUserPrincipal</code></li>
+<li><code>UserDetailsService</code> 를 구현한 <code>CustomUserDetailsService</code></li>
+<li><code>AuthenticationManager</code>에게 인증을 위임하는 로그인 서비스</li>
+</ol>
+<p>이제 기존 수동 로그인에서 Spring Security를 사용하기 위해 내 자체 로그인 서비스인 <code>LocalAuthServiceImpl</code> 가 해야 할 일을 정리해보면</p>
+<ol>
+<li><code>AuthenticationManager</code>에게 <code>authenticate()</code>를 던진다.</li>
+<li>Spring Security가 내부적으로</li>
+</ol>
+<ul>
+<li>UserDetailsService 통해 유저 조회</li>
+<li>PasswordEncoder로 비번 비교</li>
+</ul>
+<ol start="3">
+<li>성공 시 <code>Authentication</code> 안에 <code>principal</code>로 User 정보가 들어옴</li>
+<li>거기서 <code>userId</code>를 꺼내서 토큰 발급</li>
+</ol>
+<blockquote>
+<p><strong>AuthenticationManager를 직접 주입한 이유</strong>
+기본적으로 Spring Security는 <code>UsernamePasswordAuthenticationFilter</code>에서 <code>AuthenticationManager.authenticate()</code>를 호출하고 인증 성공 시 <code>SuccessHandler</code>에서 후처리를 할 수 있다.
+하지만 나는 폼 로그인 대신 JSON 기반 로그인 API를 사용하고 싶었고, 로그인 성공/실패 응답을 <strong>완전히 내가 설계한 형식으로 반환</strong>하고 싶었기 때문에 필터 방식 대신 <strong>컨트롤러 → 서비스 레이어</strong>에서 직접 <code>AuthenticationManager</code>를 주입받아 <code>authenticate()</code>를 호출하는 방식을 선택했다.
+이렇게 하면 <strong>Spring Security의 인증 파이프라인(UserDetailsService, PasswordEncoder 등)은 그대로 재사용하면서도</strong> 로그인 과정 자체는 일반 서비스 로직처럼 다룰 수 있어 <strong>테스트와 커스텀 로직 추가가 훨씬 수월</strong>할 것이라 생각했다.</p>
+</blockquote>
+<p><strong>CustomUserPrincipal</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Getter</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> CustomUserPrincipal</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> UserDetails</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Long id;</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> String email;</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> String password;</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Collection&lt;</span><span style="color:#F97583">?</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> GrantedAuthority</span><span style="color:#E1E4E8">&gt; authorities;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#B392F0"> CustomUserPrincipal</span><span style="color:#E1E4E8">(User </span><span style="color:#FFAB70">user</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> user.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.email </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> user.</span><span style="color:#B392F0">getEmail</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.password </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> user.</span><span style="color:#B392F0">getPassword</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.authorities </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> List.</span><span style="color:#B392F0">of</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">			new</span><span style="color:#B392F0"> SimpleGrantedAuthority</span><span style="color:#E1E4E8">(user.</span><span style="color:#B392F0">getUserRole</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">name</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">		);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#E1E4E8"> Collection&lt;</span><span style="color:#F97583">?</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> GrantedAuthority</span><span style="color:#E1E4E8">&gt; </span><span style="color:#B392F0">getAuthorities</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> authorities;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#E1E4E8"> @Nullable String </span><span style="color:#B392F0">getPassword</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> password;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">getUsername</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> email;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>CustomUserDetailsService</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Service</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RequiredArgsConstructor</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> CustomUserDetailsService</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> UserDetailsService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> UserRepository userRepository;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#E1E4E8"> UserDetails </span><span style="color:#B392F0">loadUserByUsername</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">email</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> UsernameNotFoundException {</span></span>
+<span class="line"><span style="color:#E1E4E8">		User user </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> userRepository.</span><span style="color:#B392F0">findByProviderAndEmail</span><span style="color:#E1E4E8">(Provider.RECORDAY, email)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">orElseThrow</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">-&gt;</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> UsernameNotFoundException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"유저를 찾을 수 없습니다."</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> CustomUserPrincipal</span><span style="color:#E1E4E8">(user);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>이제 실제 로그인 로직에서는 직접 비밀번호를 비교하지 않고 <code>AuthenticationManager</code>에 인증 처리를 맡긴다.</p>
+<p><strong>따라서 로그인 서비스는 비즈니스 로직만 담당하고, 비밀번호 인증을 Spring Security에 위임한다. 토큰 발급·검증과 이후 요청의 인증 처리는 별도로 구성해야 한다.</strong></p>
+<p><strong>LocalSecurityAuthServiceImpl</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Service</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RequiredArgsConstructor</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> LocalSecurityAuthServiceImpl</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> LocalAuthService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> AuthenticationManager authenticationManager;</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> JwtTokenService jwtTokenService;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#E1E4E8"> LocalLoginResponse </span><span style="color:#B392F0">login</span><span style="color:#E1E4E8">(LocalLoginRequest </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			Authentication authenticate </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> authenticationManager.</span><span style="color:#B392F0">authenticate</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">				new</span><span style="color:#B392F0"> UsernamePasswordAuthenticationToken</span><span style="color:#E1E4E8">(request.</span><span style="color:#B392F0">email</span><span style="color:#E1E4E8">(), request.</span><span style="color:#B392F0">password</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">			);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">			CustomUserPrincipal principal </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (CustomUserPrincipal)authenticate.</span><span style="color:#B392F0">getPrincipal</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			Long userId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> principal.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">			String accessToken </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> jwtTokenService.</span><span style="color:#B392F0">createAccessToken</span><span style="color:#E1E4E8">(userId);</span></span>
+<span class="line"><span style="color:#E1E4E8">			String refreshToken </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> jwtTokenService.</span><span style="color:#B392F0">createRefreshToken</span><span style="color:#E1E4E8">(userId);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LocalLoginResponse</span><span style="color:#E1E4E8">(accessToken, refreshToken);</span></span>
+<span class="line"><span style="color:#E1E4E8">		} </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (BadCredentialsException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BusinessException</span><span style="color:#E1E4E8">(AuthErrorCode.INVALID_CREDENTIALS);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="단위-테스트">단위 테스트</h2>
+<p>이제 기존 테스트 코드를 수정해서 Spring Security를 사용한 로그인 서비스의 단위 테스트를 진행한다.</p>
+<p>아직 구현하지 않은 <code>JwtTokenService</code>와 빈 등록을 하지 않은 <code>AuthenticationManager</code>는 Mock 객체를 사용하고 <code>LocalSecurityAuthServiceImpl</code>에 주입했다.</p>
+<p><strong>LocalSecurityAuthServiceImplTest</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">ExtendWith</span><span style="color:#E1E4E8">(MockitoExtension.class)</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> LocalSecurityAuthServiceImplTest</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Mock</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> AuthenticationManager authenticationManager;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Mock</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> JwtTokenService jwtTokenService;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">InjectMocks</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> LocalSecurityAuthServiceImpl localSecurityAuthService;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> LocalLoginRequest request;</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> CustomUserPrincipal principal;</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> Authentication authentication;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">BeforeEach</span></span>
+<span class="line"><span style="color:#F97583">	void</span><span style="color:#B392F0"> setUp</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">		String email </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "test@example.com"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">		String rawPassword </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "1234"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">		request </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LocalLoginRequest</span><span style="color:#E1E4E8">(email, rawPassword);</span></span>
+<span class="line"><span style="color:#E1E4E8">		User user </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createLocalUser</span><span style="color:#E1E4E8">(email);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">		principal </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> CustomUserPrincipal</span><span style="color:#E1E4E8">(user);</span></span>
+<span class="line"><span style="color:#E1E4E8">		authentication </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> UsernamePasswordAuthenticationToken</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">			principal, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">, principal.</span><span style="color:#B392F0">getAuthorities</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">		);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">DisplayName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Spring Security를 이용한 로그인 성공"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">	void</span><span style="color:#B392F0"> loginSuccess</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">		//given</span></span>
+<span class="line"><span style="color:#B392F0">		given</span><span style="color:#E1E4E8">(authenticationManager.</span><span style="color:#B392F0">authenticate</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">any</span><span style="color:#E1E4E8">(Authentication.class)))</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">willReturn</span><span style="color:#E1E4E8">(authentication);</span></span>
+<span class="line"><span style="color:#B392F0">		given</span><span style="color:#E1E4E8">(jwtTokenService.</span><span style="color:#B392F0">createAccessToken</span><span style="color:#E1E4E8">(principal.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">()))</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">willReturn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"access-token"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">		given</span><span style="color:#E1E4E8">(jwtTokenService.</span><span style="color:#B392F0">createRefreshToken</span><span style="color:#E1E4E8">(principal.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">()))</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">willReturn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"refresh-token"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		//when</span></span>
+<span class="line"><span style="color:#E1E4E8">		LocalLoginResponse response </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> localSecurityAuthService.</span><span style="color:#B392F0">login</span><span style="color:#E1E4E8">(request);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		//then</span></span>
+<span class="line"><span style="color:#B392F0">		assertThat</span><span style="color:#E1E4E8">(response.</span><span style="color:#B392F0">accessToken</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">isEqualTo</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"access-token"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">		assertThat</span><span style="color:#E1E4E8">(response.</span><span style="color:#B392F0">refreshToken</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">isEqualTo</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"refresh-token"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">		then</span><span style="color:#E1E4E8">(authenticationManager).</span><span style="color:#B392F0">should</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">authenticate</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">any</span><span style="color:#E1E4E8">(Authentication.class));</span></span>
+<span class="line"><span style="color:#B392F0">		then</span><span style="color:#E1E4E8">(jwtTokenService).</span><span style="color:#B392F0">should</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">createAccessToken</span><span style="color:#E1E4E8">(principal.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">		then</span><span style="color:#E1E4E8">(jwtTokenService).</span><span style="color:#B392F0">should</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">createRefreshToken</span><span style="color:#E1E4E8">(principal.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">DisplayName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"인증 실패 시 예외 발생"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">	void</span><span style="color:#B392F0"> loginFail_badCredentials</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">		//given</span></span>
+<span class="line"><span style="color:#B392F0">		given</span><span style="color:#E1E4E8">(authenticationManager.</span><span style="color:#B392F0">authenticate</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">any</span><span style="color:#E1E4E8">(Authentication.class)))</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">willThrow</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> BadCredentialsException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"bad credentials"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		//then</span></span>
+<span class="line"><span style="color:#B392F0">		assertThatThrownBy</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">-&gt;</span><span style="color:#E1E4E8"> localSecurityAuthService.</span><span style="color:#B392F0">login</span><span style="color:#E1E4E8">(request))</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">isInstanceOf</span><span style="color:#E1E4E8">(BusinessException.class)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">hasFieldOrPropertyWithValue</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"errorCode"</span><span style="color:#E1E4E8">, AuthErrorCode.INVALID_CREDENTIALS);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">		then</span><span style="color:#E1E4E8">(authenticationManager).</span><span style="color:#B392F0">should</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">authenticate</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">any</span><span style="color:#E1E4E8">(Authentication.class));</span></span>
+<span class="line"><span style="color:#B392F0">		then</span><span style="color:#E1E4E8">(jwtTokenService).</span><span style="color:#B392F0">shouldHaveNoInteractions</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> User </span><span style="color:#B392F0">createLocalUser</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">email</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> User.</span><span style="color:#B392F0">builder</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">id</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1L</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">provider</span><span style="color:#E1E4E8">(Provider.RECORDAY)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">userRole</span><span style="color:#E1E4E8">(UserRole.ROLE_USER)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">email</span><span style="color:#E1E4E8">(email)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">password</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"encoded"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">username</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"테스트 유저"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">profileUrl</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"https://example.com/profile.png"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">			.</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="마이그레이션-후-얻은-이점">마이그레이션 후 얻은 이점</h2>
+<p>이렇게 자체 로그인을 Spring Security로 마이그레이션 했는데 이 과정까지만 본다면 오히려 작성해야 할 코드가 늘어났고, 과정은 더 복잡해졌다고 느껴질 수 있다.</p>
+<p>하지만 프로젝트 규모가 커질수록 Spring Security의 장점은 아주 크다.</p>
+<ol>
+<li>비밀번호 인증 로직을 Provider에 위임해 로그인 서비스의 책임을 줄임</li>
+<li>OAuth2, 관리자 권한, 권한별 접근 제한 등을 쉽게 확장 가능</li>
+<li>PasswordEncoder, Provider, FilterChain 등 안정성이 이미 검증됨</li>
+<li>SecurityContextHolder로 글로벌 사용자 정보 접근 가능</li>
+<li>테스트 작성이 더 쉬워짐(인증 자체를 Mocking 가능)</li>
+</ol>
+<h2 id="이관-시-보완-검증한-것과-남은-것">이관 시 보완: 검증한 것과 남은 것</h2>
+<p>위 테스트는 AuthenticationManager와 토큰 서비스를 Mock으로 대체합니다. 로그인 서비스가 인증을 위임하고, 반환된 사용자 정보로 토큰 생성을 요청하며, 인증 실패 시 토큰을 만들지 않는 흐름을 확인합니다. 실제 PasswordEncoder·Provider 빈 연결·JWT 검증이나 HTTP 요청 전체를 검증한 테스트는 아닙니다.</p>
+<p>직접 authenticate()를 호출해 반환값을 받는 것만으로 SecurityContext 저장이나 다음 요청의 인증이 자동 해결되는 것은 아닙니다. JWT를 발급한 뒤 이어지는 요청에서 토큰을 검증하고 인증 정보를 구성하는 경로는 별도로 구현·검증해야 합니다. 원문 작성 당시의 정확한 의존성 버전은 이 글만으로 확정하지 않습니다.</p>
+<h2 id="참고-자료">참고 자료</h2>
+<ul>
+<li><a href="https://velog.io/@popeye0618/Spring-Security-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98">최초 작성 글</a></li>
+<li><a href="https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/dao-authentication-provider.html">Spring Security: DaoAuthenticationProvider</a></li>
+</ul>
+</div><div data-pagefind-ignore></div></article><aside class="toc" data-pagefind-ignore><details open><summary>이 페이지에서</summary><nav aria-label="본문 목차"><a class="nested" href="#왜-spring-security로-마이그레이션했는가">왜 Spring Security로 마이그레이션했는가?</a><a href="#spring-security란">Spring Security란</a><a class="nested" href="#spring-security-인증-흐름">Spring Security 인증 흐름</a><a href="#마이그레이션을-위해-필요한-구성-요소">마이그레이션을 위해 필요한 구성 요소</a><a href="#단위-테스트">단위 테스트</a><a href="#마이그레이션-후-얻은-이점">마이그레이션 후 얻은 이점</a><a href="#이관-시-보완-검증한-것과-남은-것">이관 시 보완: 검증한 것과 남은 것</a><a href="#참고-자료">참고 자료</a></nav></details></aside><script type="module">var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))),n=!1,r=()=>{n=!1;let r=0,i=parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)+24;t.forEach((e,t)=>{e&&e.getBoundingClientRect().top<=i&&(r=t)}),e.forEach((e,t)=>{t===r?e.setAttribute(`aria-current`,`location`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script></div></div></main><footer class="site-footer container"><div><strong>천승환</strong><p>만들고, 운영하고, 배운 것을 기록합니다.</p></div><div class="footer-links"><a href="https://github.com/popeye0618">GitHub ↗</a><a href="mailto:popeye0618@gmail.com">이메일 ↗</a><a href="https://www.linkedin.com/in/seunghwan-chun-8516a6403/" rel="noopener noreferrer">LinkedIn ↗</a></div><small>© 2026 Seunghwan Chun</small></footer><script type="module">var e=document.querySelector(`#theme-toggle`),t=()=>e?.setAttribute(`aria-label`,document.documentElement.dataset.theme===`dark`?`밝은 테마로 전환`:`어두운 테마로 전환`);t(),e?.addEventListener(`click`,()=>{let e=document.documentElement.dataset.theme===`dark`?`light`:`dark`;document.documentElement.dataset.theme=e;try{localStorage.setItem(`theme`,e)}catch{}t()}),document.querySelectorAll(`.prose pre`).forEach(e=>{let t=document.createElement(`button`);t.className=`copy-code`,t.textContent=`복사`,t.setAttribute(`aria-label`,`코드 복사`),t.addEventListener(`click`,async()=>{try{await navigator.clipboard.writeText(e.querySelector(`code`)?.textContent??``),t.textContent=`복사됨`}catch{t.textContent=`직접 선택해 복사`}setTimeout(()=>t.textContent=`복사`,2e3)}),e.append(t)}),document.querySelector(`[data-print]`)?.addEventListener(`click`,()=>window.print());</script></body></html>
