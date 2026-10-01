@@ -49,14 +49,14 @@ export async function getStaticPaths() {
     all,
     '',
     '블로그',
-    '문제를 마주하고, 선택하고, 검증한 과정을 기록합니다.',
+    '프로젝트에서 겪은 문제와 해결 과정, Java·Spring을 공부하며 확인한 내용을 기록합니다.',
   );
   for (const category of new Set(all.map((p) => p.data.category)))
     listing(
       all.filter((p) => p.data.category === category),
       `categories/${category.toLowerCase()}`,
       category,
-      '주제별로 모아 보는 개발 기록',
+      '이 주제의 개발 기록을 모았습니다.',
       category,
     );
   for (const tag of new Set(
@@ -66,7 +66,7 @@ export async function getStaticPaths() {
       all.filter((p) => p.data.tags.some((t) => t.toLowerCase() === tag)),
       `tags/${tag}`,
       `#${tag}`,
-      '같은 키워드로 이어지는 개발 기록',
+      '이 키워드를 다룬 글을 모았습니다.',
     );
   for (const id of new Set(
     all.map((p) => p.data.series).filter((s): s is string => Boolean(s)),
@@ -78,7 +78,7 @@ export async function getStaticPaths() {
       members,
       `series/${id}`,
       members[0].data.seriesTitle ?? id,
-      '순서대로 읽는 개발 기록',
+      '하나의 주제를 이어서 다룬 글입니다.',
     );
   }
   return routes;
@@ -115,8 +115,8 @@ const pageUrl = (n: number) =>
   >
     <div class="blog-top">
       <header class="page-heading">
-        <div class="eyebrow">DEV LOG</div>
-        <h1>{title === '블로그' ? '경험을 지식으로 남기는 곳' : title}</h1>
+        <div class="eyebrow">개발 기록</div>
+        <h1>{title === '블로그' ? '개발하며 남긴 기록' : title}</h1>
         <p>{description}</p>
       </header>
       <Search />

@@ -601,7 +601,7 @@ const diagrams = [];
     'ai',
   );
   d.note(854, 877, 485, '실선: 서비스 연결 · 점선: Jenkins 배포');
-  d.note(854, 909, 485, '운영·테스트의 DB / Redis 컨테이너 분리');
+  d.note(854, 909, 485, '운영 환경과 테스트 환경의 DB·Redis 컨테이너 분리');
   d.legend(1114);
   diagrams.push(d);
 }
@@ -845,7 +845,7 @@ const diagrams = [];
     303,
     1101,
     1100,
-    'Gateway는 Chat·Notification에도 라우팅 · 관계형 데이터를 사용하는 서비스는 RDS 연결',
+    'Gateway는 Chat·Notification 요청도 전달합니다. 관계형 데이터를 사용하는 서비스는 RDS에 연결합니다.',
   );
   d.legend(1149);
   diagrams.push(d);
@@ -854,7 +854,7 @@ const diagrams = [];
   const d = new Diagram(
     'comatching-fc',
     'COMAtching FC',
-    '경기일 관중 서비스 · 티켓 인증 · 응원 성향 설문 · 매칭',
+    '경기장 관중 매칭 · 티켓 인증 · 응원 성향 설문',
     1440,
     890,
   );
@@ -1007,7 +1007,7 @@ const diagrams = [];
   const d = new Diagram(
     'harucut',
     'Harucut',
-    '사진 4장 → 합성 → 결과 확인 · 영속 작업과 실패 복구',
+    '사진 4장 업로드 → 합성 → 결과 확인 · 작업 기록과 실패 복구',
     1500,
     1150,
   );

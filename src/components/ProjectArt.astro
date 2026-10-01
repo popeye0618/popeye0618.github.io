@@ -8,13 +8,13 @@ const { theme } = Astro.props;
 <div class:list={['project-art', 'project-cover', theme]} aria-hidden="true">
   {theme === 'matching' ? (
     <>
-      <span class="cover-kicker">CONNECTIONS, MADE REAL.</span>
+      <span class="cover-kicker">CAMPUS MATCHING</span>
       <div class="connection-orbit orbit-one"></div>
       <div class="connection-orbit orbit-two"></div>
       <span class="cover-word matching-word">
         co<span>matching.</span>
       </span>
-      <span class="cover-caption">A CAMPUS. A FESTIVAL. A CONNECTION.</span>
+      <span class="cover-caption">가톨릭대학교 축제 매칭 서비스</span>
     </>
   ) : theme === 'football' ? (
     <>
@@ -23,11 +23,11 @@ const { theme } = Astro.props;
       </div>
       <span class="cover-kicker">BUCHEON FC × COMATCHING</span>
       <span class="cover-word football-word">
-        SAME
+        MATCH
         <br />
-        <i>ENERGY.</i>
+        <i>TOGETHER</i>
       </span>
-      <span class="cover-caption">MATCH DAY / CHEERING TOGETHER</span>
+      <span class="cover-caption">부천 FC 관중 매칭 서비스</span>
       <span class="football-number">FC</span>
     </>
   ) : (
@@ -36,12 +36,8 @@ const { theme } = Astro.props;
       <div class="photo-frame frame-two"></div>
       <div class="photo-frame frame-three"></div>
       <span class="cover-kicker">IMAGE PROCESSING / HARUCUT</span>
-      <span class="cover-word photo-word">
-        One more
-        <br />
-        <i>moment.</i>
-      </span>
-      <span class="cover-caption">CREATE. PROCESS. COMPLETE.</span>
+      <span class="cover-word photo-word">Harucut</span>
+      <span class="cover-caption">네 장의 사진을 한 장으로</span>
     </>
   )}
 </div>

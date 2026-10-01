@@ -11,7 +11,7 @@ const headings = Astro.props.headings.filter(
 {headings.length > 0 && (
   <aside class="toc" data-pagefind-ignore>
     <details open>
-      <summary>이 페이지에서</summary>
+      <summary>목차</summary>
       <nav aria-label="본문 목차">
         {headings.map((h) => (
           <a class:list={{ nested: h.depth === 3 }} href={`#${h.slug}`}>

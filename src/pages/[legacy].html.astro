@@ -17,7 +17,7 @@ const original = `https://github.com/popeye0618/popeye0618.github.io/blob/517283
     <h1 style="margin-top:16px">{item.title}</h1>
     {item.target ? (
       <>
-        <p>이 프로젝트의 최신 내용은 새 상세 페이지에서 볼 수 있습니다.</p>
+        <p>이 프로젝트는 새 상세 페이지에서 확인할 수 있습니다.</p>
         <a class="button" href={item.target}>
           새 페이지로 이동 →
         </a>
@@ -25,12 +25,12 @@ const original = `https://github.com/popeye0618/popeye0618.github.io/blob/517283
     ) : (
       <>
         <p>
-          기존 내용을 보관하고 있습니다. 설명과 측정 근거를 검토한 뒤 새
-          사이트로 옮길 예정입니다.
+          기존 글은 GitHub에 보관하고 있습니다. 설명과 측정 근거를 검토 중이며,
+          원문은 아래 링크에서 볼 수 있습니다.
         </p>
         <div class="actions">
           <a class="button" href="/blog/">
-            공개된 개발 기록 보기 →
+            공개된 글 보기 →
           </a>
           <a class="button secondary" href={original}>
             기존 원문 보기 ↗

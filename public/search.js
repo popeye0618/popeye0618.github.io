@@ -10,7 +10,7 @@ input?.addEventListener('input', () => {
   clearTimeout(timer);
   results.replaceChildren();
   if (!query) {
-    searchStatus.textContent = '제목과 본문에서 찾아보세요.';
+    searchStatus.textContent = '제목과 본문을 검색합니다.';
     return;
   }
   searchStatus.textContent = '검색 중…';
@@ -23,8 +23,8 @@ input?.addEventListener('input', () => {
       );
       if (current !== generation) return;
       searchStatus.textContent = response.results.length
-        ? `${response.results.length}개의 글을 찾았어요.${response.results.length > 10 ? ' 상위 10개를 표시합니다.' : ''}`
-        : '검색 결과가 없어요. 다른 단어로 검색해 보세요.';
+        ? `글 ${response.results.length}개를 찾았습니다.${response.results.length > 10 ? ' 상위 10개를 표시합니다.' : ''}`
+        : '검색 결과가 없습니다. 다른 단어로 검색해 보세요.';
       for (const item of matches) {
         const link = document.createElement('a');
         link.href = item.url;
@@ -39,7 +39,7 @@ input?.addEventListener('input', () => {
       if (current !== generation) return;
       engine = undefined;
       searchStatus.textContent =
-        '검색을 불러오지 못했어요. 잠시 후 다시 입력하거나 아래 목록을 이용해 주세요.';
+        '검색을 불러오지 못했습니다. 잠시 후 다시 검색하거나 아래 글 목록을 이용해 주세요.';
     }
   }, 180);
 });

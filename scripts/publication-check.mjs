@@ -4,6 +4,10 @@ import assert from 'node:assert/strict';
 import { chromium } from '@playwright/test';
 const created = [];
 const results = [];
+const existingPostCount = (
+  (await readFile('dist/rss.xml', 'utf8')).match(/<item>/g) ?? []
+).length;
+const expectedPublicCount = existingPostCount + 11;
 let browser;
 function build() {
   for (const args of [
@@ -55,13 +59,16 @@ try {
   await page.goto('http://127.0.0.1:4321/blog/');
   assert.equal(await page.locator('.post-row').count(), 10);
   await page.getByRole('link', { name: '다음 →', exact: true }).click();
-  assert.equal(await page.locator('.post-row').count(), 4);
+  assert.equal(
+    await page.locator('.post-row').count(),
+    Math.min(10, expectedPublicCount - 10),
+  );
   await page.goto(
     'http://127.0.0.1:4321/blog/categories/%EA%B2%80%EC%A6%9D%EC%9A%A9/',
   );
   assert.equal(await page.locator('.post-row').count(), 10);
   results.push(
-    '14 public posts paginate as 10 + 4; category pagination generated',
+    `${expectedPublicCount} public posts paginate correctly; category pagination generated`,
   );
   await page.goto('http://127.0.0.1:4321/blog/verification-fixture-0/');
   assert.equal(
@@ -88,10 +95,12 @@ try {
   await page.goto('http://127.0.0.1:4321/blog/');
   const hiddenCounts = await page.evaluate(async () => {
     const engine = await import('/pagefind/pagefind.js');
-    return Promise.all(
-      ['draftsentinel', 'futuresentinel', 'publicsentinel'].map(
-        async (q) => (await engine.search(q)).results.length,
-      ),
+    // Inspect the whole index: fuzzy search may return unrelated public posts.
+    const indexed = await engine.search(null);
+    const documents = await Promise.all(indexed.results.map((r) => r.data()));
+    return ['draftsentinel', 'futuresentinel', 'publicsentinel'].map(
+      (sentinel) =>
+        documents.filter((doc) => doc.content.includes(sentinel)).length,
     );
   });
   assert.deepEqual(hiddenCounts, [0, 0, 11]);

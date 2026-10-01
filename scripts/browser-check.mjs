@@ -61,7 +61,7 @@ for (const term of ['캐시', 'Spring', 'SQL', '작업', 'zzzzunlikelynotfound']
   await page.getByRole('searchbox').fill(term);
   await page.waitForFunction(
     () =>
-      !['검색 중…', '제목과 본문에서 찾아보세요.'].includes(
+      !['검색 중…', '제목과 본문을 검색합니다.'].includes(
         document.querySelector('#search-status').textContent,
       ),
   );

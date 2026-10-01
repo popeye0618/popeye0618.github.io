@@ -11,23 +11,23 @@ draft: false
 
 ## 1. 들어가며: 왜 OIDC인가?
 
-기존 프로젝트는 `OAuth 2.0` Authorization Code 방식을 사용하여 소셜 로그인을 구현하고 있었다. 하지만 OAuth 2.0은 본래 인가(Authorization)를 위한 프로토콜이지 인증(Authentication)을 위한 표준은 아니다.
+기존 프로젝트의 소셜 로그인은 `OAuth 2.0` Authorization Code 흐름을 사용하고 있었다. 제공자의 사용자 정보를 우리 서비스 회원으로 연결하는 과정에서, OIDC가 제공하는 표준화된 신원 정보도 활용해보고자 했다.
 
-반면, OIDC(OpenID Connect)는 OAuth 2.0 위에 구축된 **신원 확인(Identity) 프로토콜이**다. `ID Token(JWT)`을 통해 사용자의 신원을 바로 검증할 수 있고 표준화된 사용자 정보(Standard Claims)를 제공받을 수 있다는 장점이 있다.
+OAuth 2.0은 인가를 위한 프레임워크이고, OIDC(OpenID Connect)는 그 위에 인증 계층을 더한다. OIDC에서는 `ID Token`과 표준 클레임으로 로그인한 사용자에 관한 정보를 전달받는다. 이 정보를 인증에 사용하려면 토큰 검증도 올바르게 구성되어 있어야 한다.
 
-이번 글에서는 **OIDC를 지원하는 제공자(Kakao)는 OIDC로**, **네이버는 당시 구현에서 OAuth 2.0으로** 구현하여 하나의 프로젝트에서 두 방식이 공존하는 **하이브리드 아키텍처**를 리팩터링한 과정을 공유해본다.
+카카오는 OIDC로 연결하고, 네이버는 당시 구현의 OAuth 2.0 경로를 유지했다. 두 인증 경로를 나누면서도 회원 조회와 가입 처리는 공유하도록 정리한 과정을 기록한다.
 
-## 2. 설계: 공존을 위한 아키텍처 (SOLID)
+## 2. 설계: 제공자별 인증과 공통 회원 처리
 
 Spring Security는 `OAuth2User`와 `OidcUser` 인터페이스를 구분한다.
 
-하지만 우리 서비스의 도메인 로직(회원가입, 로그인)은 로그인 방식에 상관없이 동일해야 한다.
+우리 서비스에서 회원을 조회하거나 가입시키는 처리는 두 경로에서 공통으로 사용할 수 있었다.
 
 ### 핵심 전략
 
 1. **공통 사용자 타입:** `CustomOAuth2User`가 `OAuth2User`와 `OidcUser`를 동시에 구현하도록 했다.
-2. **SRP (단일 책임 원칙):** 회원가입 및 사용자 처리 로직은 `SocialLoginService`로 분리하고 `UserService`들은 단순히 위임만 한다.
-3. **OCP (개방-폐쇄 원칙):** `ProviderUser` 인터페이스와 팩토리 패턴을 사용하여 새로운 소셜 로그인이 추가되어도 기존 로직을 수정하지 않게 설계한다.
+2. **회원 처리 분리:** `CustomOAuth2UserService`와 `CustomOidcUserService`가 공통 회원 처리를 `SocialLoginService`에 위임하게 했다.
+3. **제공자 응답 매핑:** `ProviderUser` 인터페이스와 팩토리로 응답 형식의 차이를 모았다. 제공자를 추가할 때 공통 회원 처리 코드의 변경을 줄이는 것이 목적이었다.
 
 ### 아키텍처 흐름도
 
@@ -38,7 +38,7 @@ Spring Security는 `OAuth2User`와 `OidcUser` 인터페이스를 구분한다.
 
 ### 3-1. application.yml 설정
 
-Spring Security는 `scope`에 `openid` 포함 여부로 OIDC 사용을 결정한다.
+Spring Security의 OAuth2 Login에서는 `openid` scope를 통해 OIDC 경로를 사용한다. 아래는 두 등록의 scope 차이를 보여주는 설정 일부다. 실제 연동에는 제공자 엔드포인트, 클라이언트 인증 방식, 리다이렉트 URI 등의 설정도 필요하다.
 
 ```yaml
 spring:
@@ -65,9 +65,9 @@ spring:
             client-name: Naver
 ```
 
-### 3-2. CustomOAuth2User (다형성 확보)
+### 3-2. CustomOAuth2User로 공통 타입 구성
 
-OIDC 로그인 시에는 `idToken` 클레임 정보가 필수적이므로 두 인터페이스를 모두 구현한다.
+당시에는 로그인 성공 후 우리 서비스의 사용자 정보를 공통으로 다루기 위해 두 인터페이스를 함께 구현했다. 아래는 생성자와 일부 메서드를 생략한 코드다. 이 선택에는 OIDC 계약을 확인해야 하는 지점도 있어, 뒤에서 함께 정리한다.
 
 ```java
 @Getter
@@ -87,7 +87,7 @@ public class CustomOAuth2User extends CustomUserPrincipal implements OAuth2User,
 
 ### 3-3. 서비스 레이어 분리 (SocialLoginService)
 
-중복 코드를 방지하기 위해 비즈니스 로직을 중앙화.
+두 UserService에서 반복되던 회원 처리를 `SocialLoginService`로 모았다. 제공자 응답을 `ProviderUser`로 변환하고, 회원을 조회하거나 등록한 뒤 principal을 반환한다. 아래 코드는 흐름을 설명하기 위한 발췌로, `provider`를 구하는 부분과 생성자 인자 등은 생략했다.
 
 ```java
 @Service
@@ -115,28 +115,21 @@ public class SocialLoginService {
 
 ## 4. 트러블 슈팅
 
-### 네이버의 OIDC 호환성 문제
+### 네이버 연동에서 겪은 속성 매핑 오류
 
-당시 네이버도 OIDC로 연결하려고 시도했다. 이때 사용한 Discovery 설정과 제공자의 지원 범위는 추가 확인이 필요하다.
+당시 네이버도 OIDC 경로로 연결하려고 시도했지만, `user-name-attribute: sub`를 설정한 상태에서 `Attribute value cannot be null` 오류가 발생했다.
 
-하지만 `user-name-attribute: sub` 설정을 했음에도 `Attribute value cannot be null` 에러가 발생했다.
+확인한 사용자 정보 응답은 `{ "response": { "id": ... } }` 형태의 중첩 JSON이었다. 당시에는 이 응답 구조와 속성 매핑의 차이가 원인이라고 판단했다. 다만 오류 메시지와 응답 구조만으로 `StandardClaimAccessor`가 정확한 발생 지점이었다고 확정할 수는 없다. 사용한 Discovery 설정과 제공자의 지원 범위, 스택 트레이스를 함께 확인해야 한다.
 
-- **당시 원인으로 판단한 내용:** 네이버 UserInfo API 응답은 표준 Flat 구조가 아니라 `{ "response": { "id": ... } }` 형태의 중첩 JSON이었다. Spring Security의 엄격한 OIDC 검증 로직(`StandardClaimAccessor`)이 이를 파싱하지 못했다.
-- **해결:** 네이버는 과감하게 OAuth 2.0 방식을 유지하기로 결정했다. 당시 네이버 연동을 위해 억지로 커스텀 코드를 늘리는 것보다 전략을 분리하는 것이 유지보수에 유리하다고 판단했다.
+이 구현에서는 네이버의 OAuth 2.0 경로를 유지했다. 두 제공자의 처리 방식을 분리하면 네이버 연동에 필요한 매핑을 해당 경로 안에서 다루면서 공통 회원 처리는 그대로 사용할 수 있다고 판단했다.
 
-## 5. 느낀점
+## 5. 느낀 점과 남은 확인 사항
 
-확실히 id-token을 사용해서 인증까지 바로 진행되니 사용자 인증을 구현하는데 훨씬 간편해졌다.
+카카오 OIDC 경로에서는 ID Token과 표준 클레임을 기준으로 사용자 정보를 다룰 수 있었다. 제공자별 인증 경로를 나눈 뒤에도 회원 조회와 가입 처리를 공유할 수 있다는 점이 이번 정리에서 얻은 부분이다.
 
-또한 Standard Claims 형식이 정해져있어 OAuth2 공급자에 대한 어댑터를 구현하기도 쉬워졌다.
+공통 principal 타입은 다시 살펴볼 여지가 있다. `CustomOAuth2User`가 두 인터페이스를 함께 구현하더라도, 일반 OAuth2 로그인에서는 `idToken`이 없고 예시의 `getClaims()`는 빈 맵을 반환한다. 이 객체를 `OidcUser`로 사용하는 코드가 ID Token을 기대한다면 문제가 생길 수 있다. 호출 측을 확인하고 필요하면 principal 타입을 나누되 회원 매핑 로직을 공유하는 구성을 검토해야 한다.
 
-## 인증 경로를 분리하며 확인한 점
-
-당시 구성에서는 네이버 로그인 시 `Attribute value cannot be null` 오류를 겪었고 OAuth2 경로를 유지하기로 했습니다. 정확한 발생 지점을 좁히려면 사용자 정보 응답과 속성 매핑, Discovery 설정을 함께 확인해야 했습니다.
-
-Spring Security는 OAuth2UserService와 OidcUserService를 각각 설정할 수 있습니다. 공통 회원 처리 로직으로 연결하되, OIDC principal은 ID Token과 클레임 계약을 유지해야 합니다. 두 인터페이스를 함께 구현했다는 사실만으로 리스코프 치환 원칙을 만족하는 것은 아닙니다. 위 예시처럼 일반 OAuth2 사용자에 null ID Token을 허용한다면 호출 측의 계약을 확인하고, 필요하면 principal 타입은 나누고 도메인 매핑만 공유하는 방식을 검토할 수 있습니다.
-
-실제 연동에서는 사용자 매핑 코드 외에도 제공자 엔드포인트, 클라이언트 인증 방식, 리다이렉트 URI를 함께 설정해야 합니다. OIDC 경로는 ID Token의 검증과 클레임 전달까지 확인하는 것이 필요합니다.
+또한 여기의 코드는 사용자 매핑 구조를 설명한다. 실제 연동이 끝났는지 확인하려면 제공자별 설정, ID Token 검증, principal로 전달되는 클레임까지 함께 살펴봐야 한다.
 
 ## 참고 자료
 

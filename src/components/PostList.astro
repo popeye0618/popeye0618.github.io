@@ -33,15 +33,15 @@ const { posts, compact = false } = Astro.props;
                 #{t}
               </a>
             ))}
-            <span>{readingMinutes(p.body)}분 읽기</span>
+            <span>읽는 데 약 {readingMinutes(p.body)}분</span>
           </div>
         )}
       </article>
     ))
   ) : (
     <div class="empty">
-      <h3>아직 공개한 글이 없어요</h3>
-      <p>검토를 마친 개발 기록을 이곳에 차곡차곡 남길 예정입니다.</p>
+      <h3>아직 공개한 글이 없습니다</h3>
+      <p>공개한 글은 이곳에서 확인할 수 있습니다.</p>
     </div>
   )}
 </div>

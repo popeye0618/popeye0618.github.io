@@ -39,8 +39,8 @@ const related = (await projects()).filter((project) =>
       <div class="post-meta">
         <span>{p.category}</span>
         <time datetime={p.publishedAt}>{dateLabel(p.publishedAt)}</time>
-        <span>{readingMinutes(post.body)}분 읽기</span>
-        {p.updatedAt && <span>수정 {dateLabel(p.updatedAt)}</span>}
+        <span>읽는 데 약 {readingMinutes(post.body)}분</span>
+        {p.updatedAt && <span>최종 수정 {dateLabel(p.updatedAt)}</span>}
       </div>
       <h1 data-pagefind-meta="title">{p.title}</h1>
       <p>{p.description}</p>
@@ -83,7 +83,7 @@ const related = (await projects()).filter((project) =>
           )}
           {related.length > 0 && (
             <section class="related">
-              <h2>이 글의 프로젝트</h2>
+              <h2>관련 프로젝트</h2>
               {related.map((project) => (
                 <a href={`/projects/${project.data.slug}/`}>
                   {project.data.title} →

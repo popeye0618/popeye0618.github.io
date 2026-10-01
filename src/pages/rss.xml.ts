@@ -4,7 +4,7 @@ import type { APIContext } from 'astro';
 export async function GET(context: APIContext) {
   return rss({
     title: '천승환의 개발 기록',
-    description: '서비스를 만들고 운영하며 배운 기록',
+    description: '서비스를 개발하고 운영하며 배운 내용과 기술 학습 기록',
     site: context.site!,
     customData: '<language>ko</language>',
     items: (await publicPosts()).map((p) => ({
