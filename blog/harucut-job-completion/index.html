@@ -1,19 +1,58 @@
-<!DOCTYPE html><html lang="ko" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>빠른 접수와 확실한 완료는 다른 지표다 · 천승환</title><meta name="description" content="Harucut 이미지 합성에서 요청 접수, 최종 완료, 실패 건수를 나눠 본 이유입니다."><link rel="canonical" href="https://popeye0618.github.io/blog/harucut-job-completion/"><meta property="og:type" content="article"><meta property="og:title" content="빠른 접수와 확실한 완료는 다른 지표다"><meta property="og:description" content="Harucut 이미지 합성에서 요청 접수, 최종 완료, 실패 건수를 나눠 본 이유입니다."><meta property="og:url" content="https://popeye0618.github.io/blog/harucut-job-completion/"><meta property="og:locale" content="ko_KR"><meta property="og:image" content="https://popeye0618.github.io/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="천승환 블로그" href="/rss.xml"><script>
+<!DOCTYPE html><html lang="ko" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>이미지 합성 30건을 끝까지 처리하도록 바꾼 과정 · 천승환</title><meta name="description" content="Harucut 이미지 합성을 비동기로 바꾼 뒤 완료·실패 건수와 대기 시간을 함께 비교했습니다."><link rel="canonical" href="https://popeye0618.github.io/blog/harucut-job-completion/"><meta property="og:type" content="article"><meta property="og:title" content="이미지 합성 30건을 끝까지 처리하도록 바꾼 과정"><meta property="og:description" content="Harucut 이미지 합성을 비동기로 바꾼 뒤 완료·실패 건수와 대기 시간을 함께 비교했습니다."><meta property="og:url" content="https://popeye0618.github.io/blog/harucut-job-completion/"><meta property="og:locale" content="ko_KR"><meta property="og:image" content="https://popeye0618.github.io/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="천승환 블로그" href="/rss.xml"><script>
       try {
         document.documentElement.dataset.theme =
           localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
       } catch {
         document.documentElement.dataset.theme = 'light';
       }
-    </script><link rel="stylesheet" href="/_astro/Base.TLsQLrpm.css"></head><body><a class="skip" href="#main">본문으로 바로가기</a><header class="site-header"><div class="header-inner"><a class="brand" href="/" aria-label="천승환 홈"><span class="brand-mark" aria-hidden="true">s.</span>천승환<span class="brand-sub">개발 기록</span></a><nav aria-label="주 메뉴"><a href="/">홈</a><a href="/projects/">프로젝트</a><a href="/resume/">이력</a><a href="/blog/" aria-current="page">블로그</a></nav><button id="theme-toggle" class="icon-button" aria-label="어두운 테마로 전환" title="테마 전환"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.7 13.2A9 9 0 0 1 10.8 3.3 9 9 0 1 0 20.7 13.2Z"></path></svg></button></div></header><main id="main" class="container"><div class="breadcrumb"><a href="/blog/">블로그</a><span>/</span><a href="/blog/categories/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B8%B0%EB%A1%9D/">프로젝트 기록</a></div><div data-pagefind-body><header class="post-header"><div class="post-meta"><span>프로젝트 기록</span><time datetime="2026-09-28">2026.09.28</time><span>2분 읽기</span><span>수정 2026.09.30</span></div><h1 data-pagefind-meta="title">빠른 접수와 확실한 완료는 다른 지표다</h1><p>Harucut 이미지 합성에서 요청 접수, 최종 완료, 실패 건수를 나눠 본 이유입니다.</p><div class="tags"><a href="/blog/tags/aws/">#AWS</a><a href="/blog/tags/lambda/">#Lambda</a><a href="/blog/tags/sqs/">#SQS</a></div></header><div class="article-grid"><article class="card article-card"><div class="prose"><h2 id="접수-응답-이후의-작업">접수 응답 이후의 작업</h2>
-<p>이미지 합성을 비동기로 처리하면 요청을 받는 시점과 결과가 나오는 시점이 달라집니다. Harucut에서는 Lambda를 EVENT 방식으로 호출하고 SQS로 결과를 수신하며, 작업 상태를 저장해 처리와 복구를 추적하도록 구성했습니다.</p>
-<p>사용자는 접수 응답을 받았더라도 실제 합성이 완료될 때까지 기다려야 합니다. 그래서 요청 응답 시간 외에도 최종 완료 수, 실패 수와 전체 완료 시간을 함께 살펴봤습니다.</p>
-<h2 id="실패는-줄었지만-기다리는-시간은-늘었다">실패는 줄었지만 기다리는 시간은 늘었다</h2>
-<p>소형 이미지 30건 실험에서 개선 전 pool20 조건은 21건 완료·9건 실패, 개선 후는 30건 완료·0건 실패였습니다. 반면 최대 완료 시간은 약 10초에서 약 53초로 늘었습니다. 접수 p95도 1,446ms에서 1,520ms로 늘었습니다.</p>
-<p>이 결과의 핵심은 모든 작업이 빨라졌다는 것이 아니라, 해당 실험에서 더 많은 작업이 끝까지 완료됐다는 점입니다.</p>
-<h2 id="비교-조건을-남기는-이유">비교 조건을 남기는 이유</h2>
-<p>이전 구조도 pool2 조건에서는 30건을 모두 완료했습니다. pool20에서 실패가 발생한 차이를 보고 동시 처리 조건을 구분해 비교했습니다. 실험은 2 CPU·2GB, MySQL 8·Redis 7, Lambda 메모리 2,048MB·제한 시간 60초·동시성 10 조건이었습니다.</p>
-<p>다음 검증에서는 이미지 크기와 부하 지속 시간을 늘리고, 결과 처리 중 장애를 주어 재전달과 작업 복구가 이어지는지 확인할 필요가 있습니다.</p>
+    </script><link rel="stylesheet" href="/_astro/Base.TLsQLrpm.css"></head><body><a class="skip" href="#main">본문으로 바로가기</a><header class="site-header"><div class="header-inner"><a class="brand" href="/" aria-label="천승환 홈"><span class="brand-mark" aria-hidden="true">s.</span>천승환<span class="brand-sub">개발 기록</span></a><nav aria-label="주 메뉴"><a href="/">홈</a><a href="/projects/">프로젝트</a><a href="/resume/">이력</a><a href="/blog/" aria-current="page">블로그</a></nav><button id="theme-toggle" class="icon-button" aria-label="어두운 테마로 전환" title="테마 전환"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.7 13.2A9 9 0 0 1 10.8 3.3 9 9 0 1 0 20.7 13.2Z"></path></svg></button></div></header><main id="main" class="container"><div class="breadcrumb"><a href="/blog/">블로그</a><span>/</span><a href="/blog/categories/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EA%B8%B0%EB%A1%9D/">프로젝트 기록</a></div><div data-pagefind-body><header class="post-header"><div class="post-meta"><span>프로젝트 기록</span><time datetime="2026-09-28">2026.09.28</time><span>읽는 데 약 3분</span><span>최종 수정 2026.09.30</span></div><h1 data-pagefind-meta="title">이미지 합성 30건을 끝까지 처리하도록 바꾼 과정</h1><p>Harucut 이미지 합성을 비동기로 바꾼 뒤 완료·실패 건수와 대기 시간을 함께 비교했습니다.</p><div class="tags"><a href="/blog/tags/aws/">#AWS</a><a href="/blog/tags/lambda/">#Lambda</a><a href="/blog/tags/sqs/">#SQS</a></div></header><div class="article-grid"><article class="card article-card"><div class="prose"><h2 id="요청을-받은-뒤에도-합성은-계속된다">요청을 받은 뒤에도 합성은 계속된다</h2>
+<p>Harucut에서는 사진 네 장과 프레임으로 네 컷 이미지를 만듭니다. 합성을 맡은 Lambda를 EVENT 방식으로 호출하고 결과를 SQS로 받도록 바꾸면서, 요청을 접수한 시점과 결과 파일이 완성된 시점이 나뉘었습니다. 작업 상태는 DB에 저장해 처리 결과와 복구 대상을 확인하도록 했습니다.</p>
+<p>사용자가 결과를 내려받으려면 접수 응답 이후에도 합성이 끝날 때까지 기다려야 합니다. 구조 변경 전후를 비교할 때 접수 응답 시간과 함께 완료·실패 건수, 가장 늦은 작업이 끝나는 시간을 기록했습니다.</p>
+<h2 id="30건-중-21건-완료에서-30건-완료로">30건 중 21건 완료에서 30건 완료로</h2>
+<p>소형 이미지로 합성 요청 30건을 보냈습니다. 개선 전 pool20 조건과 개선 후 결과는 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>개선 전 pool20</th>
+<th>개선 후</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>요청 수</td>
+<td>30건</td>
+<td>30건</td>
+</tr>
+<tr>
+<td>완료</td>
+<td>21건</td>
+<td>30건</td>
+</tr>
+<tr>
+<td>실패</td>
+<td>9건</td>
+<td>0건</td>
+</tr>
+<tr>
+<td>최대 완료 시간</td>
+<td>약 10초</td>
+<td>약 53초</td>
+</tr>
+<tr>
+<td>접수 p95</td>
+<td>1,446ms</td>
+<td>1,520ms</td>
+</tr>
+</tbody>
+</table>
+<p>개선 후에는 30건이 모두 완료됐지만, 가장 늦게 끝난 작업은 약 53초가 걸렸습니다. 실패 건수와 함께 사용자가 결과를 기다리는 시간도 다음 검증에서 확인해야 할 항목으로 남았습니다.</p>
+<h2 id="pool2에서도-30건은-모두-완료됐다">pool2에서도 30건은 모두 완료됐다</h2>
+<p>기존 구조 역시 pool2 조건에서는 30건을 모두 완료했습니다. 실패 9건은 pool20 조건에서 발생한 결과입니다. 따라서 이번 결과는 기존 구조가 항상 실패한다는 의미로 일반화할 수 없으며, 두 구조를 비교할 때 동시 처리 조건을 함께 봐야 합니다.</p>
+<p>실험 환경은 2 CPU·2GB, MySQL 8·Redis 7, Lambda 메모리 2,048MB·제한 시간 60초·동시성 10이었습니다. 소형 이미지 30건을 대상으로 한 비교이므로 큰 이미지나 지속적인 부하에서의 결과는 아직 확인이 필요합니다.</p>
+<h2 id="다음-실험에서-확인할-내용">다음 실험에서 확인할 내용</h2>
+<p>이미지 크기와 부하 지속 시간을 늘렸을 때의 완료·실패 건수와 대기 시간은 추가 검증이 필요합니다. 결과 처리 도중 장애가 발생했을 때 SQS 메시지가 재전달되는지, DB에 남은 작업을 다시 찾아 복구할 수 있는지도 검증할 항목입니다.</p>
+<p><a href="/projects/harucut/">Harucut 프로젝트</a>에는 작업 저장, 선점, 결과 수신과 복구 흐름을 정리했습니다.</p>
 <h2 id="원본-기록">원본 기록</h2>
 <ul>
 <li><a href="https://github.com/popeye0618/Harucut/pull/21">구조 변경 PR #21</a></li>
@@ -21,4 +60,4 @@
 <li><a href="https://github.com/popeye0618/Harucut/blob/main/monitoring/loadtest/results/before-pool20.json">개선 전 pool20 결과</a></li>
 <li><a href="https://github.com/popeye0618/Harucut/blob/main/monitoring/loadtest/results/after.json">개선 후 결과</a></li>
 </ul>
-</div><div data-pagefind-ignore><section class="related"><h2>이 글의 프로젝트</h2><a href="/projects/harucut/">Harucut →</a></section></div></article><aside class="toc" data-pagefind-ignore><details open><summary>이 페이지에서</summary><nav aria-label="본문 목차"><a href="#접수-응답-이후의-작업">접수 응답 이후의 작업</a><a href="#실패는-줄었지만-기다리는-시간은-늘었다">실패는 줄었지만 기다리는 시간은 늘었다</a><a href="#비교-조건을-남기는-이유">비교 조건을 남기는 이유</a><a href="#원본-기록">원본 기록</a></nav></details></aside><script type="module">var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))),n=!1,r=()=>{n=!1;let r=0,i=parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)+24;t.forEach((e,t)=>{e&&e.getBoundingClientRect().top<=i&&(r=t)}),e.forEach((e,t)=>{t===r?e.setAttribute(`aria-current`,`location`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script></div></div></main><footer class="site-footer container"><div><strong>천승환</strong><p>만들고, 운영하고, 배운 것을 기록합니다.</p></div><div class="footer-links"><a href="https://github.com/popeye0618">GitHub ↗</a><a href="mailto:popeye0618@gmail.com">이메일 ↗</a><a href="https://www.linkedin.com/in/seunghwan-chun-8516a6403/" rel="noopener noreferrer">LinkedIn ↗</a></div><small>© 2026 Seunghwan Chun</small></footer><script type="module">document.querySelectorAll(`a[href]`).forEach(e=>{let t=new URL(e.href);[`http:`,`https:`].includes(t.protocol)&&t.origin!==location.origin&&(e.target=`_blank`,e.relList.add(`noopener`,`noreferrer`))});var e=document.querySelector(`#theme-toggle`),t=()=>e?.setAttribute(`aria-label`,document.documentElement.dataset.theme===`dark`?`밝은 테마로 전환`:`어두운 테마로 전환`);t(),e?.addEventListener(`click`,()=>{let e=document.documentElement.dataset.theme===`dark`?`light`:`dark`;document.documentElement.dataset.theme=e;try{localStorage.setItem(`theme`,e)}catch{}t()}),document.querySelectorAll(`.prose pre`).forEach(e=>{let t=document.createElement(`button`);t.className=`copy-code`,t.textContent=`복사`,t.setAttribute(`aria-label`,`코드 복사`),t.addEventListener(`click`,async()=>{try{await navigator.clipboard.writeText(e.querySelector(`code`)?.textContent??``),t.textContent=`복사됨`}catch{t.textContent=`직접 선택해 복사`}setTimeout(()=>t.textContent=`복사`,2e3)}),e.append(t)}),document.querySelector(`[data-print]`)?.addEventListener(`click`,()=>window.print());</script></body></html>
+</div><div data-pagefind-ignore><section class="related"><h2>관련 프로젝트</h2><a href="/projects/harucut/">Harucut →</a></section></div></article><aside class="toc" data-pagefind-ignore><details open><summary>목차</summary><nav aria-label="본문 목차"><a href="#요청을-받은-뒤에도-합성은-계속된다">요청을 받은 뒤에도 합성은 계속된다</a><a href="#30건-중-21건-완료에서-30건-완료로">30건 중 21건 완료에서 30건 완료로</a><a href="#pool2에서도-30건은-모두-완료됐다">pool2에서도 30건은 모두 완료됐다</a><a href="#다음-실험에서-확인할-내용">다음 실험에서 확인할 내용</a><a href="#원본-기록">원본 기록</a></nav></details></aside><script type="module">var e=[...document.querySelectorAll(`.toc a`)],t=e.map(e=>document.getElementById(decodeURIComponent(e.hash.slice(1)))),n=!1,r=()=>{n=!1;let r=0,i=parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)+24;t.forEach((e,t)=>{e&&e.getBoundingClientRect().top<=i&&(r=t)}),e.forEach((e,t)=>{t===r?e.setAttribute(`aria-current`,`location`):e.removeAttribute(`aria-current`)})};window.addEventListener(`scroll`,()=>{n||(n=!0,requestAnimationFrame(r))},{passive:!0}),r();</script></div></div></main><footer class="site-footer container"><div><strong>천승환</strong><p>개발하고 운영하며 배운 내용을 기록합니다.</p></div><div class="footer-links"><a href="https://github.com/popeye0618">GitHub ↗</a><a href="mailto:popeye0618@gmail.com">이메일 ↗</a><a href="https://www.linkedin.com/in/seunghwan-chun-8516a6403/" rel="noopener noreferrer">LinkedIn ↗</a></div><small>© 2026 Seunghwan Chun</small></footer><script type="module">document.querySelectorAll(`a[href]`).forEach(e=>{let t=new URL(e.href);[`http:`,`https:`].includes(t.protocol)&&t.origin!==location.origin&&(e.target=`_blank`,e.relList.add(`noopener`,`noreferrer`))});var e=document.querySelector(`#theme-toggle`),t=()=>e?.setAttribute(`aria-label`,document.documentElement.dataset.theme===`dark`?`밝은 테마로 전환`:`어두운 테마로 전환`);t(),e?.addEventListener(`click`,()=>{let e=document.documentElement.dataset.theme===`dark`?`light`:`dark`;document.documentElement.dataset.theme=e;try{localStorage.setItem(`theme`,e)}catch{}t()}),document.querySelectorAll(`.prose pre`).forEach(e=>{let t=document.createElement(`button`);t.className=`copy-code`,t.textContent=`복사`,t.setAttribute(`aria-label`,`코드 복사`),t.addEventListener(`click`,async()=>{try{await navigator.clipboard.writeText(e.querySelector(`code`)?.textContent??``),t.textContent=`복사됨`}catch{t.textContent=`직접 선택해 복사`}setTimeout(()=>t.textContent=`복사`,2e3)}),e.append(t)}),document.querySelector(`[data-print]`)?.addEventListener(`click`,()=>window.print());</script></body></html>
