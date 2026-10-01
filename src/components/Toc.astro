@@ -1,0 +1,57 @@
+---
+import type { MarkdownHeading } from 'astro';
+interface Props {
+  headings: MarkdownHeading[];
+}
+const headings = Astro.props.headings.filter(
+  (h) => h.depth === 2 || h.depth === 3,
+);
+---
+
+{headings.length > 0 && (
+  <aside class="toc" data-pagefind-ignore>
+    <details open>
+      <summary>목차</summary>
+      <nav aria-label="본문 목차">
+        {headings.map((h) => (
+          <a class:list={{ nested: h.depth === 3 }} href={`#${h.slug}`}>
+            {h.text}
+          </a>
+        ))}
+      </nav>
+    </details>
+  </aside>
+)}
+<script>
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc a')];
+  const sections = links.map((link) =>
+    document.getElementById(decodeURIComponent(link.hash.slice(1))),
+  );
+  let scheduled = false;
+  const highlight = () => {
+    scheduled = false;
+    let current = 0;
+    const threshold =
+      parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) +
+      24;
+    sections.forEach((section, index) => {
+      if (section && section.getBoundingClientRect().top <= threshold)
+        current = index;
+    });
+    links.forEach((link, index) => {
+      if (index === current) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!scheduled) {
+        scheduled = true;
+        requestAnimationFrame(highlight);
+      }
+    },
+    { passive: true },
+  );
+  highlight();
+</script>

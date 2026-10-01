@@ -1,0 +1,47 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { dateLabel } from '../lib/content';
+import { readingMinutes } from '../lib/publication.mjs';
+interface Props {
+  posts: CollectionEntry<'posts'>[];
+  compact?: boolean;
+}
+const { posts, compact = false } = Astro.props;
+---
+
+<div class:list={['post-list', { compact }]}>
+  {posts.length ? (
+    posts.map((p) => (
+      <article class="post-row">
+        <a class="post-link" href={`/blog/${p.data.slug}/`}>
+          <div class="post-meta">
+            <span>{p.data.category}</span>
+            <time datetime={p.data.publishedAt}>
+              {dateLabel(p.data.publishedAt)}
+            </time>
+          </div>
+          <h3>
+            {p.data.title}
+            <span aria-hidden="true">↗</span>
+          </h3>
+          {!compact && <p>{p.data.description}</p>}
+        </a>
+        {!compact && (
+          <div class="tags">
+            {p.data.tags.map((t) => (
+              <a href={`/blog/tags/${encodeURIComponent(t.toLowerCase())}/`}>
+                #{t}
+              </a>
+            ))}
+            <span>읽는 데 약 {readingMinutes(p.body)}분</span>
+          </div>
+        )}
+      </article>
+    ))
+  ) : (
+    <div class="empty">
+      <h3>아직 공개한 글이 없습니다</h3>
+      <p>공개한 글은 이곳에서 확인할 수 있습니다.</p>
+    </div>
+  )}
+</div>

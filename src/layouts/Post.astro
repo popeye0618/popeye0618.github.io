@@ -1,0 +1,99 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import Base from './Base.astro';
+import Toc from '../components/Toc.astro';
+import { publicPosts, projects, dateLabel } from '../lib/content';
+import { readingMinutes } from '../lib/publication.mjs';
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const p = post.data;
+const series = p.series
+  ? (await publicPosts())
+      .filter((other) => other.data.series === p.series)
+      .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0))
+  : [];
+const index = series.findIndex((other) => other.id === post.id);
+const prev = series[index - 1],
+  next = series[index + 1];
+const related = (await projects()).filter((project) =>
+  p.relatedProjects.includes(project.data.slug),
+);
+---
+
+<Base title={p.title} description={p.description}>
+  <div class="breadcrumb">
+    <a href="/blog/">블로그</a>
+    <span>/</span>
+    <a
+      href={`/blog/categories/${encodeURIComponent(p.category.toLowerCase())}/`}
+    >
+      {p.category}
+    </a>
+  </div>
+  <div data-pagefind-body>
+    <header class="post-header">
+      <div class="post-meta">
+        <span>{p.category}</span>
+        <time datetime={p.publishedAt}>{dateLabel(p.publishedAt)}</time>
+        <span>읽는 데 약 {readingMinutes(post.body)}분</span>
+        {p.updatedAt && <span>최종 수정 {dateLabel(p.updatedAt)}</span>}
+      </div>
+      <h1 data-pagefind-meta="title">{p.title}</h1>
+      <p>{p.description}</p>
+      <div class="tags">
+        {p.tags.map((t) => (
+          <a href={`/blog/tags/${encodeURIComponent(t.toLowerCase())}/`}>
+            #{t}
+          </a>
+        ))}
+      </div>
+    </header>
+    <div class="article-grid">
+      <article class="card article-card">
+        <div class="prose">
+          <Content />
+        </div>
+        <div data-pagefind-ignore>
+          {p.series && (
+            <div class="series-box">
+              <a href={`/blog/series/${p.series}/`}>
+                {p.seriesTitle} · {p.seriesOrder}번째 글 →
+              </a>
+            </div>
+          )}
+          {(prev || next) && (
+            <nav class="series-nav" aria-label="시리즈 글 이동">
+              {prev && (
+                <a href={`/blog/${prev.data.slug}/`}>
+                  <span>← 이전 글</span>
+                  {prev.data.title}
+                </a>
+              )}
+              {next && (
+                <a href={`/blog/${next.data.slug}/`}>
+                  <span>다음 글 →</span>
+                  {next.data.title}
+                </a>
+              )}
+            </nav>
+          )}
+          {related.length > 0 && (
+            <section class="related">
+              <h2>관련 프로젝트</h2>
+              {related.map((project) => (
+                <a href={`/projects/${project.data.slug}/`}>
+                  {project.data.title} →
+                </a>
+              ))}
+            </section>
+          )}
+        </div>
+      </article>
+      <Toc headings={headings} />
+    </div>
+  </div>
+</Base>
