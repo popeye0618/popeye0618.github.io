@@ -2,7 +2,7 @@
 
 기준 커밋: 517283217b82abfca2227be2f7ae0fd9c2d9edcc
 
-기존 루트 HTML·CSS는 이력 보존 및 검토를 위해 유지합니다. Astro는 `src/pages`와 `public`만 배포하므로 기존 루트 문서는 새 사이트에 섞이지 않습니다. 삭제 없이 원문과 변경 이력을 보존합니다.
+기존 루트 HTML·CSS는 Astro 사이트로 교체하면서 현재 소스에서 제거했습니다. 원문은 위 기준 커밋의 Git 이력에서 확인할 수 있습니다. Astro는 `src/pages`와 `public`을 배포하며, 기존 주소의 이동·보관 안내는 `src/pages/[legacy].html.astro`에서 생성합니다.
 
 | 기존 주소 | 처리 |
 |---|---|

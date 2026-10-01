@@ -116,7 +116,9 @@ pnpm dev
 
 ## 배포와 복구
 
-GitHub Pages는 **Deploy from a branch → gh-pages → / (root)**로 설정되어 있습니다. 로컬에서 검사·빌드한 `dist`를 `gh-pages`에 게시하며, 별도 유료 호스팅은 사용하지 않습니다. 소스 브랜치의 Actions는 검사만 수행하며 사이트를 덮어쓰지 않습니다.
+사이트 소스는 `main` 브랜치에서 관리합니다. GitHub Pages는 **Deploy from a branch → gh-pages → / (root)**로 설정되어 있습니다. 로컬에서 검사·빌드한 `dist`를 `gh-pages`에 게시하며, 별도 유료 호스팅은 사용하지 않습니다.
+
+PR·push마다 실행하던 사용자 정의 검사 워크플로는 제거했습니다. GitHub 계정의 결제 문제로 작업이 시작되지 못하면서 실패 알림이 반복됐기 때문입니다. 검사는 아래 명령으로 로컬에서 수행하고, GitHub의 기본 Pages 배포 작업은 유지합니다. `main`에 push하는 것만으로는 사이트가 배포되지 않습니다.
 
 ```sh
 pnpm test
