@@ -6,7 +6,7 @@ const metric = z.object({
   key: z.string(),
   label: z.string(),
   value: z.string(),
-  context: z.string(),
+  context: z.string().optional(),
   source: z.string().optional(),
 });
 const projects = defineCollection({
